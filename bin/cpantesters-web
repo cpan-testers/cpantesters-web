@@ -1,0 +1,33 @@
+#!/usr/bin/env perl
+# PODNAME: cpantesters-web
+our $VERSION = '0.001';
+
+=head1 NAME
+
+cpantesters-web -- Start the CPAN Testers web application
+
+=head1 SYNOPSIS
+
+  cpantesters-web daemon
+  cpantesters-web help
+
+=head1 DESCRIPTION
+
+This program loads the CPAN Testers web application,
+a L<Mojolicious> web application. For more detailed help, see
+C<cpantesters-web help>.
+
+=head1 SEE ALSO
+
+L<CPAN::Testers::Web>, L<Mojolicious>
+
+=cut
+
+use strict;
+use warnings;
+use File::Spec::Functions qw( catdir updir );
+use FindBin ();
+use lib "$FindBin::Bin/../lib";
+
+require Mojolicious::Commands;
+Mojolicious::Commands->start_app( 'CPAN::Testers::Web' );

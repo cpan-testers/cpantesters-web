@@ -6,10 +6,11 @@ and patches.
 
 ## Communication
 
-XXX Add communication forums
-
-If you're not sure about anything, please open an issue and ask, or
-e-mail the project founder <preaction@cpan.org> or [talk to us on IRC on
+If you're not sure about anything, please [open an issue on Github
+issues](http://github.com/cpan-testers/cpantesters-api/issues) and ask, or ask
+the [CPAN Testers Discuss mailing
+list](http://lists.perl.org/list/cpan-testers-discuss.html), or
+e-mail the project leader <preaction@cpan.org> or [talk to us on IRC on
 irc.perl.org channel #cpantesters-discuss](https://chat.mibbit.com/?channel=%23cpantesters-discuss&server=irc.perl.org)!
 
 ## Standard of Conduct
@@ -28,10 +29,19 @@ Remember, all the people who contribute to this project are volunteers.
 
 ## About this Project
 
+The [CPAN Testers project](http://cpantesters.org) is an effort to
+ensure the stability and reliability of Perl and CPAN by running the
+test suites of uploaded CPAN distributions on various Perl versions,
+OSes, and hardware; collecting the results in a database; and alerting
+distribution authors when there is a test failure.
+
 ### Project Goals
 
-XXX Add project goals
-
+The CPAN Testers Web project is a web application for exploring,
+searching, and viewing CPAN Testers data. The goal of this subproject is
+to be the primary way users interact with CPAN Testers. This application
+configures how CPAN authors get their test report alerts, and helps
+authors and testers communicate to fix problems.
 
 ### Repository Layout
 
@@ -43,6 +53,19 @@ below.
 Modules are located in the `lib/` directory. Most of the functionality
 of the project should be in a module. If the functionality should be
 available to users from a script, the script should call the module.
+
+##### `lib/CPAN/Testers/Web.pm`
+
+This is the main application class. This project uses [the Mojolicious
+web framework](http://mojolicious.org). The main startup routines are
+located in this file: Preparing configuration and logging, setting up
+the URL routes to the various controllers, locating the template
+directory (see below).
+
+##### `lib/CPAN/Testers/Web/Controller/`
+
+This is where controllers are kept. Each controller handles a section of
+the application.
 
 #### `bin/`
 
@@ -68,6 +91,37 @@ code are stored in `share/`. This includes default config files, default
 content, informational files, read-only databases, and other such. This
 project uses [File::Share](http://metacpan.com/pod/File::Share) to
 locate these files at run-time.
+
+##### `share/templates`
+
+This is where Mojolicious templates should go. The templates are located
+after install using [File::Share](http://metacpan.org/pod/File::Share).
+
+##### `share/public`
+
+This is where extra, ancillary files should go (like CSS, JavaScript,
+and images). These files are located after install using
+[File::Share](http://metacpan.org/pod/File::Share).
+
+#### `Rexfile`
+
+This file contains all the [Rex](http://rexify.org) tasks to deploy this
+project to CPAN Testers servers (or development VMs). This `Rexfile`
+coordinates with [the CPAN Testers deploy
+project](http://github.com/cpan-testers/cpantesters-deploy) (which
+prepares a machine for a specific role) to allow deploying the
+application with minimal privileges.
+
+#### `etc/`
+
+This directory contains additional things that aren't examples (which
+would go in `eg/`), but also must not be part of the CPAN distribution
+(which would go in `share/`).
+
+##### `etc/runit/`
+
+These are [runit](smarden.org/runit/) service files used by CPAN Testers
+to run the web daemon.
 
 ## What to Contribute
 
