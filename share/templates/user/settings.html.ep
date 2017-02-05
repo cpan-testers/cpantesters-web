@@ -1,0 +1,178 @@
+
+% title 'Settings';
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Settings</h1>
+
+            <form method="POST">
+
+                <h2>Notifications</h2>
+
+                <h3>Distribution Notifications</h3>
+
+                <p>These are the default notification settings for
+                incoming reports on your CPAN distributions. You can
+                edit individual distribution notification settings on <a
+                href="/user/dist">the Distributions page</a>.</p>
+
+                <p>There are RSS, Atom, and JSON feeds for all data as
+                well, if you prefer those to e-mail.</p>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox"> Disable Notifications
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>E-Mail Report Frequency</label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-frequency"> Every Report
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-frequency"> Daily
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-frequency"> Weekly
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-frequency"> Monthly
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Distribution Version</label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-version">
+                            Latest
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-version">
+                            All
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Report Status</label>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="report-status">
+                            PASS
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="report-status">
+                            FAIL
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="report-status">
+                            UNKNOWN
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="report-status">
+                            N/A
+                        </label>
+                    </div>
+                </fieldset>
+
+                <div class="form-group">
+                    <label>Ignore Language Versions</label>
+                    <select class="form-control" multiple>
+                        <option>5.8.0</option>
+                        <option>5.8.1</option>
+                        <option>5.8.2</option>
+                        <option>5.8.3</option>
+                        <option>5.8.4</option>
+                        <option>5.8.5</option>
+                        <option>5.8.6</option>
+                        <option>5.8.7</option>
+                        <option>5.8.8</option>
+                        <option>5.8.9</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ignore Platforms</label>
+                    <select class="form-control" multiple>
+                        <option value="aix">AIX</option>
+                        <option value="beos">BeOS</option>
+                        <option value="bitrig">BITRIG</option>
+                        <option value="bsdos">BSD/OS</option>
+                        <option value="gnukfreebsd">Debian GNU/kFreeBSD</option>
+                        <option value="dragonfly">Dragonfly BSD</option>
+                        <option value="freebsd">FreeBSD</option>
+                        <option value="gnu">GNU Hurd</option>
+                        <option value="linux">GNU/Linux</option>
+                        <option value="haiku">Haiku</option>
+                        <option value="hpux">HP-UX</option>
+                        <option value="interix">Interix</option>
+                        <option value="irix">IRIX</option>
+                        <option value="macos">Mac OS classic</option>
+                        <option value="darwin">Mac OS X</option>
+                        <option value="midnightbsd">MidnightBSD</option>
+                        <option value="minix">MINIX</option>
+                        <option value="mirbsd">MirOS BSD</option>
+                        <option value="netbsd">NetBSD</option>
+                        <option value="openbsd">OpenBSD</option>
+                        <option value="os2">OS/2</option>
+                        <option value="os390">OS390/zOS</option>
+                        <option value="nto">QNX Neutrino</option>
+                        <option value="sco">SCO</option>
+                        <option value="solaris">SunOS/Solaris</option>
+                        <option value="dec_osf">Tru64</option>
+                        <option value="vms">VMS</option>
+                        <option value="cygwin">Windows (Cygwin)</option>
+                        <option value="mswin32">Windows (Win32)</option>
+                    </select>
+                </div>
+
+                <h3>Website Notifications</h3>
+
+                <div class="form-group">
+                    <label>Inbox notifications</label>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-frequency"> Every Message
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-frequency"> Daily
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-frequency"> Weekly
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="report-frequency"> Monthly
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+</div>

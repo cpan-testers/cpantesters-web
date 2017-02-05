@@ -1,0 +1,61 @@
+
+% title 'Search Testers';
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+
+            <h1>Search Testers</h1>
+
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="search">Search:</label>
+                    <input id="search" class="form-control"
+                        placeholder="Search Testers"
+                    >
+                </div>
+                <button class="btn btn-primary">Search</button>
+            </form>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Tester</th>
+                        <th>Last Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>
+                            <a href="/tester/ANDK">ANDK</a>
+                        </td>
+                        <td>
+                            <time>2015-01-11 00:12:34</time>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <a href="/tester/BINGOS">BINGOS</a>
+                        </td>
+                        <td>
+                            <time>2015-01-10 01:24:12</time>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <a href="/tester/SREZIC">SREZIC</a>
+                        </td>
+                        <td>
+                            <time>2015-01-07 01:24:12</time>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

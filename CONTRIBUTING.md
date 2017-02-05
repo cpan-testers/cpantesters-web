@@ -103,6 +103,25 @@ This is where extra, ancillary files should go (like CSS, JavaScript,
 and images). These files are located after install using
 [File::Share](http://metacpan.org/pod/File::Share).
 
+##### `share/package.json`
+
+This is the [NPM package manifest](https://docs.npmjs.com/getting-started/using-a-package.json).
+This is where our JavaScript and CSS dependencies are declared. To
+install these dependencies, you must have `npm` installed, and then do:
+
+    cd share
+    npm install
+
+JavaScript and CSS dependencies are installed by `npm` and bundled with
+[Mojolicious::Plugin::AssetPack](http://metacpan.org/pod/Mojolicious::Plugin::AssetPack).
+AssetPack bundles are built in `sub startup` of the `CPAN::Testers::Web`
+module.
+
+NPM will install these dependencies in `share/node_modules`. The
+contents of this directory must not be commited to the git repository
+(for now, as I don't want to bloat it by tracking versions of
+everything).
+
 #### `Rexfile`
 
 This file contains all the [Rex](http://rexify.org) tasks to deploy this

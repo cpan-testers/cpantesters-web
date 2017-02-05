@@ -1,0 +1,469 @@
+
+% title 'Message';
+
+% content_for feeds => begin
+<link rel="alternate" type="application/rss+xml" href="/user/inbox.rss" />
+<link rel="alternate" type="application/atom+xml" href="/user/inbox.atom" />
+<link rel="alternate" type="application/json" href="/user/inbox.json" />
+% end
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 message">
+            <a href="/user/inbox" class="btn btn-default">
+                <i class="fa fa-arrow-left"></i> Back
+            </a>
+
+            <h1>Re: FAIL Statocles-0.074 (perl 5.24.0-RC1, x86-64-linux)</h1>
+
+            <article class="row">
+                <dl class="col-md-2">
+                    <dt>From:</dt>
+                    <dd>Andreas Koenig</dd>
+                    <dt>Date:</dt>
+                    <dd>2016-04-24T19:01:54Z</dd>
+                </dl>
+                <div class="col-md-10">
+                    <p>No, it looks like someone just called it a FAIL so
+                    that they could make a mockup of this conversation for
+                    the website.</p>
+                    <p>This conversation doesn't exist, and indeed, the
+                    report never happened</p>
+                </div>
+            </article>
+
+            <article class="row">
+                <dl class="col-md-2">
+                    <dt>From:</dt>
+                    <dd>Doug Bell</dd>
+                    <dt>Date:</dt>
+                    <dd>2016-04-20T14:12:11Z</dd>
+                </dl>
+                <div class="col-md-10">
+                    <p>Hey, this report seems to have passed, but it's
+                    showing up as a FAIL. Could you take a look and see if
+                    there's anything wrong with your tester?</p>
+                    <p>Thanks!</p>
+                </div>
+            </article>
+
+            <article class="row">
+                <dl class="col-md-2">
+                    <dt>From:</dt>
+                    <dd>Andreas Koenig</dd>
+                    <dt>Date:</dt>
+                    <dd>2016-04-17T08:16:03Z</dd>
+                </dl>
+                <div class="col-md-10">
+                    <pre>
+Dear Doug Bell,
+
+This is a computer-generated report for Statocles-0.074
+on perl 5.24.0, created by CPAN-Reporter-1.2017.
+
+Thank you for uploading your work to CPAN.  Congratulations!
+All tests were successful.
+
+Sections of this report:
+
+    * Tester comments
+    * Program output
+    * Prerequisites
+    * Environment and other context
+
+------------------------------
+TESTER COMMENTS
+------------------------------
+
+Additional comments from tester:
+
+this report is from an automated smoke testing program
+and was not reviewed by a human for accuracy
+
+------------------------------
+PROGRAM OUTPUT
+------------------------------
+
+Output from '/usr/bin/make test':
+
+Skip blib/lib/auto/share/dist/Statocles/theme/default/plugin/highlight/solarized-dark.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/robots.txt.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/plugin/highlight/default.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/blog/index.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/perldoc/pod.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/layout.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/blog/post.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/css/statocles-default.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/footer.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/create/blog/post.markdown (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/sitemap.xml.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/perldoc/source.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/blog/index.rss.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/css/statocles-bootstrap.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/create/site.yml (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/create/page/index.markdown (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/css/skeleton.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/head_after.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/header_after.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/sidebar_before.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/plugin/highlight/default.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/blog/index.atom.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/css/normalize.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/robots.txt.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/perldoc/pod.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/blog/index.rss.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/style.html (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/blog/post.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/zsh/_statocles (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/footer.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/layout.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/style.html (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/blog/index.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/perldoc/source.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/plugin/highlight/solarized-light.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/blog/index.atom.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/site/navbar_extra.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/bootstrap/plugin/highlight/solarized-dark.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/create/script.yml (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/sitemap.xml.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/plugin/highlight/solarized-light.css (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/header_after.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/head_after.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/navbar_extra.html.ep (unchanged)
+Skip blib/lib/auto/share/dist/Statocles/theme/default/site/sidebar_before.html.ep (unchanged)
+PERL_DL_NONLAZY=1 "/tmp/basesmoker-reloperl-6r1_/bin/perl" "-MExtUtils::Command::MM" "-MTest::Harness" "-e" "undef *Test::Harness::Switches; test_harness(0, 'blib/lib', 'blib/arch')" t/*.t t/app/*.t t/app/basic/*.t t/app/blog/*.t t/app/perldoc/*.t t/app/role/*.t t/bin/*.t t/command/*.t t/deploy/*.t t/page/*.t t/plugin/*.t t/site/*.t t/store/*.t t/template/*.t t/theme/*.t
+t/00-compile.t ................ ok
+# 
+# Versions for all modules listed in MYMETA.json (including optional ones):
+# 
+# === Configure Requires ===
+# 
+#     Module                  Want    Have
+#     ----------------------- ---- -------
+#     ExtUtils::MakeMaker      any 7.10_01
+#     File::ShareDir::Install 0.06    0.10
+# 
+# === Build Requires ===
+# 
+#     Module              Want    Have
+#     ------------------- ---- -------
+#     ExtUtils::MakeMaker  any 7.10_01
+# 
+# === Test Requires ===
+# 
+#     Module                  Want     Have
+#     ------------------- -------- --------
+#     Capture::Tiny            any     0.36
+#     Dir::Self                any     0.11
+#     ExtUtils::MakeMaker      any  7.10_01
+#     File::Spec               any     3.63
+#     IO::Handle               any     1.36
+#     IPC::Open3               any     1.20
+#     Storable                 any     2.56
+#     Test::Deep               any    1.120
+#     Test::Differences       0.64     0.64
+#     Test::Exception          any     0.43
+#     Test::Lib                any    0.002
+#     Test::More          1.001005 1.001014
+# 
+# === Test Recommends ===
+# 
+#     Module         Want     Have
+#     ---------- -------- --------
+#     CPAN::Meta 2.120900 2.150005
+# 
+# === Runtime Requires ===
+# 
+#     Module                 Want     Have
+#     ------------------ -------- --------
+#     Beam::Emitter         0.007    1.000
+#     Beam::Wire            1.018    1.019
+#     DateTime::Moonpig       any     1.03
+#     Encode                  any     2.80
+#     File::Share             any     0.25
+#     Git::Repository         any    1.318
+#     Import::Base          0.012    1.002
+#     List::UtilsBy          0.09     0.10
+#     Mojolicious            6.54     6.58
+#     Moo                2.000001 2.001001
+#     Path::Tiny            0.084    0.086
+#     Pod::Simple            3.31     3.32
+#     Pod::Usage::Return      any    0.003
+#     Text::Markdown          any 1.000031
+#     Type::Tiny              any 1.000005
+#     Types::Path::Tiny       any    0.005
+#     YAML                    any     1.15
+#     strict                  any     1.11
+#     warnings                any     1.36
+# 
+# === Runtime Recommends ===
+# 
+#     Module                          Want     Have
+#     ------------------------------- ---- --------
+#     HTML::Lint::Pluggable           0.06  missing
+#     PPI                              any    1.220
+#     Pod::Elemental                   any 0.103004
+#     Pod::Weaver                      any    4.012
+#     Syntax::Highlight::Engine::Kate  any     0.10
+# 
+t/00-report-prereqs.t ......... ok
+                    # Before test: STDIN is interactive
+                    # After Test: STDIN is not interactive
+                    # Before test: STDIN is interactive
+                    # After Test: STDIN is not interactive
+t/app/basic/command.t ......... ok
+t/app/basic/constructor.t ..... ok
+t/app/basic/pages.t ........... ok
+                    # Before test: STDIN is interactive
+                    # After Test: STDIN is not interactive
+                    # Before test: STDIN is interactive
+                    # After Test: STDIN is not interactive
+                    # Before test: STDIN is interactive
+                    # After Test: STDIN is not interactive
+t/app/blog/command.t .......... ok
+t/app/blog/constructor.t ...... ok
+    # Current LC_TIME locale: en_US.UTF-8
+    # Could not set locale to ru_RU. Still 
+t/app/blog/pages.t ............ ok
+t/app/blog/post_date.t ........ ok
+t/app/blog/recent_posts.t ..... ok
+t/app/events.t ................ ok
+t/app/perldoc/constructor.t ... ok
+t/app/perldoc/pages.t ......... ok
+t/app/role/store.t ............ ok
+t/app/template.t .............. ok
+t/app/url.t ................... ok
+t/bin/statocles.t ............. ok
+t/command/apps.t .............. ok
+        # Git version: 2.007000
+t/command/build_and_deploy.t .. ok
+t/command/bundle.t ............ ok
+    # Git version: 2.007000
+t/command/create.t ............ ok
+t/command/daemon.t ............ ok
+t/command/error.t ............. ok
+t/command/help_and_version.t .. ok
+t/command/mojo_app.t .......... ok
+t/deploy/file.t ............... ok
+# Git version: 2.007000
+[Sun Apr 17 10:15:10 2016] [warn] No files changed
+[Sun Apr 17 10:15:11 2016] [warn] No files changed
+t/deploy/git.t ................ ok
+t/deprecated.t ................ ok
+t/document.t .................. ok
+t/image.t ..................... ok
+t/link.t ...................... ok
+t/page/basename.t ............. ok
+t/page/document.t ............. ok
+t/page/file.t ................. ok
+t/page/images.t ............... ok
+t/page/links.t ................ ok
+t/page/list.t ................. ok
+t/page/list_item.t ............ ok
+[Sun Apr 17 10:15:30 2016] [debug] Render page: /path/to/page.html
+[Sun Apr 17 10:15:30 2016] [debug] Render page (cached): /path/to/page.html
+t/page/plain.t ................ ok
+t/page/type.t ................. ok
+t/plugin/highlight.t .......... ok
+t/plugin/html_lint.t .......... skipped: HTML::Lint::Pluggable v0.06 or higher needed
+t/plugin/link_check.t ......... ok
+t/site/build_and_deploy.t ..... ok
+t/site/constructor.t .......... ok
+t/site/data.t ................. ok
+t/site/events.t ............... ok
+t/site/index.t ................ ok
+t/site/nav.t .................. ok
+t/site/plugin.t ............... ok
+t/site/sitemap_and_robots.t ... ok
+t/site/url.t .................. ok
+t/site/warnings.t ............. ok
+[Sun Apr 17 10:15:48 2016] [warn] Store path "/tmp/loop_over_bdir-23669-mJpi36/Statocles-0.074-0/t/store/../share/DOES_NOT_EXIST" does not exist
+t/store/constructor.t ......... ok
+t/store/document.t ............ ok
+t/store/file.t ................ ok
+t/template/basic.t ............ ok
+t/template/include.t .......... ok
+t/template/markdown.t ......... ok
+t/theme/check.t ............... ok
+t/theme/helper.t .............. ok
+t/theme/pages.t ............... ok
+t/theme/template.t ............ ok
+t/types.t ..................... ok
+t/util.t ...................... ok
+All tests successful.
+Files=65, Tests=332, 96 wallclock secs ( 0.44 usr  0.42 sys + 73.30 cusr 20.33 csys = 94.49 CPU)
+Result: PASS
+
+------------------------------
+PREREQUISITES
+------------------------------
+
+Prerequisite modules loaded:
+
+requires:
+
+    Module                  Need     Have    
+    ----------------------- -------- --------
+    Beam::Emitter           0.007    1.000   
+    Beam::Wire              1.018    1.019   
+    DateTime::Moonpig       0        1.03    
+    Encode                  0        2.80    
+    File::Share             0        0.25    
+    Git::Repository         0        1.318   
+    Import::Base            0.012    1.002   
+    List::UtilsBy           0.09     0.10    
+    Mojolicious             6.54     6.58    
+    Moo                     2.000001 2.001001
+    Path::Tiny              0.084    0.086   
+    perl                    5.010    5.024000
+    Pod::Simple             3.31     3.32    
+    Pod::Usage::Return      0        0.003   
+    strict                  0        1.11    
+    Text::Markdown          0        1.000031
+    Type::Tiny              0        1.000005
+    Types::Path::Tiny       0        0.005   
+    warnings                0        1.36    
+    YAML                    0        1.15    
+
+build_requires:
+
+    Module                  Need     Have    
+    ----------------------- -------- --------
+    Capture::Tiny           0        0.36    
+    Dir::Self               0        0.11    
+    ExtUtils::MakeMaker     0        7.10_01 
+    File::Spec              0        3.63    
+    IO::Handle              0        1.36    
+    IPC::Open3              0        1.20    
+    Storable                0        2.56    
+    Test::Deep              0        1.120   
+    Test::Differences       0.64     0.64    
+    Test::Exception         0        0.43    
+    Test::Lib               0        0.002   
+    Test::More              1.001005 1.001014
+
+configure_requires:
+
+    Module                  Need     Have    
+    ----------------------- -------- --------
+    ExtUtils::MakeMaker     0        7.10_01 
+    File::ShareDir::Install 0.06     0.10    
+
+
+------------------------------
+ENVIRONMENT AND OTHER CONTEXT
+------------------------------
+
+Environment variables:
+
+    AUTOMATED_TESTING = 1
+    LANG = en_US.UTF-8
+    LANGUAGE = en_US:en
+    PATH = /usr/lib/ccache:/home/sand/bin:/usr/local/bin:/usr/bin:/bin:/usr/games:/usr/local/perl/bin:/usr/X11/bin:/sbin:/usr/sbin
+    PERL5LIB = 
+    PERL5OPT = 
+    PERL5_CPANPLUS_IS_RUNNING = 7402
+    PERL5_CPAN_IS_RUNNING = 7402
+    PERL_CANARY_STABILITY_NOPROMPT = 1
+    PERL_MM_USE_DEFAULT = 1
+    SHELL = /usr/bin/zsh
+    TERM = screen
+
+Perl special variables (and OS-specific diagnostics, for MSWin32):
+
+    $^X = /tmp/basesmoker-reloperl-6r1_/bin/perl
+    $UID/$EUID = 1005 / 1005
+    $GID = 1005 1005
+    $EGID = 1005 1005
+
+Perl module toolchain versions installed:
+
+    Module              Have    
+    ------------------- --------
+    CPAN                2.12    
+    CPAN::Meta          2.150005
+    Cwd                 3.63    
+    ExtUtils::CBuilder  0.280225
+    ExtUtils::Command   7.10    
+    ExtUtils::Install   2.04    
+    ExtUtils::MakeMaker 7.10_01 
+    ExtUtils::Manifest  1.70    
+    ExtUtils::ParseXS   3.31    
+    File::Spec          3.63    
+    JSON                2.90    
+    JSON::PP            2.27300 
+    Module::Build       0.4216  
+    Module::Signature   0.79    
+    Parse::CPAN::Meta   1.4417  
+    Test::Harness       3.36    
+    Test::More          1.001014
+    YAML                1.15    
+    YAML::Syck          1.29    
+    version             0.9916  
+
+
+--
+
+Summary of my perl5 (revision 5 version 24 subversion 0) configuration:
+  Commit id: b31d1ef1144adb563cad5228eb7a7a4866b19a50
+  Platform:
+    osname=linux, osvers=4.3.0-1-amd64, archname=x86_64-linux
+    uname='linux k83 4.3.0-1-amd64 #1 smp debian 4.3.3-7 (2016-01-19) x86_64 gnulinux '
+    config_args='-Dprefix=/home/sand/src/perl/repoperls/installed-perls/perl/v5.24.0-RC1/f991 -Dmyhostname=k83 -Dinstallusrbinperl=n -Uversiononly -Dusedevel -des -Ui_db -Dlibswanted=cl pthread socket inet nsl gdbm dbm malloc dl ld sun m crypt sec util c cposix posix ucb BSD gdbm_compat -Uuseithreads -Uuselongdouble'
+    hint=recommended, useposix=true, d_sigaction=define
+    useithreads=undef, usemultiplicity=undef
+    use64bitint=define, use64bitall=define, uselongdouble=undef
+    usemymalloc=n, bincompat5005=undef
+  Compiler:
+    cc='cc', ccflags ='-fwrapv -fno-strict-aliasing -pipe -fstack-protector-strong -I/usr/local/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_FORTIFY_SOURCE=2',
+    optimize='-O2',
+    cppflags='-fwrapv -fno-strict-aliasing -pipe -fstack-protector-strong -I/usr/local/include'
+    ccversion='', gccversion='5.3.1 20160121', gccosandvers=''
+    intsize=4, longsize=8, ptrsize=8, doublesize=8, byteorder=12345678, doublekind=3
+    d_longlong=define, longlongsize=8, d_longdbl=define, longdblsize=16, longdblkind=3
+    ivtype='long', ivsize=8, nvtype='double', nvsize=8, Off_t='off_t', lseeksize=8
+    alignbytes=8, prototype=define
+  Linker and Libraries:
+    ld='cc', ldflags =' -fstack-protector-strong -L/usr/local/lib'
+    libpth=/usr/local/lib /usr/lib/gcc/x86_64-linux-gnu/5/include-fixed /usr/include/x86_64-linux-gnu /usr/lib /lib/x86_64-linux-gnu /lib/../lib /usr/lib/x86_64-linux-gnu /usr/lib/../lib /lib
+    libs=-lpthread -lnsl -lgdbm -ldl -lm -lcrypt -lutil -lc -lgdbm_compat
+    perllibs=-lpthread -lnsl -ldl -lm -lcrypt -lutil -lc
+    libc=libc-2.21.so, so=so, useshrplib=false, libperl=libperl.a
+    gnulibc_version='2.21'
+  Dynamic Linking:
+    dlsrc=dl_dlopen.xs, dlext=so, d_dlsymun=undef, ccdlflags='-Wl,-E'
+    cccdlflags='-fPIC', lddlflags='-shared -O2 -L/usr/local/lib -fstack-protector-strong'
+
+
+Characteristics of this binary (from libperl): 
+  Compile-time options: HAS_TIMES PERLIO_LAYERS PERL_COPY_ON_WRITE
+                        PERL_DONT_CREATE_GVSV
+                        PERL_HASH_FUNC_ONE_AT_A_TIME_HARD PERL_MALLOC_WRAP
+                        PERL_PRESERVE_IVUV PERL_USE_DEVEL USE_64_BIT_ALL
+                        USE_64_BIT_INT USE_LARGE_FILES USE_LOCALE
+                        USE_LOCALE_COLLATE USE_LOCALE_CTYPE
+                        USE_LOCALE_NUMERIC USE_LOCALE_TIME USE_PERLIO
+                        USE_PERL_ATOF
+  Locally applied patches:
+	RC1
+  Built under linux
+  Compiled at Apr 15 2016 07:22:15
+  %ENV:
+    PERL5LIB=""
+    PERL5OPT=""
+    PERL5_CPANPLUS_IS_RUNNING="7402"
+    PERL5_CPAN_IS_RUNNING="7402"
+    PERL_CANARY_STABILITY_NOPROMPT="1"
+    PERL_MM_USE_DEFAULT="1"
+  @INC:
+    /home/sand/src/perl/repoperls/installed-perls/perl/v5.24.0-RC1/f991/lib/site_perl/5.24.0/x86_64-linux
+    /home/sand/src/perl/repoperls/installed-perls/perl/v5.24.0-RC1/f991/lib/site_perl/5.24.0
+    /home/sand/src/perl/repoperls/installed-perls/perl/v5.24.0-RC1/f991/lib/5.24.0/x86_64-linux
+    /home/sand/src/perl/repoperls/installed-perls/perl/v5.24.0-RC1/f991/lib/5.24.0
+    .
+                    </pre>
+                </div>
+            </article>
+        </div>
+    </div>
+</div>

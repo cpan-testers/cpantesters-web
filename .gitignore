@@ -1,3 +1,5 @@
 .build
 *.tar.gz
 /CPAN-Testers-Web-*
+share/public/node_modules
+share/public/packed

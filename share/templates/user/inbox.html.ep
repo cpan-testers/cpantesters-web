@@ -1,0 +1,64 @@
+
+% title 'Inbox';
+
+% content_for feeds => begin
+<link rel="alternate" type="application/rss+xml" href="/user/inbox.rss" />
+<link rel="alternate" type="application/atom+xml" href="/user/inbox.atom" />
+<link rel="alternate" type="application/json" href="/user/inbox.json" />
+% end
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Inbox</h1>
+            <table class="inbox table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" /></th>
+                        <th>From</th>
+                        <th>Subject</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="unread">
+                        <td><input type="checkbox" /></td>
+                        <td><a href="#">Doug Bell (PREACTION)</a></td>
+                        <td><a href="/user/inbox/1">
+                            Re: Statocles-0.054 (perl 5.14.2, x86_64-linux) Failed
+                        </a></td>
+                        <td>1 hour ago</td>
+                    </tr>
+
+                    <tr class="unread">
+                        <td><input type="checkbox" /></td>
+                        <td><a href="#">Joel Berger (JBERGER)</a></td>
+                        <td><a href="/user/inbox/1">
+                            Re: Mojolicious-6.01 (perl 5.20.2, OpenBSD.i386) Failed
+                        </a></td>
+                        <td>6 hours ago</td>
+                    </tr>
+
+                    <tr>
+                        <td><input type="checkbox" /></td>
+                        <td><a href="#">Chris Williams (BINGOS)</a></td>
+                        <td><a href="/user/inbox/1">
+                            Re: Tie::Iterator (perl 5.8.7, MSWin32-x64) Failed
+                        </a></td>
+                        <td>19 hours ago</td>
+                    </tr>
+
+                    <tr>
+                        <td><input type="checkbox" /></td>
+                        <td><a href="#">Sebastian Riedl (SRI)</a></td>
+                        <td><a href="/user/inbox/1">
+                            Re: Mojolicious-6.01 (perl 5.14.2, x86_64-linux) Failed
+                        </a></td>
+                        <td>2016-03-20</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

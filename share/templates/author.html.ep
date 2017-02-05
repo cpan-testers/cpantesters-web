@@ -1,0 +1,99 @@
+
+% title 'Author: ' . stash( 'author' );
+
+% content_for feeds => begin
+<link rel="alternate" type="application/rss+xml" href="/author/<%= stash 'author' %>.rss" />
+<link rel="alternate" type="application/atom+xml" href="/author/<%= stash 'author' %>.atom" />
+<link rel="alternate" type="application/json" href="/author/<%= stash 'author' %>.json" />
+% end
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>
+                <%= stash 'author' %>
+                <small><a href="/author/<%= stash 'author' %>.rss"><i class="fa fa-rss fa-lg"></i></a></small>
+            </h1>
+
+            <!-- XXX: Less than 80% PASS is warning. Less than 50% PASS
+                is danger. Greater than 0 FAIL is warning. Greater than
+                50% FAIL is danger. -->
+            <!-- XXX: NA and UNKNOWN are not part of this table, so
+                reports may not be equal to PASS + FAIL -->
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Distribution</th>
+                        <th>Last Version</th>
+                        <th>Released</th>
+                        <th class="text-center">Reports</th>
+                        <th class="text-center">Pass</th>
+                        <th class="text-center">Fail</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>
+                            <a href="/dist/Statocles">Statocles</a>
+                        </td>
+                        <td>0.066</td>
+                        <td>
+                            <time>2015-01-11 00:12:34</time>
+                        </td>
+                        <td class="text-center">
+                            12
+                        </td>
+                        <td class="bg-success text-center">
+                            11
+                        </td>
+                        <td class="bg-warning text-center">
+                            1
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <a href="/dist/Beam-Wire">Beam-Wire</a>
+                        </td>
+                        <td>1.011</td>
+                        <td>
+                            <time>2015-01-10 01:24:12</time>
+                        </td>
+                        <td class="text-center">
+                            50
+                        </td>
+                        <td class="bg-success text-center">
+                            50
+                        </td>
+                        <td class="bg-success text-center">
+                            0
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <a href="/dist/Import-Base">Import-Base</a>
+                        </td>
+                        <td>1.001</td>
+                        <td>
+                            <time>2015-01-07 01:24:12</time>
+                        </td>
+                        <td class="text-center">
+                            74
+                        </td>
+                        <td class="bg-success text-center">
+                            70
+                        </td>
+                        <td class="bg-warning text-center">
+                            4
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

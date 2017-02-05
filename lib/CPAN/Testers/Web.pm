@@ -66,6 +66,110 @@ sub startup ( $app ) {
 
     $app->helper( schema => sub { shift->app->schema } );
     Log::Any::Adapter->set( 'MojoLog', logger => $app->log );
+
+    # Compile JS and CSS assets
+    $app->plugin( 'AssetPack', { pipes => [qw( Css JavaScript )] } );
+    $app->asset->store->paths([
+        catdir( dist_dir( 'CPAN-Testers-Web' ), 'node_modules' ),
+        @{ $app->static->paths },
+    ]);
+
+    $app->asset->process(
+        'prereq.js' => qw(
+            /jquery/dist/jquery.js
+            /bootstrap/dist/js/bootstrap.js
+        ),
+    );
+
+    $app->asset->process(
+        'prereq.css' => qw(
+            /bootstrap/dist/css/bootstrap.css
+            /bootstrap/dist/css/bootstrap-theme.css
+            /font-awesome/css/font-awesome.css
+            /css/cpantesters.css
+        ),
+    );
+
+    # Add static paths to find fonts
+    push @{ $app->static->paths },
+        catdir( dist_dir( 'CPAN-Testers-Web' ), 'node_modules', 'font-awesome' );
+
+    # Set defaults
+    $app->defaults(
+        layout => 'default',
+    );
+
+    # Add routes
+    my $r = $app->routes;
+
+    $r->get( '/user/dist/:dist' )
+      ->name( 'user.dist-settings' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'user/dist/settings' );
+    } );
+
+    $r->get( '/dist/:dist/#version', { version => 'latest' } )
+      ->name( 'dist' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'dist' );
+    } );
+
+    $r->get( '/dist' )
+      ->name( 'dist-search' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'dist-search' );
+    } );
+
+    $r->get( '/author/:author' )
+      ->name( 'author' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'author' );
+    } );
+
+    $r->get( '/author' )
+      ->name( 'author-search' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'author-search' );
+    } );
+
+    $r->get( '/tester/:tester/:machine' )
+      ->name( 'tester-machine' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'tester-machine' );
+    } );
+
+    $r->get( '/tester/:tester' )
+      ->name( 'tester' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'tester' );
+    } );
+
+    $r->get( '/tester' )
+      ->name( 'tester-search' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'tester-search' );
+    } );
+
+    $r->get( '/report/:guid' )
+      ->name( 'report' )
+      ->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( 'report' );
+    } );
+
+    $r->get( '/*tmpl', { tmpl => 'index' } )->to( cb => sub {
+        my ( $c ) = @_;
+        $c->render( $c->stash( 'tmpl' ) );
+    } );
+
 }
 
 1;

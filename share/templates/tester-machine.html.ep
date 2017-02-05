@@ -1,0 +1,102 @@
+
+% title 'Tester Machine: ' . stash( 'machine' ) . ' (' . stash( 'tester' ) . ')';
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>
+                Machine
+                <small><%= stash( 'tester' ) %> -- Perl 5.24.0 RC1 x86_64-linux</small>
+            </h1>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Distribution</th>
+                        <th>Version</th>
+                        <th>Author</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>
+                            <time>2015-01-11 00:12:34</time>
+                        </td>
+                        <td>
+                            <a href="/dist/Statocles">Statocles</a>
+                        </td>
+                        <td>
+                            <a href="/dist/Statocles/0.074">0.074</a>
+                        </td>
+                        <td>
+                            <a href="/author/PREACTION">PREACTION</a>
+                        </td>
+                        <td class="bg-success text-center">
+                            PASS
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <time>2015-01-10 01:24:12</time>
+                        </td>
+                        <td>
+                            <a href="/dist/Beam-Wire">Beam-Wire</a>
+                        </td>
+                        <td>
+                            <a href="/dist/Beam-Wire/1.001">1.001</a>
+                        </td>
+                        <td>
+                            <a href="/author/PREACTION">PREACTION</a>
+                        </td>
+                        <td class="bg-warning text-center">
+                            IGNORE
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <time>2015-01-08 06:37:22</time>
+                        </td>
+                        <td>
+                            <a href="/dist/Mojolicious">Mojolicious</a>
+                        </td>
+                        <td>
+                            <a href="/dist/Mojolicious/6.11">6.11</a>
+                        </td>
+                        <td>
+                            <a href="/author/SRI">SRI</a>
+                        </td>
+                        <td class="bg-danger text-center">
+                            FAIL
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <time>2015-01-07 01:24:12</time>
+                        </td>
+                        <td>
+                            <a href="/dist/Import-Base">Import-Base</a>
+                        </td>
+                        <td>
+                            <a href="/dist/Import-Base/1.011">1.011</a>
+                        </td>
+                        <td>
+                            <a href="/author/PREACTION">PREACTION</a>
+                        </td>
+                        <td class="bg-warning text-center">
+                            N/A
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+

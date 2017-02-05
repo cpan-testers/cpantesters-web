@@ -1,0 +1,61 @@
+
+% title 'Search Authors';
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+
+            <h1>Search Authors</h1>
+
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="search">Search:</label>
+                    <input id="search" class="form-control"
+                        placeholder="Search Authors"
+                    >
+                </div>
+                <button class="btn btn-primary">Search</button>
+            </form>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th>Last Release</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>
+                            <a href="/author/PREACTION">PREACTION</a>
+                        </td>
+                        <td>
+                            <time>2015-01-11 00:12:34</time>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <a href="/author/PRECAT">PRECAT</a>
+                        </td>
+                        <td>
+                            <time>2015-01-10 01:24:12</time>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <a href="/author/PRESCIENCE">PRESCIENCE</a>
+                        </td>
+                        <td>
+                            <time>2015-01-07 01:24:12</time>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

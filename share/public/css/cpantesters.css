@@ -1,0 +1,18 @@
+
+body {
+    margin-top: 60px;
+}
+
+/*******************************************
+ * User Inbox styles
+ */
+.inbox .unread td {
+    font-weight: bold;
+    background-color: #eef;
+}
+
+.message article {
+    border-bottom: 3px solid #eee;
+    margin-bottom: 1em;
+}
+
