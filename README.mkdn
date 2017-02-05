@@ -1,0 +1,57 @@
+# NAME
+
+CPAN::Testers::Web - Write a sentence about what it does
+
+# VERSION
+
+version 0.001
+
+# STATUS
+
+<a href="https://travis-ci.org/cpan-testers/cpantesters-web"><img src="https://travis-ci.org/cpan-testers/cpantesters-web.svg?branch=master"></a><a href="https://coveralls.io/r/cpan-testers/cpantesters-web"><img src="https://coveralls.io/repos/cpan-testers/cpantesters-web/badge.png" alt="Coverage Status" /></a>
+
+# SYNOPSIS
+
+    $ cpantesters-web daemon
+    Listening on http://*:5000
+
+# DESCRIPTION
+
+This is the main [CPAN Testers](http://cpantesters.org) web application.
+This application is the main platform for exploring, searching, and
+interacting with CPAN Testers data.
+
+# METHODS
+
+## schema
+
+    my $schema = $c->schema;
+
+Get the schema, a [CPAN::Testers::Schema](https://metacpan.org/pod/CPAN::Testers::Schema) object. By default, the
+schema is connected from the local user's config. See
+["connect\_from\_config" in CPAN::Testers::Schema](https://metacpan.org/pod/CPAN::Testers::Schema#connect_from_config) for details.
+
+## startup
+
+    # Called automatically by Mojolicious
+
+This method starts up the application, loads any plugins, sets up routes,
+and registers helpers.
+
+# SEE ALSO
+
+[Mojolicious](https://metacpan.org/pod/Mojolicious),
+[CPAN::Testers::Schema](https://metacpan.org/pod/CPAN::Testers::Schema),
+[http://github.com/cpan-testers/cpantesters-project](http://github.com/cpan-testers/cpantesters-project),
+[http://www.cpantesters.org](http://www.cpantesters.org)
+
+# AUTHOR
+
+Doug Bell <preaction@cpan.org>
+
+# COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2016 by Doug Bell.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.

@@ -193,8 +193,6 @@ cpan App::cpanminus
 
 You may need to be root or Administrator to install cpanminus.
 
-XXX Add this for Perl version requirements
-
 This project also requires Perl version 5.24. If your Perl is not recent
 enough, you can install a new version of Perl in a local directory by
 using [perlbrew](http://perlbrew.pl) (the easiest option) or
