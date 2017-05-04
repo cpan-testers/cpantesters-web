@@ -1,0 +1,82 @@
+#!perl
+use Mojolicious::Lite;
+use Mojolicious::Validator;
+use Set::Tiny 0.04;
+
+=head1 NAME
+
+cpantesters-web-legacy -- Start the CPAN Testers Legacy web application
+
+=head1 SYNOPSIS
+
+  cpantesters-web-legacy daemon
+  cpantesters-web-legacy help
+
+=head1 DESCRIPTION
+
+This program loads the CPAN Testers Legacy web application,
+a L<Mojolicious> web application. For more detailed help, see
+C<cpantesters-web-legacy help>.
+
+=head1 SEE ALSO
+
+L<CPAN::Testers::Web>, L<Mojolicious>
+
+=cut
+
+my $valid_params = Set::Tiny->new(qw(json raw));
+
+get '/report/:guid' => sub {
+    my $c    = shift;
+    my $guid = $c->stash('guid');
+
+    # hash ref
+    my $params_ref = $c->req->query_params->to_hash;
+    $c->app->log->debug( 'GET parameters: ' . params_to_string($params_ref) );
+    my @names = keys( %{$params_ref} );
+
+    if ( scalar(@names) > 0 ) {
+
+        if ( scalar(@names) > 1 ) {
+            $c->app->log->debug('Ignoring multiple parameters');
+            $c->render( text => "Getting report for GUID=$guid" );
+        }
+        else {
+            my $validator  = Mojolicious::Validator->new;
+            my $validation = $validator->validation;
+            $validation->input( { $names[0] => $params_ref->{ $names[0] } } );
+            $validation->required( $names[0] )->like(qr/^0|1$/);
+            my $val_result = $validation->param( $names[0] );
+            $c->app->log->debug($val_result);
+
+            if (    $valid_params->has( $names[0] )
+                and ( defined($val_result) )
+                and ( $validation->param( $names[0] ) == 1 ) )
+            {
+                $c->render(
+                    text => "Getting report for GUID=$guid with $names[0]" );
+            }
+            else {
+                $c->app->log->debug("Ignoring parameter $names[0]");
+                $c->render( text => "Getting report for GUID=$guid" );
+            }
+        }
+    }
+    else {
+        $c->app->log->debug('No parameters received');
+        $c->render( text => "Getting report for GUID=$guid" );
+    }
+};
+
+sub params_to_string {
+    my $params_ref = shift;
+    my @text;
+    foreach my $name ( keys( %{$params_ref} ) ) {
+        push( @text, $name . ' = ' . $params_ref->{$name} );
+    }
+    return join( "\n", @text );
+}
+
+app->start;
+
+# vim: filetype=perl
