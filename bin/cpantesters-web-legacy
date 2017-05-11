@@ -9,7 +9,8 @@ use JSON 2.90;
 use Metabase::Resource 0.025;
 use CPAN::Testers::Report 1.999003;
 use Metabase::Resource::cpan::distfile 0.025;
-use Metabase::Resource::metabase::user;
+use Metabase::Resource::metabase::user 0.025;
+use File::Spec::Functions qw( catdir );
 use Carp;
 
 =head1 NAME
@@ -33,11 +34,12 @@ L<CPAN::Testers::Web>, L<Mojolicious>
 
 =cut
 
+ # :TODO:11/05/2017 00:49:09:ARFREITAS: add configuration file
 my $dsn  = "DBI:mysql:database=metabase;host=127.0.0.1;port=30306";
 my $user = 'cpantesters';
 my $pass = '';
 
-get '/report/:guid' => sub {
+get '/cpan/report/:guid' => sub {
     my $c    = shift;
     my $guid = $c->stash('guid');
     my $dbh  = get_dbh( $dsn, $user, $pass );
@@ -78,10 +80,10 @@ get '/report/:guid' => sub {
             $c->app->log->debug('Ignoring multiple parameters');
         }
 
-        my $report;
+        my $report_ref;
 
         try {
-            $report = get_report( $dbh, $guid );
+            $report_ref = get_report( $dbh, $guid );
         }
         catch {
             $c->app->log->fatal(
@@ -89,16 +91,27 @@ get '/report/:guid' => sub {
             die "Could not process your request, contact the administrator";
         };
 
-        $c->redirect_to('/missing') unless ( defined($report) );
-        use Data::Dumper;
-        $c->render( text => Dumper($report) );
+# :TODO:11/05/2017 00:46:13:ARFREITAS: there is more data returned by get_report
+# than is used by the template
+#use Data::Dumper;
+#        $c->app->log->debug(Dumper($report_ref->{article}));
+        $c->redirect_to('/missing') unless ( ref($report_ref) eq 'HASH' );
+        $c->stash( report => $report_ref );
+        $c->render( template => 'legacy/layout-wide' );
     }
 
     $dbh->disconnect;
 };
 
-# Not found (404)
+ # :TODO:11/05/2017 01:15:40:ARFREITAS: implement not found page
 get '/missing' => sub { shift->render( template => 'does_not_exist' ) };
+
+ # :TODO:11/05/2017 01:16:02:ARFREITAS: this probably needs to be replaced
+ # with File::Share, but the script is not associated with any Perl distribution yet
+unshift @{ app->renderer->paths }, catdir( 'share', 'templates' );
+unshift @{ app->static->paths },   catdir( 'share', 'public' );
+
+app->start;
 
 sub params_to_string {
     my $params_ref = shift;
@@ -118,7 +131,7 @@ sub get_dbh {
 }
 
 sub get_report {
-    my ( $dbh, $guid, $logger ) = @_;
+    my ( $dbh, $guid ) = @_;
     my $query = q{select fact, report from metabase.metabase where guid = ?};
     my $sth   = $dbh->prepare($query);
     $sth->bind_param( 1, $guid );
@@ -169,10 +182,9 @@ sub get_report {
 'Cannot process data, neither CPAN::Testers::Fact::LegacyReport or CPAN::Testers::Fact::TestSummary';
         }
 
-       # :TODO:08/05/2017 21:40:25:ARFREITAS: use a better name instead of tvars
-        my %tvars;
-        $tvars{article}->{article} = $fact->{content}->{textreport};
-        $tvars{article}->{guid}    = $guid;
+        my %template;
+        $template{article}->{article} = $fact->{content}->{textreport};
+        $template{article}->{guid}    = $guid;
 
 # :TODO:08/05/2017 20:46:19:ARFREITAS: this seems to be ilogical... if
 # $fact is not recovered from the database, it will be created based on $data anyway
@@ -184,49 +196,51 @@ sub get_report {
             map_attribs( $report, $data );
         }
 
-        $tvars{article}->{state}    = lc( $fact->{content}->{grade} );
-        $tvars{article}->{platform} = $fact->{content}->{archname};
-        $tvars{article}->{osname}  = query_osname( $fact->{content}->{osname} );
-        $tvars{article}->{osvers}  = $fact->{content}->{osversion};
-        $tvars{article}->{perl}    = $fact->{content}->{perl_version};
-        $tvars{article}->{created} = $fact->{metadata}->{core}->{creation_time};
+        $template{article}->{platform} = $fact->{content}->{archname};
+        $template{article}->{osvers}   = $fact->{content}->{osversion};
+        $template{article}->{created} =
+          $fact->{metadata}->{core}->{creation_time};
         my $dist =
           Metabase::Resource->new( $fact->{metadata}->{core}->{resource} );
-        $tvars{article}->{dist}    = $dist->metadata->{dist_name};
-        $tvars{article}->{version} = $dist->metadata->{dist_version};
-        ( $tvars{article}->{author}, $tvars{article}->{from} ) =
+        $template{article}->{htmltitle} =
+            'Report for '
+          . $dist->metadata->{dist_name} . '-'
+          . $dist->metadata->{dist_version};
+        $template{article}->{dist_name}    = $dist->metadata->{dist_name};
+        $template{article}->{dist_version} = $dist->metadata->{dist_version};
+        my @created = localtime(time);
+        $template{copyright} =
+          '1999-' . ( $created[5] + 1900 ) . ' CPAN Testers';
+        $template{article}->{dist_path} =
+          substr( $dist->metadata->{dist_name}, 0, 1 );
+        ( $template{article}->{author}, $template{article}->{from} ) =
           get_tester( $dbh, $fact->creator );
-        $tvars{article}->{author} =~ s/\@/ [at] /g;
-        $tvars{article}->{from} =~ s/\@/ [at] /g;
-        $tvars{article}->{from} =~ s/\./ [dot] /g;
 
-        if ( $tvars{article}{created} ) {
-            my @created = $tvars{article}->{created} =~
+        if ( $template{article}{created} ) {
+            my @created = $template{article}->{created} =~
               /(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)Z/;    # 2010-02-23T20:33:52Z
-            $tvars{article}->{postdate} = sprintf "%04d%02d", $created[0],
+            $template{article}->{postdate} = sprintf "%04d%02d", $created[0],
               $created[1];
-            $tvars{article}->{fulldate} = sprintf "%04d%02d%02d%02d%02d",
+            $template{article}->{fulldate} = sprintf "%04d%02d%02d%02d%02d",
               $created[0], $created[1], $created[2], $created[3], $created[4];
         }
         else {
-            my @created = localtime(time);
-            $tvars{article}->{postdate} = sprintf "%04d%02d",
+            $template{article}->{postdate} = sprintf "%04d%02d",
               $created[5] + 1900,
               $created[4] + 1;
-            $tvars{article}->{fulldate} = sprintf "%04d%02d%02d%02d%02d",
+            $template{article}->{fulldate} = sprintf "%04d%02d%02d%02d%02d",
               $created[5] + 1900, $created[4] + 1, $created[3], $created[2],
               $created[1];
         }
 
-        $tvars{article}->{letter} = substr( $tvars{article}->{dist}, 0, 1 );
-        $tvars{article}->{subject} = sprintf "%s %s-%s %s %s",
-          uc( $tvars{article}->{state} ), $tvars{article}->{dist},
-          $tvars{article}->{version}, $tvars{article}->{perl},
-          $tvars{article}->{osname};
-        $tvars{body}->{result} = decode_report($report);
+        $template{article}->{subject} = sprintf "%s %s-%s %s %s",
+          uc( $fact->{content}->{grade} ), $dist->metadata->{dist_name},
+          $dist->metadata->{dist_version}, $fact->{content}->{perl_version},
+          query_osname( $dbh, $fact->{content}->{osname} );
+        $template{body}->{result}     = decode_report($report);
+        $template{article}->{article} = $fact->{content}{textreport};
 
-# :TODO:08/05/2017 21:40:56:ARFREITAS: returning a hash reference would be better
-        return \%tvars;
+        return \%template;
     }
     else {
         return undef;
@@ -256,6 +270,9 @@ limit 1};
           if ( defined( $row_ref->[1] ) );
         my $email = $row_ref->[3] || $row_ref->[4] || $creator;
         $email =~ s/\'/''/g if ($email);
+        $name =~ s/\@/ [at] /g;
+        $email =~ s/\@/ [at] /g;
+        $email =~ s/\./ [dot] /g;
         return $name, $email;
     }
 
@@ -380,7 +397,5 @@ sub get_serial_data {
     );
     return $serializer->deserialize( $data_ref->[$index] );
 }
-
-app->start;
 
 # vim: filetype=perl
