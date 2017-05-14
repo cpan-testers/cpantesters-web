@@ -49,6 +49,10 @@ and registers helpers.
 
 Doug Bell <preaction@cpan.org>
 
+# CONTRIBUTOR
+
+Alceu Rodrigues de Freitas Junior <arfreitas@cpan.org>
+
 # COPYRIGHT AND LICENSE
 
 This software is copyright (c) 2016 by Doug Bell.

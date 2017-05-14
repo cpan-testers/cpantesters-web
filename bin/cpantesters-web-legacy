@@ -1,17 +1,17 @@
 #!perl
+# PODNAME: cpantesters-web-legacy
 use Mojolicious::Lite;
 use Mojolicious::Validator;
 use Set::Tiny 0.04;
-use Data::FlexSerializer 1.10;
-use DBI 1.636;
-use Try::Tiny 0.27;
-use JSON 2.90;
-use Metabase::Resource 0.025;
-use CPAN::Testers::Report 1.999003;
-use Metabase::Resource::cpan::distfile 0.025;
-use Metabase::Resource::metabase::user 0.025;
-use File::Spec::Functions qw( catdir );
+use File::Spec::Functions qw( catdir catfile );
+use File::Share 0.25 'dist_dir';
+use Mojolicious::Plugin::Config;
 use Carp;
+use DBIx::Connector 0.56;
+use FindBin ();
+use lib "$FindBin::Bin/../lib";
+use CPAN::Testers::Web::Legacy qw(params_to_string);
+use CPAN::Testers::Web::Legacy::Model;
 
 =head1 NAME
 
@@ -25,24 +25,95 @@ cpantesters-web-legacy -- Start the CPAN Testers Legacy web application
 =head1 DESCRIPTION
 
 This program loads the CPAN Testers Legacy web application,
-a L<Mojolicious> web application. For more detailed help, see
-C<cpantesters-web-legacy help>.
+a L<Mojolicious> web application.
+
+For more detailed usage help, see C<cpantesters-web-legacy help>.
+
+=head1 CONFIGURATION
+
+This application will search for a configuration file using the following paths, in this specific order:
+
+=over
+
+=item 1.
+
+C</etc/cpantesters-web-legacy.conf>
+
+=item 2.
+
+The subdirectory C<etc> under the C<share> directory, as defined by L<File::Share> C<dist_dir> function.
+
+=back
+
+For now, it should be a hash reference with DB connection information, with the following keys/values:
+
+=over
+
+=item *
+
+dsn: as defined by L<DBI>.
+
+=item *
+
+user: login to authenticate against the DB.
+
+=item *
+
+pass: the login password.
+
+=back
 
 =head1 SEE ALSO
 
-L<CPAN::Testers::Web>, L<Mojolicious>
+=over
+
+=item *
+
+L<CPAN::Testers::Web>
+
+=item *
+
+L<http://mojolicious.org/perldoc/Mojolicious/Guides/Cookbook#Adding-a-configuration-file>
+
+=item *
+
+L<File::Share>
+
+=item *
+
+L<Mojolicious>
+
+=back
 
 =cut
 
- # :TODO:11/05/2017 00:49:09:ARFREITAS: add configuration file
-my $dsn  = "DBI:mysql:database=metabase;host=127.0.0.1;port=30306";
-my $user = 'cpantesters';
-my $pass = '';
+my $cfg;
+
+if ( -f '/etc/cpantesters-web-legacy.conf' ) {
+    $cfg = 'cpantesters-web-legacy.conf';
+}
+else {
+    $cfg = catfile( dist_dir('CPAN-Testers-Web-Legacy'), 'etc', 'cpantesters-web-legacy.conf' );
+}
+
+my $config = plugin 'Config' => { file => $cfg };
+
+helper dbh => sub {
+    my ($c) = @_;
+    state $conn = DBIx::Connector->new( $config->{dsn}, $config->{user},
+        $config->{pass}, { RaiseError => 1, AutoCommit => 1 } );
+    $conn->mode('fixup');
+    return $conn;
+};
+
+helper model => sub {
+    my ($c) = @_;
+    state $model = CPAN::Testers::Web::Legacy::Model->new( $c->dbh );
+};
 
 get '/cpan/report/:guid' => sub {
     my $c    = shift;
     my $guid = $c->stash('guid');
-    my $dbh  = get_dbh( $dsn, $user, $pass );
 
     # hash ref
     my $params_ref = $c->req->query_params->to_hash;
@@ -50,7 +121,6 @@ get '/cpan/report/:guid' => sub {
     my @names = keys( %{$params_ref} );
 
     if ( scalar(@names) == 1 ) {
-
         my $validator  = Mojolicious::Validator->new;
         my $validation = $validator->validation;
         $validation->input( { $names[0] => $params_ref->{ $names[0] } } );
@@ -80,322 +150,22 @@ get '/cpan/report/:guid' => sub {
             $c->app->log->debug('Ignoring multiple parameters');
         }
 
-        my $report_ref;
-
-        try {
-            $report_ref = get_report( $dbh, $guid );
-        }
-        catch {
-            $c->app->log->fatal(
-                "A fatal error occurred when processing $guid: $_");
-            die "Could not process your request, contact the administrator";
-        };
-
-# :TODO:11/05/2017 00:46:13:ARFREITAS: there is more data returned by get_report
-# than is used by the template
-#use Data::Dumper;
-#        $c->app->log->debug(Dumper($report_ref->{article}));
+        my $report_ref = $c->model->get_report($guid);
         $c->redirect_to('/missing') unless ( ref($report_ref) eq 'HASH' );
         $c->stash( report => $report_ref );
         $c->render( template => 'legacy/layout-wide' );
     }
 
-    $dbh->disconnect;
 };
 
- # :TODO:11/05/2017 01:15:40:ARFREITAS: implement not found page
+# :TODO:11/05/2017 01:15:40:ARFREITAS: implement not found page
 get '/missing' => sub { shift->render( template => 'does_not_exist' ) };
 
- # :TODO:11/05/2017 01:16:02:ARFREITAS: this probably needs to be replaced
- # with File::Share, but the script is not associated with any Perl distribution yet
-unshift @{ app->renderer->paths }, catdir( 'share', 'templates' );
-unshift @{ app->static->paths },   catdir( 'share', 'public' );
+unshift @{ app->renderer->paths },
+  catdir( dist_dir('CPAN-Testers-Web-Legacy'), 'templates' );
+unshift @{ app->static->paths },
+  catdir( dist_dir('CPAN-Testers-Web-Legacy'), 'public' );
 
 app->start;
-
-sub params_to_string {
-    my $params_ref = shift;
-    my @text;
-
-    foreach my $name ( keys( %{$params_ref} ) ) {
-        push( @text, $name . ' = ' . $params_ref->{$name} );
-    }
-
-    return join( "\n", @text );
-}
-
-sub get_dbh {
-    my ( $data_source, $username, $auth ) = @_;
-    return DBI->connect( $data_source, $username, $auth,
-        { RaiseError => 1, AutoCommit => 0, 'mysql_enable_utf8' => 1 } );
-}
-
-sub get_report {
-    my ( $dbh, $guid ) = @_;
-    my $query = q{select fact, report from metabase.metabase where guid = ?};
-    my $sth   = $dbh->prepare($query);
-    $sth->bind_param( 1, $guid );
-    $sth->execute();
-    my $row_ref = $sth->fetchrow_arrayref;
-
-# :TODO:08/05/2017 19:26:47:ARFREITAS: $data is intermediate data, it can be moved to upper to other subs and maintained in
-# memory for a shorter period of time
-    my ( $report, $data, $error );
-
-    if ( scalar( @{$row_ref} ) > 0 ) {
-
-        # has the fact
-        if ( defined( $row_ref->[0] ) ) {
-            $report = get_serial_data( $row_ref, 0 );
-            $data = dereference_report($report);
-        }
-        else {
-            $data = get_serial_data( $row_ref, 1 );
-            $report = {
-                metadata => {
-                    core => { guid => $guid, type => 'CPAN-Testers-Report' }
-                }
-            };
-
-            foreach my $name ( keys( %{$data} ) ) {
-                push @{ $report->{content} }, $data->{$name};
-            }
-
-        }
-
-        my $fact;
-
-        if (
-            ref( $data->{'CPAN::Testers::Fact::LegacyReport'}->{content} ) eq
-            'HASH' )
-        {
-            $fact = gen_fact( $data, 'CPAN::Testers::Fact::LegacyReport' );
-        }
-        elsif (
-            ref( $data->{'CPAN::Testers::Fact::TestSummary'}->{content} ) eq
-            'HASH' )
-        {
-            $fact = gen_fact( $data, 'CPAN::Testers::Fact::TestSummary' );
-        }
-        else {
-            die
-'Cannot process data, neither CPAN::Testers::Fact::LegacyReport or CPAN::Testers::Fact::TestSummary';
-        }
-
-        my %template;
-        $template{article}->{article} = $fact->{content}->{textreport};
-        $template{article}->{guid}    = $guid;
-
-# :TODO:08/05/2017 20:46:19:ARFREITAS: this seems to be ilogical... if
-# $fact is not recovered from the database, it will be created based on $data anyway
-# it should be same same thing using one or another
-        if ( defined( $row_ref->[0] ) ) {
-            map_attribs( $report, $fact );
-        }
-        else {
-            map_attribs( $report, $data );
-        }
-
-        $template{article}->{platform} = $fact->{content}->{archname};
-        $template{article}->{osvers}   = $fact->{content}->{osversion};
-        $template{article}->{created} =
-          $fact->{metadata}->{core}->{creation_time};
-        my $dist =
-          Metabase::Resource->new( $fact->{metadata}->{core}->{resource} );
-        $template{article}->{htmltitle} =
-            'Report for '
-          . $dist->metadata->{dist_name} . '-'
-          . $dist->metadata->{dist_version};
-        $template{article}->{dist_name}    = $dist->metadata->{dist_name};
-        $template{article}->{dist_version} = $dist->metadata->{dist_version};
-        my @created = localtime(time);
-        $template{copyright} =
-          '1999-' . ( $created[5] + 1900 ) . ' CPAN Testers';
-        $template{article}->{dist_path} =
-          substr( $dist->metadata->{dist_name}, 0, 1 );
-        ( $template{article}->{author}, $template{article}->{from} ) =
-          get_tester( $dbh, $fact->creator );
-
-        if ( $template{article}{created} ) {
-            my @created = $template{article}->{created} =~
-              /(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)Z/;    # 2010-02-23T20:33:52Z
-            $template{article}->{postdate} = sprintf "%04d%02d", $created[0],
-              $created[1];
-            $template{article}->{fulldate} = sprintf "%04d%02d%02d%02d%02d",
-              $created[0], $created[1], $created[2], $created[3], $created[4];
-        }
-        else {
-            $template{article}->{postdate} = sprintf "%04d%02d",
-              $created[5] + 1900,
-              $created[4] + 1;
-            $template{article}->{fulldate} = sprintf "%04d%02d%02d%02d%02d",
-              $created[5] + 1900, $created[4] + 1, $created[3], $created[2],
-              $created[1];
-        }
-
-        $template{article}->{subject} = sprintf "%s %s-%s %s %s",
-          uc( $fact->{content}->{grade} ), $dist->metadata->{dist_name},
-          $dist->metadata->{dist_version}, $fact->{content}->{perl_version},
-          query_osname( $dbh, $fact->{content}->{osname} );
-        $template{body}->{result}     = decode_report($report);
-        $template{article}->{article} = $fact->{content}{textreport};
-
-        return \%template;
-    }
-    else {
-        return undef;
-    }
-
-}
-
-sub get_tester {
-    my ( $dbh, $creator ) = @_;
-    my $query = q{SELECT mte.fullname, tp.name, tp.pause, tp.contact, mte.email
-FROM metabase.testers_email mte 
-LEFT JOIN testers.address ta ON ta.email=mte.email 
-LEFT JOIN testers.profile tp ON tp.testerid=ta.testerid 
-WHERE mte.resource=?
-ORDER BY tp.testerid DESC
-limit 1};
-    my $sth = $dbh->prepare($query);
-    $sth->bind_param( 1, $creator );
-    $sth->execute();
-    my $row_ref = $sth->fetchrow_arrayref;
-    unless ( scalar( @{$row_ref} ) > 0 ) {
-        return $creator, $creator;
-    }
-    else {
-        my $name = $row_ref->[0];
-        $name = join( ' ', $row_ref->[1], $row_ref->[2] )
-          if ( defined( $row_ref->[1] ) );
-        my $email = $row_ref->[3] || $row_ref->[4] || $creator;
-        $email =~ s/\'/''/g if ($email);
-        $name =~ s/\@/ [at] /g;
-        $email =~ s/\@/ [at] /g;
-        $email =~ s/\./ [dot] /g;
-        return $name, $email;
-    }
-
-}
-
-# :TODO:08/05/2017 21:04:10:ARFREITAS: this can be easily cached from the DB
-sub query_osname {
-    my ( $dbh, $os_name ) = @_;
-    return 'UNKNOWN' unless ($os_name);
-    my $query = q{SELECT ostitle FROM cpanstats.osname where osname = ?};
-    my $sth   = $dbh->prepare($query);
-    my $code  = lc($os_name);
-    $code =~ s/[^\w]+//g;
-    $sth->bind_param( 1, $code );
-    $sth->execute();
-    my $preferred_name = $sth->fetchrow_arrayref()->[0];
-
-    if ( defined($preferred_name) ) {
-        return $preferred_name;
-    }
-    else {
-        return uc($os_name);
-    }
-}
-
-# changes report in place
-sub map_attribs {
-    my ( $report, $source ) = @_;
-    my @attribs =
-      qw(resource schema_version creation_time valid creator update_time);
-    my $source_path;
-
-    if ( $source->isa('CPAN::Testers::Fact::LegacyReport') ) {
-        $source_path = $source->{metadata}->{core};
-    }
-    else {
-        $source_path =
-          $source->{'CPAN::Testers::Fact::TestSummary'}->{metadata}->{core};
-    }
-
-    foreach my $attrib (@attribs) {
-        $report->{metadata}->{core}->{$attrib} = $source_path->{$attrib};
-    }
-}
-
-sub gen_fact {
-    my ( $data_ref, $fact_name ) = @_;
-
-    try {
-        $data_ref->{$fact_name}->{content} =
-          encode_json( $data_ref->{$fact_name}->{content} );
-        return CPAN::Testers::Fact::TestSummary->from_struct(
-            $data_ref->{$fact_name} );
-    }
-    catch {
-        die "Failed to encode $fact_name as JSON: $_";
-    }
-
-}
-
-sub decode_report {
-    my $report = shift;
-    my $hash;
-
-    # do we have an encoded report object?
-    if ( ref($report) eq 'CPAN::Testers::Report' ) {
-        $hash = $report->as_struct;
-        $hash->{content} = decode_json( $hash->{content} );
-
-        foreach my $content ( @{ $hash->{content} } ) {
-            $content->{content} = decode_json( $content->{content} );
-        }
-
-        return encode_json($hash);
-    }
-
-    try {
-
-        # we have a manufactured hash, with a collection of fact objects
-        foreach my $fact ( @{ $report->{content} } ) {
-            $fact->{content} = decode_json( $fact->{content} );
-        }
-
-        return encode_json($report);
-    }
-    catch {
-        confess $_;
-    };
-
-    my @facts = $report->facts();
-
-    foreach my $fact (@facts) {
-        my $name = ref($fact);
-        $hash->{'CPAN::Testers::Report'}->{content}{$name} = $fact->as_struct();
-    }
-
-    return $hash;
-}
-
-sub dereference_report {
-    my ($report) = @_;
-    my %facts;
-    my @facts = $report->facts();
-
-    foreach my $fact (@facts) {
-        my $name = ref($fact);
-        $facts{$name} = $fact->as_struct;
-        $facts{$name}{content} = decode_json( $facts{$name}{content} );
-    }
-
-    return \%facts;
-}
-
-sub get_serial_data {
-
-    # to use the array reference instead of copying all the data
-    my ( $data_ref, $index ) = @_;
-    my $serializer = Data::FlexSerializer->new(
-        detect_compression => 1,
-        detect_sereal      => 1,
-        detect_json        => 1,
-    );
-    return $serializer->deserialize( $data_ref->[$index] );
-}
 
 # vim: filetype=perl
