@@ -1,0 +1,33 @@
+% extends 'legacy/layout-base';
+%= content body => begin
+  <!-- Main Page Container -->
+  <div class="page-container">
+    <!-- B. MAIN -->
+    <div class="main">
+      <!-- B.1 MAIN CONTENT -->
+      <div class="main-content">
+        <!-- Pagetitle -->
+        <h1 class="pagetitle">Report for <a href="http://metacpan.org/release/<%= $report->{article}->{dist_name} %>"><%= $report->{article}->{dist_name} . '-' . $report->{article}->{dist_version} %></a></h1>
+        <div class="column1-unit">
+      <!-- body content goes here -->
+      <div class="orange_buttons">
+        <a href="<%= '/cpan/report/' . $report->{article}->{guid} . '?raw=1' %>" rel="nofollow">Raw</a>
+        <a rel="nofollow" href="<%= '/distro/' . $report->{article}->{dist_path} . '/' . $report->{article}->{dist_name} . '.html?version=' . $report->{article}->{dist_version} %>">Back</a>
+      </div>
+
+      <pre>
+From: <strong><%= $report->{article}->{author} %></strong>
+Subject: <strong><%= $report->{article}->{subject} %></strong>
+Date: <strong><%= $report->{article}->{created} %></strong>
+
+<%= $report->{article}->{article} %>
+      </pre>
+
+        </div>
+        <hr class="clear-contentunit" />
+      </div>
+      <div class="blank"></div>
+      </div>
+    </div>
+% end
+

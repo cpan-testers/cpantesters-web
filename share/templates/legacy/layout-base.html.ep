@@ -12,9 +12,12 @@
   <meta name="language"     content="en" />
   <meta name="keywords"     content="perl, cpan, test, testing, tester, testers, reports, smoke, smoker, black box, automated, automation" />
   <meta name="description"  content="Report listings of distributions and authors from reports submitted by the CPAN Testers community, who automatically black box test submissions to Perl's CPAN code repository" />
-  <link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/legacy/layout_wide.css" />
+
+  % unless ( exists($report->{is_raw}) and $report->{is_raw} ) {
+    <link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/legacy/layout_wide.css"/>
+  % }
+  
   <!-- :TODO:19/05/2017 15:39:27:ARFREITAS: this template should be reduced to a single Javascript static file and imported by this template -->
-   
   %= include 'legacy/analytics'
 
   <script type="text/javascript">
@@ -32,37 +35,12 @@ function goThere(loc) {
 </head>
 
 <body>
-  <!-- Main Page Container -->
-  <div class="page-container">
-    <!-- B. MAIN -->
-    <div class="main">
-      <!-- B.1 MAIN CONTENT -->
-      <div class="main-content">
-        <!-- Pagetitle -->
-        <h1 class="pagetitle">Report for <a href="http://metacpan.org/release/<%= $report->{article}->{dist_name} %>"><%= $report->{article}->{dist_name} . '-' . $report->{article}->{dist_version} %></a></h1>
-        <div class="column1-unit">
+%= content body => begin
+Default body content, not very exciting.
+% end
 
-            <!-- body content goes here -->
-      <div class="orange_buttons">
-        <a href="<%= '/cpan/report/' . $report->{article}->{guid} . '?raw=1' %>" rel="nofollow">Raw</a>
-        <a rel="nofollow" href="<%= '/distro/' . $report->{article}->{dist_path} . '/' . $report->{article}->{dist_name} . '.html?version=' . $report->{article}->{dist_version} %>">Back</a>
-      </div>
-
-      <pre>
-From: <strong><%= $report->{article}->{author} %></strong>
-Subject: <strong><%= $report->{article}->{subject} %></strong>
-Date: <strong><%= $report->{article}->{created} %></strong>
-
-<%= $report->{article}->{article} %>
-      </pre>
-
-        </div>
-        <hr class="clear-contentunit" />
-      </div>
-      <div class="blank"></div>
-      </div>
-    </div>
-    <!-- FOOTER AREA -->      
-    %= include 'legacy/footer'
+%= content footer => begin
+%= include 'legacy/footer'
+%end
 </body>
 </html>

@@ -8,6 +8,7 @@ use Metabase::Resource 0.025;
 use CPAN::Testers::Report 1.999003;
 use Metabase::Resource::cpan::distfile 0.025;
 use Metabase::Resource::metabase::user 0.025;
+use CPAN::Testers::Web::Legacy 'copyright';
 
 =pod
 
@@ -55,9 +56,6 @@ Returns a hash reference containing all the data from a report.
 
 =cut
 
- # :TODO:19/05/2017 15:37:49:ARFREITAS: subclass this module and override this method
- # by subclasses, depending on which report type is requested: HTML, JSON or raw
- # Currently all data required by the three types is being generated
 sub get_report {
     my ( $self, $guid ) = @_;
     $self->{report_data} = $self->{conn}->run(
@@ -74,7 +72,9 @@ sub get_report {
 # memory for a shorter period of time
     my ( $report, $data );
 
-    if ( scalar( @{$self->{report_data}} ) > 0 ) {
+    if (    ( defined( $self->{report_data} ) )
+        and ( scalar( @{ $self->{report_data} } ) > 0 ) )
+    {
 
         # has the fact
         if ( defined( $self->{report_data}->[0] ) ) {
@@ -142,39 +142,117 @@ sub get_report {
           . $dist->metadata->{dist_version};
         $template{article}->{dist_name}    = $dist->metadata->{dist_name};
         $template{article}->{dist_version} = $dist->metadata->{dist_version};
-        my @created = localtime(time);
-        $template{copyright} =
-          '1999-' . ( $created[5] + 1900 ) . ' CPAN Testers';
+        $template{copyright}               = copyright();
         $template{article}->{dist_path} =
           substr( $dist->metadata->{dist_name}, 0, 1 );
         ( $template{article}->{author}, $template{article}->{from} ) =
           $self->_get_tester( $fact->creator );
+        $template{article}->{subject} = $self->_get_subject( $fact, $dist );
+        $template{article}->{article} = $fact->{content}->{textreport};
+        $self->{report_data}          = undef;
+        return \%template;
+    }
+    else {
+        return undef;
+    }
 
-        if ( $template{article}{created} ) {
-            my @created = $template{article}->{created} =~
-              /(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)Z/;    # 2010-02-23T20:33:52Z
-            $template{article}->{postdate} = sprintf "%04d%02d", $created[0],
-              $created[1];
-            $template{article}->{fulldate} = sprintf "%04d%02d%02d%02d%02d",
-              $created[0], $created[1], $created[2], $created[3], $created[4];
+}
+
+sub _get_subject {
+    my ( $self, $fact, $dist ) = @_;
+    return sprintf "%s %s-%s %s %s", uc( $fact->{content}->{grade} ),
+      $dist->metadata->{dist_name},
+      $dist->metadata->{dist_version}, $fact->{content}->{perl_version},
+      $self->_get_osname( $fact->{content}->{osname} );
+}
+
+sub get_raw_report {
+    my ( $self, $guid ) = @_;
+    $self->{report_data} = $self->{conn}->run(
+        sub {
+            my $sth = $_->prepare(
+                q{SELECT fact, report FROM metabase.metabase WHERE guid = ?});
+            $sth->bind_param( 1, $guid );
+            $sth->execute();
+            return $sth->fetchrow_arrayref;
+        }
+    );
+
+# :TODO:08/05/2017 19:26:47:ARFREITAS: $data is intermediate data, it can be moved to upper to other subs and maintained in
+# memory for a shorter period of time
+    my ( $report, $data );
+
+    if (    ( defined( $self->{report_data} ) )
+        and ( scalar( @{ $self->{report_data} } ) > 0 ) )
+    {
+
+        # has the fact
+        if ( defined( $self->{report_data}->[0] ) ) {
+            $report = $self->_get_serial_data(0);
+            $data   = $self->_dereference_report($report);
         }
         else {
-            $template{article}->{postdate} = sprintf "%04d%02d",
-              $created[5] + 1900,
-              $created[4] + 1;
-            $template{article}->{fulldate} = sprintf "%04d%02d%02d%02d%02d",
-              $created[5] + 1900, $created[4] + 1, $created[3], $created[2],
-              $created[1];
+            $data   = $self->_get_serial_data(1);
+            $report = {
+                metadata => {
+                    core => { guid => $guid, type => 'CPAN-Testers-Report' }
+                }
+            };
+
+            foreach my $name ( keys( %{$data} ) ) {
+                push @{ $report->{content} }, $data->{$name};
+            }
+
         }
 
-        $template{article}->{subject} = sprintf "%s %s-%s %s %s",
-          uc( $fact->{content}->{grade} ), $dist->metadata->{dist_name},
-          $dist->metadata->{dist_version}, $fact->{content}->{perl_version},
-          $self->_get_osname( $fact->{content}->{osname} );
+        my $fact;
 
-        # used by report in raw format
-        $template{body}->{result}     = $self->_decode_report($report);
+        if (
+            ref( $data->{'CPAN::Testers::Fact::LegacyReport'}->{content} ) eq
+            'HASH' )
+        {
+            $fact =
+              $self->_gen_fact( $data, 'CPAN::Testers::Fact::LegacyReport' );
+        }
+        elsif (
+            ref( $data->{'CPAN::Testers::Fact::TestSummary'}->{content} ) eq
+            'HASH' )
+        {
+            $fact =
+              $self->_gen_fact( $data, 'CPAN::Testers::Fact::TestSummary' );
+        }
+        else {
+            die
+'Cannot process data, neither CPAN::Testers::Fact::LegacyReport or CPAN::Testers::Fact::TestSummary';
+        }
+
+        my %template;
         $template{article}->{article} = $fact->{content}->{textreport};
+        $template{article}->{guid}    = $guid;
+
+# :TODO:08/05/2017 20:46:19:ARFREITAS: this seems to be ilogical... if
+# $fact is not recovered from the database, it will be created based on $data anyway
+# it should be same same thing using one or another
+        if ( defined( $self->{report_data}->[0] ) ) {
+            $self->_map_attribs( $report, $fact );
+        }
+        else {
+            $self->_map_attribs( $report, $data );
+        }
+
+        $template{article}->{created} =
+          $fact->{metadata}->{core}->{creation_time};
+        my $dist =
+          Metabase::Resource->new( $fact->{metadata}->{core}->{resource} );
+        $template{article}->{htmltitle} =
+            'Report for '
+          . $dist->metadata->{dist_name} . '-'
+          . $dist->metadata->{dist_version};
+        $template{copyright} = copyright();
+        $template{article}->{author} = $self->_get_tester( $fact->creator );
+        $template{article}->{subject} = $self->_get_subject( $fact, $dist );
+        $template{raw_report}         = $fact->{content}->{textreport};
+        $template{is_raw}             = 1;
         $self->{report_data}          = undef;
         return \%template;
     }
@@ -301,8 +379,8 @@ sub _get_tester {
     my ( $self, $creator ) = @_;
     my $row_ref = $self->{conn}->run(
         sub {
- # :WORKAROUND:19/05/2017 22:13:15:ARFREITAS: used lower() function to make it able to use data from both
- # Mysql and SQLite3, since the testers.address table on Mysql is using UTF8 case insensitive collation
+# :WORKAROUND:19/05/2017 22:13:15:ARFREITAS: used lower() function to make it able to use data from both
+# Mysql and SQLite3, since the testers.address table on Mysql is using UTF8 case insensitive collation
             my $query =
               q{SELECT mte.fullname, tp.name, tp.pause, tp.contact, mte.email
 FROM metabase.testers_email mte 
@@ -318,7 +396,7 @@ limit 1};
         }
     );
     unless ( scalar( @{$row_ref} ) > 0 ) {
-        return $creator, $creator;
+        return wantarray ? ( $creator, $creator ) : $creator;
     }
     else {
         my $name = $row_ref->[0];
@@ -329,7 +407,7 @@ limit 1};
         $name =~ s/\@/ [at] /g;
         $email =~ s/\@/ [at] /g;
         $email =~ s/\./ [dot] /g;
-        return $name, $email;
+        wantarray ? ( $name, $email ) : $name;
     }
 
 }

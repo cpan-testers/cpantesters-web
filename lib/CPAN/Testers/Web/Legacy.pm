@@ -30,7 +30,7 @@ Returns a string of it.
 
 =cut
 
-our @EXPORT_OK = qw(params_to_string);
+our @EXPORT_OK = qw(params_to_string copyright);
 
 sub params_to_string {
     my $params_ref = shift;
@@ -41,6 +41,17 @@ sub params_to_string {
     }
 
     return join( "\n", @text );
+}
+
+=head2 copyright
+
+Returns a string with webpage copyright information.
+
+=cut
+
+sub copyright {
+    my @created = localtime(time);
+    return '1999-' . ( $created[5] + 1900 ) . ' CPAN Testers';
 }
 
 =pod

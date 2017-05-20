@@ -10,7 +10,7 @@ use Carp;
 use DBIx::Connector 0.56;
 use FindBin ();
 use lib "$FindBin::Bin/../lib";
-use CPAN::Testers::Web::Legacy qw(params_to_string);
+use CPAN::Testers::Web::Legacy qw(params_to_string copyright);
 use CPAN::Testers::Web::Legacy::Model;
 
 =head1 NAME
@@ -134,20 +134,34 @@ get '/cpan/report/:guid' => sub {
         my $validation = $validator->validation;
         $validation->input( { $names[0] => $params_ref->{ $names[0] } } );
         $validation->required( $names[0] )->like(qr/^0|1$/);
-        my $val_result = $validation->param( $names[0] );
-        $c->app->log->debug($val_result);
+        my $val_result   = $validation->param( $names[0] );
         my $valid_params = Set::Tiny->new(qw(json raw));
 
         if (    $valid_params->has( $names[0] )
             and ( defined($val_result) )
             and ( $validation->param( $names[0] ) == 1 ) )
         {
-            $c->render(
-                text => "Getting report for GUID=$guid with $names[0]" );
+            $c->app->log->debug("Getting report for GUID=$guid with $names[0]");
+
+            if ( $names[0] eq 'raw' ) {
+                my $report_ref = $c->model->get_raw_report($guid);
+
+                unless ( ref($report_ref) eq 'HASH' ) {
+                    $c->redirect_to('/missing');
+                }
+
+                $c->stash( report => $report_ref );
+                $c->render( template => 'legacy/layout-raw' );
+
+            }
+            else {
+                $c->render( text => 'JSON report to be implemented yet' );
+            }
         }
         else {
             $c->app->log->debug("Ignoring parameter $names[0]");
-            $c->render( text => "Getting report for GUID=$guid" );
+            $c->render( text =>
+                  "Invalid parameter $names[0] for report of GUID=$guid" );
         }
     }
     else {
@@ -160,15 +174,28 @@ get '/cpan/report/:guid' => sub {
         }
 
         my $report_ref = $c->model->get_report($guid);
-        $c->redirect_to('/missing') unless ( ref($report_ref) eq 'HASH' );
-        $c->stash( report => $report_ref );
-        $c->render( template => 'legacy/layout-wide' );
+
+        unless ( ref($report_ref) eq 'HASH' ) {
+            $c->redirect_to('/missing');
+        }
+        else {
+            $c->stash( report => $report_ref );
+            $c->render( template => 'legacy/layout-default' );
+        }
+
     }
 
 };
 
-# :TODO:11/05/2017 01:15:40:ARFREITAS: implement not found page
-get '/missing' => sub { shift->render( template => 'does_not_exist' ) };
+get '/missing' => sub {
+    my $c       = shift;
+    my %content = (
+        article   => { htmltitle => 'report not found' },
+        copyright => copyright()
+    );
+    $c->stash( report => \%content );
+    $c->render( template => 'legacy/layout-404' );
+};
 
 unshift @{ app->renderer->paths },
   catdir( dist_dir('CPAN-Testers-Web-Legacy'), 'templates' );
