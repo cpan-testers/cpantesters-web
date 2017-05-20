@@ -3,7 +3,6 @@ use strict;
 use Test::More tests => 12;
 use Test::Mojo;
 use FindBin;
-use Storable 'retrieve';
 require "$FindBin::Bin/../bin/cpantesters-web-legacy";
 
 my $URL  = '/cpan/report/7185287a-1bf3-11e7-8a18-c6c6a528974d';
