@@ -55,22 +55,24 @@ Returns a hash reference containing all the data from a report.
 
 =cut
 
+ # :TODO:19/05/2017 15:37:49:ARFREITAS: subclass this module and override this method
+ # by subclasses, depending on which report type is requested: HTML, JSON or raw
+ # Currently all data required by the three types is being generated
 sub get_report {
     my ( $self, $guid ) = @_;
     $self->{report_data} = $self->{conn}->run(
         sub {
             my $sth = $_->prepare(
-                q{select fact, report from metabase.metabase where guid = ?});
+                q{SELECT fact, report FROM metabase.metabase WHERE guid = ?});
             $sth->bind_param( 1, $guid );
             $sth->execute();
             return $sth->fetchrow_arrayref;
-
         }
     );
 
 # :TODO:08/05/2017 19:26:47:ARFREITAS: $data is intermediate data, it can be moved to upper to other subs and maintained in
 # memory for a shorter period of time
-    my ( $report, $data, $error );
+    my ( $report, $data );
 
     if ( scalar( @{$self->{report_data}} ) > 0 ) {
 
@@ -299,10 +301,12 @@ sub _get_tester {
     my ( $self, $creator ) = @_;
     my $row_ref = $self->{conn}->run(
         sub {
+ # :WORKAROUND:19/05/2017 22:13:15:ARFREITAS: used lower() function to make it able to use data from both
+ # Mysql and SQLite3, since the testers.address table on Mysql is using UTF8 case insensitive collation
             my $query =
               q{SELECT mte.fullname, tp.name, tp.pause, tp.contact, mte.email
 FROM metabase.testers_email mte 
-LEFT JOIN testers.address ta ON ta.email=mte.email 
+LEFT JOIN testers.address ta ON lower(ta.email)=lower(mte.email)
 LEFT JOIN testers.profile tp ON tp.testerid=ta.testerid 
 WHERE mte.resource=?
 ORDER BY tp.testerid DESC
@@ -330,6 +334,7 @@ limit 1};
 
 }
 
+# passing an index to get advantage of the array reference
 sub _get_serial_data {
     my ( $self, $index ) = @_;
     my $serializer = Data::FlexSerializer->new(

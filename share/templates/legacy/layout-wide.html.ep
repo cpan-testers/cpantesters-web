@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-gb" lang="en-gb">
 <head>
-    <title>CPAN Testers Reports: <%= $report->{article}->{htmltitle} %></title>
+  <title>CPAN Testers Reports: <%= $report->{article}->{htmltitle} %></title>
   <meta http-equiv="Content-Type"         content="text/html; charset=UTF-8" />
   <meta http-equiv="Content-Language"     content="en-gb" />
   <meta http-equiv="Content-Style-Type"   content="text/css" />
@@ -13,14 +13,15 @@
   <meta name="keywords"     content="perl, cpan, test, testing, tester, testers, reports, smoke, smoker, black box, automated, automation" />
   <meta name="description"  content="Report listings of distributions and authors from reports submitted by the CPAN Testers community, who automatically black box test submissions to Perl's CPAN code repository" />
   <link rel="stylesheet" type="text/css" media="screen,projection,print" href="/css/legacy/layout_wide.css" />
-
+  <!-- :TODO:19/05/2017 15:39:27:ARFREITAS: this template should be reduced to a single Javascript static file and imported by this template -->
+   
   %= include 'legacy/analytics'
 
-<script type="text/javascript">
+  <script type="text/javascript">
 function goThere(loc) {
   window.location.href=loc;
 }
-</script>
+  </script>
 
 <!--
   Site Layout, Design &amp; Development by Miss Barbell Productions

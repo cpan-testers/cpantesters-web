@@ -65,6 +65,14 @@
       "CPAN::Testers::Web::Base" : {
          "file" : "lib/CPAN/Testers/Web/Base.pm",
          "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Legacy" : {
+         "file" : "lib/CPAN/Testers/Web/Legacy.pm",
+         "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Legacy::Model" : {
+         "file" : "lib/CPAN/Testers/Web/Legacy/Model.pm",
+         "version" : "0.001"
       }
    },
    "release_status" : "stable",

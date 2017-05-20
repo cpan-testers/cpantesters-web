@@ -3,14 +3,10 @@ use strict;
 use Test::More tests => 12;
 use Test::Mojo;
 use FindBin;
+use Storable 'retrieve';
 require "$FindBin::Bin/../bin/cpantesters-web-legacy";
 
-# :TODO:04/05/2017 17:06:00:ARFREITAS: must make sure that the fixture available to the web app has this same report!
-
-#my $host = 'http://www.cpantesters.org';
-my $host = '';
-my $URL = $host . '/cpan/report/7185287a-1bf3-11e7-8a18-c6c6a528974d';
-
+my $URL  = '/cpan/report/7185287a-1bf3-11e7-8a18-c6c6a528974d';
 my $t = Test::Mojo->new();
 $t->get_ok($URL)->status_is(200);
 $t->text_is(

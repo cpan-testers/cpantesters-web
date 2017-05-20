@@ -2,8 +2,7 @@
     <p>CPAN Testers PASS Matrix is powered by <a href="http://mojolicious.org/">Mojolicious</a>.<br />
     All data and statistics are &#169; <%= $report->{copyright} %>, and available under the Artistic License 2.0. See <a href="https://github.com/cpan-testers/cpantesters-web">https://github.com/cpan-testers/cpantesters-web</a> for issues and patches.
     </p>
-    
-		<p>
+	<p>
     The CPAN Testers Family: <br />
       <a href="http://blog.cpantesters.org"     title="CPAN Testers Blog"       >Blog</a>         &#8226;
       <a href="http://www.cpantesters.org"      title="CPAN Testers Reports"    >Reports</a>      &#8226;

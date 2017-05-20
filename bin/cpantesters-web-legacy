@@ -93,7 +93,8 @@ if ( -f '/etc/cpantesters-web-legacy.conf' ) {
     $cfg = 'cpantesters-web-legacy.conf';
 }
 else {
-    $cfg = catfile( dist_dir('CPAN-Testers-Web-Legacy'), 'etc', 'cpantesters-web-legacy.conf' );
+    $cfg = catfile( dist_dir('CPAN-Testers-Web-Legacy'),
+        'etc', 'cpantesters-web-legacy.conf' );
 }
 
 my $config = plugin 'Config' => { file => $cfg };
@@ -103,6 +104,14 @@ helper dbh => sub {
     state $conn = DBIx::Connector->new( $config->{dsn}, $config->{user},
         $config->{pass}, { RaiseError => 1, AutoCommit => 1 } );
     $conn->mode('fixup');
+
+    if ( $config->{dsn} =~ /^dbi:SQLite/ ) {
+        my $dbh = $conn->dbh;
+        $dbh->do(q{attach database 't/data/metabase' as metabase});
+        $dbh->do(q{attach database 't/data/cpanstats' as cpanstats});
+        $dbh->do(q{attach database 't/data/testers' as testers});
+    }
+
     return $conn;
 };
 
