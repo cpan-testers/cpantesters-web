@@ -147,15 +147,24 @@ get '/cpan/report/:guid' => sub {
                 my $report_ref = $c->model->get_raw_report($guid);
 
                 unless ( ref($report_ref) eq 'HASH' ) {
-                    $c->redirect_to('/missing');
+                    $c->redirect_to( 'missing' );
                 }
-
-                $c->stash( report => $report_ref );
-                $c->render( template => 'legacy/layout-raw' );
+                else {
+                    $c->stash( report => $report_ref );
+                    $c->render( template => 'legacy/layout-raw' );
+                }
 
             }
             else {
-                $c->render( text => 'JSON report to be implemented yet' );
+                my $report_ref = $c->model->get_json_report($guid);
+
+                unless ( ref($report_ref) eq 'HASH' ) {
+                    $c->redirect_to( 'missing' );
+                }
+                else {
+                    $c->render( json => $report_ref );
+                }
+
             }
         }
         else {
@@ -176,7 +185,7 @@ get '/cpan/report/:guid' => sub {
         my $report_ref = $c->model->get_report($guid);
 
         unless ( ref($report_ref) eq 'HASH' ) {
-            $c->redirect_to('/missing');
+            $c->redirect_to( 'missing' );
         }
         else {
             $c->stash( report => $report_ref );
@@ -185,9 +194,9 @@ get '/cpan/report/:guid' => sub {
 
     }
 
-};
+} => 'report';
 
-get '/missing' => sub {
+get '/cpan/missing' => sub {
     my $c       = shift;
     my %content = (
         article   => { htmltitle => 'report not found' },
@@ -195,7 +204,7 @@ get '/missing' => sub {
     );
     $c->stash( report => \%content );
     $c->render( template => 'legacy/layout-404' );
-};
+} => 'missing';
 
 unshift @{ app->renderer->paths },
   catdir( dist_dir('CPAN-Testers-Web-Legacy'), 'templates' );

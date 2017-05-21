@@ -158,6 +158,100 @@ sub get_report {
 
 }
 
+sub get_json_report {
+    my ( $self, $guid ) = @_;
+    $self->{report_data} = $self->{conn}->run(
+        sub {
+            my $sth = $_->prepare(
+                q{SELECT fact, report FROM metabase.metabase WHERE guid = ?});
+            $sth->bind_param( 1, $guid );
+            $sth->execute();
+            return $sth->fetchrow_arrayref;
+        }
+    );
+
+# :TODO:08/05/2017 19:26:47:ARFREITAS: $data is intermediate data, it can be moved to upper to other subs and maintained in
+# memory for a shorter period of time
+    my ( $report, $data );
+
+    if (    ( defined( $self->{report_data} ) )
+        and ( scalar( @{ $self->{report_data} } ) > 0 ) )
+    {
+
+        # has the fact
+        if ( defined( $self->{report_data}->[0] ) ) {
+            $report = $self->_get_serial_data(0);
+            $data   = $self->_dereference_report($report);
+        }
+        else {
+            $data   = $self->_get_serial_data(1);
+            $report = {
+                metadata => {
+                    core => { guid => $guid, type => 'CPAN-Testers-Report' }
+                }
+            };
+
+            foreach my $name ( keys( %{$data} ) ) {
+                push @{ $report->{content} }, $data->{$name};
+            }
+
+        }
+
+        my $fact;
+
+        if (
+            ref( $data->{'CPAN::Testers::Fact::LegacyReport'}->{content} ) eq
+            'HASH' )
+        {
+            $fact =
+              $self->_gen_fact( $data, 'CPAN::Testers::Fact::LegacyReport' );
+        }
+        elsif (
+            ref( $data->{'CPAN::Testers::Fact::TestSummary'}->{content} ) eq
+            'HASH' )
+        {
+            $fact =
+              $self->_gen_fact( $data, 'CPAN::Testers::Fact::TestSummary' );
+        }
+        else {
+            die
+'Cannot process data, neither CPAN::Testers::Fact::LegacyReport or CPAN::Testers::Fact::TestSummary';
+        }
+
+        my %json;
+
+# :TODO:08/05/2017 20:46:19:ARFREITAS: this seems to be ilogical... if
+# $fact is not recovered from the database, it will be created based on $data anyway
+# it should be same same thing using one or another
+        if ( defined( $self->{report_data}->[0] ) ) {
+            $self->_map_attribs( $report, $fact );
+        }
+        else {
+            $self->_map_attribs( $report, $data );
+        }
+
+        $json{result} = $self->_decode_report($report);
+
+        if ( defined( $json{result} )
+            and ( $json{result} ne '""' ) )
+        {
+            $json{success} = JSON::true;
+        }
+        else {
+            $json{success} = JSON::false;
+        }
+
+        $self->{report_data} = undef;
+
+        # the controller should be responsible to generate JSON as output
+        return \%json;
+    }
+    else {
+        return undef;
+    }
+
+}
+
 sub _get_subject {
     my ( $self, $fact, $dist ) = @_;
     return sprintf "%s %s-%s %s %s", uc( $fact->{content}->{grade} ),
@@ -277,44 +371,66 @@ sub _gen_fact {
 
 }
 
-# used by report in raw format
 sub _decode_report {
     my ( $self, $report ) = @_;
-    my $hash;
+    my $final_report;
 
     # do we have an encoded report object?
     if ( ref($report) eq 'CPAN::Testers::Report' ) {
-        $hash = $report->as_struct;
-        $hash->{content} = decode_json( $hash->{content} );
+        $final_report = $report->as_struct;
+        $final_report->{content} = decode_json( $final_report->{content} );
 
-        foreach my $content ( @{ $hash->{content} } ) {
+        foreach my $content ( @{ $final_report->{content} } ) {
             $content->{content} = decode_json( $content->{content} );
         }
 
-        return encode_json($hash);
+    }
+    else {
+        # we have a manufactured hash, with a collection of fact objects
+
+        try {
+
+            foreach my $fact ( @{ $report->{content} } ) {
+                $fact->{content} = decode_json( $fact->{content} );
+            }
+
+            $final_report = $report;
+        }
+        catch {
+            confess $_;
+        };
+
     }
 
-    try {
+    # manually fixing booleans
 
-        # we have a manufactured hash, with a collection of fact objects
-        foreach my $fact ( @{ $report->{content} } ) {
-            $fact->{content} = decode_json( $fact->{content} );
+    for my $index ( 0 .. 1 ) {
+
+        if (
+            exists(
+                $final_report->{content}->[$index]->{metadata}->{core}->{valid}
+            )
+          )
+        {
+
+            $final_report->{content}->[$index]->{metadata}->{core}->{valid} =
+              ( $final_report->{content}->[$index]->{metadata}->{core}->{valid}
+              )
+              ? JSON::true
+              : JSON::false;
+
         }
 
-        return encode_json($report);
-    }
-    catch {
-        confess $_;
-    };
-
-    my @facts = $report->facts();
-
-    foreach my $fact (@facts) {
-        my $name = ref($fact);
-        $hash->{'CPAN::Testers::Report'}->{content}{$name} = $fact->as_struct();
     }
 
-    return $hash;
+    if ( exists( $final_report->{metadata}->{core}->{valid} ) ) {
+        $final_report->{metadata}->{core}->{valid} =
+          ( $final_report->{metadata}->{core}->{valid} )
+          ? JSON::true
+          : JSON::false;
+    }
+
+    return $final_report;
 }
 
 sub _dereference_report {
