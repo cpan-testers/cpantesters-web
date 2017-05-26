@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.12/css/highcharts.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.12/highcharts.js"></script>
+<title>Dashboard</title>
+<h1>Dashboard</h1>
+<form onsubmit="refresh(event)">
+<input type="text" placeholder="Distribution name" name="dist">
+<select name="versions">
+<option value="0">all</option>
+<option value="50">50</option>
+<option value="25">25</option>
+<option value="10" selected>10</option>
+<option value="5">5</option>
+</select>
+<button>Refresh</button>
+</form>
+<div id="container" style="width: 100%; height: 400px"></div>
+<script>
+
+function refresh( event ) {
+    event.preventDefault();
+    var dist = $('[name=dist]').val();
+    if ( !dist ) { return; }
+
+    var show_versions = $('[name=versions]').val();
+    $.getJSON('http://api.cpantesters.org/v3/release/dist/' + dist, function (data) {
+        var sorted = data.sort( function (a, b) { return a.version < b.version ? -1 : a.version > b.version ? 1 : 0 } );
+        if ( show_versions ) {
+            sorted = sorted.slice( -show_versions );
+        }
+        var versions = sorted.map( function (d) { return d.version } );
+    var series = { pass: [], fail: [], na: [], unknown: [] };
+        for ( var i = 0; i < sorted.length; i++ ) {
+            series.pass.push( sorted[i].pass );
+            series.fail.push( sorted[i].fail );
+            series.na.push( sorted[i].na );
+            series.unknown.push( sorted[i].unknown );
+        }
+        var myChart = Highcharts.chart('container', {
+            chart: {
+                type: 'column',
+            },
+        plotOptions: {
+                column: {
+                stacking: 'normal'
+                }
+            },
+            title: {
+                text: 'Report Summary'
+            },
+            xAxis: {
+                title: { text: 'Version' },
+                categories: versions
+            },
+            yAxis: {
+                title: {
+                    text: 'Reports by Grade'
+                }
+            },
+            series: [
+                { name: 'Pass', data: series.pass },
+                { name: 'Fail', data: series.fail },
+                { name: 'NA', data: series.na },
+                { name: 'Unknown', data: series.unknown }
+            ]
+        });
+    });
+}
+
+</script>
+
