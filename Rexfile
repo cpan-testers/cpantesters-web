@@ -69,15 +69,7 @@ task deploy =>
     group => 'web',
     sub {
         run 'source ~/.profile; cpanm CPAN::Testers::Web DBD::mysql';
-        file '~/service/web/log/main',
-            ensure => 'directory';
-        file '~/service/web/run',
-            source => 'etc/runit/web/run';
-        file '~/service/web/web.conf',
-            source => 'etc/runit/web/web.conf';
-        file '~/service/web/log/run',
-            source => 'etc/runit/web/log/run';
-        run 'sv restart ~/service/web';
+        run_task 'deploy_config', on => connection->server;
     };
 
 =head2 deploy_dev
@@ -109,6 +101,21 @@ task deploy_dev =>
 
         Rex::Logger::info( 'Installing ' . $dist );
         run 'source ~/.profile; cpanm ~/dist/' . $dist;
+        run_task 'deploy_config', on => connection->server;
+    };
+
+=head2 deploy_config
+
+    rex deploy_config
+
+Deploy the service scripts and configuration files, and then restart
+the services.
+
+=cut
+
+task deploy_config =>
+    group => 'web',
+    sub {
         file '~/service/web/log/main',
             ensure => 'directory';
         file '~/service/web/run',
