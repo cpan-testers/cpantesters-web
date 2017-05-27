@@ -13,6 +13,8 @@ use lib "$FindBin::Bin/../lib";
 use CPAN::Testers::Web::Legacy qw(params_to_string copyright);
 use CPAN::Testers::Web::Legacy::Model;
 
+our $VERSION = '0.001';
+
 =head1 NAME
 
 cpantesters-web-legacy -- Start the CPAN Testers Legacy web application

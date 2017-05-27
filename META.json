@@ -32,14 +32,30 @@
       },
       "runtime" : {
          "requires" : {
+            "CPAN::Testers::Report" : "1.999003",
             "CPAN::Testers::Schema" : "0.004",
-            "File::Share" : "0",
+            "Carp" : "0",
+            "DBIx::Connector" : "0.56",
+            "Data::FlexSerializer" : "1.10",
+            "File::Share" : "0.25",
+            "File::Spec::Functions" : "0",
             "Import::Base" : "0.012",
+            "JSON" : "2.90",
             "Log::Any" : "1.045",
+            "Log::Any::Adapter" : "0",
             "Log::Any::Adapter::MojoLog" : "0.02",
+            "Metabase::Resource" : "0.025",
+            "Metabase::Resource::cpan::distfile" : "0.025",
+            "Metabase::Resource::metabase::user" : "0.025",
+            "Mojo::Base" : "0",
             "Mojolicious" : "6",
+            "Mojolicious::Commands" : "0",
+            "Mojolicious::Lite" : "0",
             "Mojolicious::Plugin::AssetPack" : "0",
             "Mojolicious::Plugin::Config" : "0",
+            "Mojolicious::Validator" : "0",
+            "Set::Tiny" : "0.04",
+            "Try::Tiny" : "0.27",
             "perl" : "5.024"
          }
       },
@@ -53,7 +69,10 @@
             "IO::Handle" : "0",
             "IPC::Open3" : "0",
             "Test::Lib" : "0",
-            "Test::More" : "1.001005"
+            "Test::Mojo" : "0",
+            "Test::More" : "1.001005",
+            "blib" : "1.01",
+            "perl" : "5.024"
          }
       }
    },

@@ -1,14 +1,29 @@
 use warnings;
 use strict;
-use DBI;
-use Try::Tiny;
+use DBI 1.636;
+use Try::Tiny 0.27;
 use Data::Dumper;
 use Cwd;
 use File::Spec;
+use Getopt::Long;
+
+my $dsn      = 'dbi:mysql:metabase;host=127.0.0.1;port=30306';
+my $user     = 'cpantesters';
+my $password = '';
+my $connect  = 0;
+my $data_dir = getcwd();
+
+GetOptions(
+    'dsn=s'      => \$dsn,
+    'user=s'     => \$user,
+    'password=s' => \$password,
+    'connect'    => \$connect,
+    'datadir'    => \$data_dir,
+) or die "Error in command line arguments";
 
 my $db_location = File::Spec->catdir( getcwd(), 't', 'data' );
-my $mysql = DBI->connect( 'dbi:mysql:metabase;host=127.0.0.1;port=30306',
-    'cpantesters', '', { RaiseError => 1, AutoCommit => 1 } );
+my $mysql =
+  DBI->connect( $dsn, $user, $password, { RaiseError => 1, AutoCommit => 1 } );
 my $sqlite = DBI->connect(
     'dbi:SQLite:dbname=' . File::Spec->catfile( $db_location, 'metabase' ),
     '', '', { RaiseError => 1, AutoCommit => 1 } );

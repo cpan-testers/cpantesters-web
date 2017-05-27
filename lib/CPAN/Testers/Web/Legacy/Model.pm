@@ -8,7 +8,11 @@ use Metabase::Resource 0.025;
 use CPAN::Testers::Report 1.999003;
 use Metabase::Resource::cpan::distfile 0.025;
 use Metabase::Resource::metabase::user 0.025;
+use Data::FlexSerializer 1.10;
+use Metabase::Resource 0.025;
 use CPAN::Testers::Web::Legacy 'copyright';
+
+our $VERSION = '0.001';
 
 =pod
 
