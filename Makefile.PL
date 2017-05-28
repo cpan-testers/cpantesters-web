@@ -21,7 +21,8 @@ my %WriteMakefileArgs = (
   },
   "DISTNAME" => "CPAN-Testers-Web",
   "EXE_FILES" => [
-    "bin/cpantesters-web"
+    "bin/cpantesters-web",
+    "bin/cpantesters-web-legacy"
   ],
   "LICENSE" => "perl",
   "MIN_PERL_VERSION" => "5.024",

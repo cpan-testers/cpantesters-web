@@ -1,0 +1,15 @@
+% extends 'legacy/layout-base';
+%= content body => begin
+
+<pre>
+From: <strong><%= $report->{article}->{author} %></strong>
+Subject: <strong><%= $report->{article}->{subject} %></strong>
+Date: <strong><%= $report->{article}->{created} %></strong>
+<%= $report->{raw_report} %>
+</pre>
+
+%end
+
+%= content footer => begin 
+<!-- no footer for raw report -->
+%end

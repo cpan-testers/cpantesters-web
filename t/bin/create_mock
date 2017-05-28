@@ -1,0 +1,105 @@
+use warnings;
+use strict;
+use DBI;
+use Try::Tiny;
+use Data::Dumper;
+use Cwd;
+use File::Spec;
+
+my $db_location = File::Spec->catdir( getcwd(), 't', 'data' );
+my $mysql = DBI->connect( 'dbi:mysql:metabase;host=127.0.0.1;port=30306',
+    'cpantesters', '', { RaiseError => 1, AutoCommit => 1 } );
+my $sqlite = DBI->connect(
+    'dbi:SQLite:dbname=' . File::Spec->catfile( $db_location, 'metabase' ),
+    '', '', { RaiseError => 1, AutoCommit => 1 } );
+attach( $sqlite, $db_location );
+$sqlite->do(
+q{CREATE TABLE metabase.metabase (GUID text primary key, id integer unique, updated text, report blob not null, fact bloc)}
+);
+$sqlite->do(
+q{CREATE TABLE metabase.testers_email (id int primary key, resource text not null, fullname text not null, email text)}
+);
+$sqlite->do(
+q{create table cpanstats.osname (id int primary key, osname text, ostitle text)}
+);
+$sqlite->do(
+q{create table testers.address (addressid int primary key, testerid int unique not null, address text not null, email text)}
+);
+$sqlite->do(
+q{create table testers.profile (testerid int primary key, name text, pause text, contact text)}
+);
+populate_table(
+    $sqlite,
+    $mysql,
+q{select guid, id, updated, report, fact from metabase.metabase where guid = '7185287a-1bf3-11e7-8a18-c6c6a528974d'},
+q{insert into metabase.metabase(guid, id, updated, report, fact) values (?, ?, ?, ?, ?)}
+);
+populate_table(
+    $sqlite,
+    $mysql,
+q{select id, resource, fullname, email from metabase.testers_email where resource = 'metabase:user:a0e144f2-373b-11e6-8edd-c6848980b093'},
+q{insert into metabase.testers_email(id, resource, fullname, email) values (?, ?, ?, ?)}
+);
+populate_table(
+    $sqlite,
+    $mysql,
+q{select addressid, testerid, address, email from testers.address where email = 'DCOLLINS@cpan.org'},
+q{insert into testers.address(addressid, testerid, address, email) values (?, ?, ?, ?)}
+);
+populate_table(
+    $sqlite,
+    $mysql,
+q{select testerid,name,pause,contact from testers.profile where testerid = 530},
+q{insert into testers.profile(testerid, name, pause, contact) values (?, ?, ?, ?)}
+);
+populate_table(
+    $sqlite, $mysql,
+    q{SELECT id, osname, ostitle FROM cpanstats.osname},
+    q{insert into cpanstats.osname(id, osname, ostitle) values (?, ?, ?)}
+);
+
+sub populate_table {
+    my ( $sqlite, $mysql, $query, $insert ) = @_;
+    my $insert_h = $sqlite->prepare($insert);
+    my $query_h  = $mysql->prepare($query);
+    $query_h->execute;
+    my $inserted = 0;
+
+    while ( my $row = $query_h->fetchrow_arrayref ) {
+        for ( my $i = 0 ; $i < scalar( @{$row} ) ; $i++ ) {
+            $insert_h->bind_param( ( $i + 1 ), $row->[$i] );
+        }
+
+        try {
+            $insert_h->execute();
+            $inserted += $insert_h->rows;
+        }
+        catch {
+            warn "Failed to insert: $_";
+            warn Dumper($row);
+            die "Cannot continue";
+        };
+
+    }
+
+    print 'Fetched ', $query_h->rows, " for [$query]\n";
+    print 'Inserted ', $inserted, " for [$insert]\n";
+    die "There is some problem with $query or $insert"
+      unless ( ( $query_h->rows > 0 )
+        and ( $query_h->rows == $inserted ) );
+}
+
+sub attach {
+    my ( $dbh, $location ) = @_;
+    $dbh->do( 'attach database \''
+          . File::Spec->catfile( $location, 'metabase' )
+          . '\' as metabase' );
+    $dbh->do( 'attach database \''
+          . File::Spec->catfile( $location, 'cpanstats' )
+          . '\' as cpanstats' );
+    $dbh->do( 'attach database \''
+          . File::Spec->catfile( $location, 'testers' )
+          . '\' as testers' );
+}
+
+# vim: filetype=perl

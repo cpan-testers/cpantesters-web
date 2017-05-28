@@ -1,0 +1,216 @@
+#!perl
+# PODNAME: cpantesters-web-legacy
+use Mojolicious::Lite;
+use Mojolicious::Validator;
+use Set::Tiny 0.04;
+use File::Spec::Functions qw( catdir catfile );
+use File::Share 0.25 'dist_dir';
+use Mojolicious::Plugin::Config;
+use Carp;
+use DBIx::Connector 0.56;
+use FindBin ();
+use lib "$FindBin::Bin/../lib";
+use CPAN::Testers::Web::Legacy qw(params_to_string copyright);
+use CPAN::Testers::Web::Legacy::Model;
+
+=head1 NAME
+
+cpantesters-web-legacy -- Start the CPAN Testers Legacy web application
+
+=head1 SYNOPSIS
+
+  cpantesters-web-legacy daemon
+  cpantesters-web-legacy help
+
+=head1 DESCRIPTION
+
+This program loads the CPAN Testers Legacy web application,
+a L<Mojolicious> web application.
+
+For more detailed usage help, see C<cpantesters-web-legacy help>.
+
+=head1 CONFIGURATION
+
+This application will search for a configuration file using the following paths, in this specific order:
+
+=over
+
+=item 1.
+
+C</etc/cpantesters-web-legacy.conf>
+
+=item 2.
+
+The subdirectory C<etc> under the C<share> directory, as defined by L<File::Share> C<dist_dir> function.
+
+=back
+
+For now, it should be a hash reference with DB connection information, with the following keys/values:
+
+=over
+
+=item *
+
+dsn: as defined by L<DBI>.
+
+=item *
+
+user: login to authenticate against the DB.
+
+=item *
+
+pass: the login password.
+
+=back
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+L<CPAN::Testers::Web>
+
+=item *
+
+L<http://mojolicious.org/perldoc/Mojolicious/Guides/Cookbook#Adding-a-configuration-file>
+
+=item *
+
+L<File::Share>
+
+=item *
+
+L<Mojolicious>
+
+=back
+
+=cut
+
+my $cfg;
+
+if ( -f '/etc/cpantesters-web-legacy.conf' ) {
+    $cfg = 'cpantesters-web-legacy.conf';
+}
+else {
+    $cfg = catfile( dist_dir('CPAN-Testers-Web-Legacy'),
+        'etc', 'cpantesters-web-legacy.conf' );
+}
+
+my $config = plugin 'Config' => { file => $cfg };
+
+helper dbh => sub {
+    my ($c) = @_;
+    state $conn = DBIx::Connector->new( $config->{dsn}, $config->{user},
+        $config->{pass}, { RaiseError => 1, AutoCommit => 1 } );
+    $conn->mode('fixup');
+
+    if ( $config->{dsn} =~ /^dbi:SQLite/ ) {
+        my $dbh = $conn->dbh;
+        $dbh->do(q{attach database 't/data/metabase' as metabase});
+        $dbh->do(q{attach database 't/data/cpanstats' as cpanstats});
+        $dbh->do(q{attach database 't/data/testers' as testers});
+    }
+
+    return $conn;
+};
+
+helper model => sub {
+    my ($c) = @_;
+    state $model = CPAN::Testers::Web::Legacy::Model->new( $c->dbh );
+};
+
+get '/cpan/report/:guid' => sub {
+    my $c    = shift;
+    my $guid = $c->stash('guid');
+
+    # hash ref
+    my $params_ref = $c->req->query_params->to_hash;
+    $c->app->log->debug( 'GET parameters: ' . params_to_string($params_ref) );
+    my @names = keys( %{$params_ref} );
+
+    if ( scalar(@names) == 1 ) {
+        my $validator  = Mojolicious::Validator->new;
+        my $validation = $validator->validation;
+        $validation->input( { $names[0] => $params_ref->{ $names[0] } } );
+        $validation->required( $names[0] )->like(qr/^0|1$/);
+        my $val_result   = $validation->param( $names[0] );
+        my $valid_params = Set::Tiny->new(qw(json raw));
+
+        if (    $valid_params->has( $names[0] )
+            and ( defined($val_result) )
+            and ( $validation->param( $names[0] ) == 1 ) )
+        {
+            $c->app->log->debug("Getting report for GUID=$guid with $names[0]");
+
+            if ( $names[0] eq 'raw' ) {
+                my $report_ref = $c->model->get_raw_report($guid);
+
+                unless ( ref($report_ref) eq 'HASH' ) {
+                    $c->redirect_to( 'missing' );
+                }
+                else {
+                    $c->stash( report => $report_ref );
+                    $c->render( template => 'legacy/layout-raw' );
+                }
+
+            }
+            else {
+                my $report_ref = $c->model->get_json_report($guid);
+
+                unless ( ref($report_ref) eq 'HASH' ) {
+                    $c->redirect_to( 'missing' );
+                }
+                else {
+                    $c->render( json => $report_ref );
+                }
+
+            }
+        }
+        else {
+            $c->app->log->debug("Ignoring parameter $names[0]");
+            $c->render( text =>
+                  "Invalid parameter $names[0] for report of GUID=$guid" );
+        }
+    }
+    else {
+
+        if ( scalar(@names) == 0 ) {
+            $c->app->log->debug('No parameters received');
+        }
+        else {
+            $c->app->log->debug('Ignoring multiple parameters');
+        }
+
+        my $report_ref = $c->model->get_report($guid);
+
+        unless ( ref($report_ref) eq 'HASH' ) {
+            $c->redirect_to( 'missing' );
+        }
+        else {
+            $c->stash( report => $report_ref );
+            $c->render( template => 'legacy/layout-default' );
+        }
+
+    }
+
+} => 'report';
+
+get '/cpan/missing' => sub {
+    my $c       = shift;
+    my %content = (
+        article   => { htmltitle => 'report not found' },
+        copyright => copyright()
+    );
+    $c->stash( report => \%content );
+    $c->render( template => 'legacy/layout-404' );
+} => 'missing';
+
+unshift @{ app->renderer->paths },
+  catdir( dist_dir('CPAN-Testers-Web-Legacy'), 'templates' );
+unshift @{ app->static->paths },
+  catdir( dist_dir('CPAN-Testers-Web-Legacy'), 'public' );
+
+app->start;
+
+# vim: filetype=perl

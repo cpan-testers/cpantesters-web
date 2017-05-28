@@ -4,7 +4,7 @@
       "Doug Bell <preaction@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 6.008, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Dist::Zilla version 6.008, CPAN::Meta::Converter version 2.150005",
    "license" : [
       "perl_5"
    ],
@@ -65,6 +65,14 @@
       "CPAN::Testers::Web::Base" : {
          "file" : "lib/CPAN/Testers/Web/Base.pm",
          "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Legacy" : {
+         "file" : "lib/CPAN/Testers/Web/Legacy.pm",
+         "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Legacy::Model" : {
+         "file" : "lib/CPAN/Testers/Web/Legacy/Model.pm",
+         "version" : "0.001"
       }
    },
    "release_status" : "stable",
@@ -82,6 +90,9 @@
    },
    "version" : "0.001",
    "x_authority" : "cpan:PREACTION",
-   "x_serialization_backend" : "Cpanel::JSON::XS version 3.0216"
+   "x_contributors" : [
+      "Alceu Rodrigues de Freitas Junior <arfreitas@cpan.org>"
+   ],
+   "x_serialization_backend" : "Cpanel::JSON::XS version 3.0225"
 }
 
