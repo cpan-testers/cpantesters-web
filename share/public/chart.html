@@ -67,7 +67,7 @@ var vm = new Vue({
             setTimeout( function () { self.fetchRelease(); }, 10 );
         }
         if ( obj.version ) {
-            setTimeout( function () { self.fetchVersion(); }, 10 );
+            setTimeout( function () { self.fetchSummary(); }, 10 );
         }
         return obj;
     },
@@ -82,7 +82,7 @@ var vm = new Vue({
             }[ grade ];
         },
 
-        fetchVersion: function () {
+        fetchSummary: function () {
             var self = this;
 
             history.pushState(
@@ -167,7 +167,7 @@ var vm = new Vue({
                             events: {
                                 click: function ( event ) {
                                     self.version = event.point.category;
-                                    self.fetchVersion();
+                                    self.fetchSummary();
                                 }
                             }
                         }
@@ -203,7 +203,7 @@ window.onpopstate = function (event) {
     }
     vm.version = event.state.version;
     if ( vm.version ) {
-        vm.fetchVersion();
+        vm.fetchSummary();
     }
 };
 
