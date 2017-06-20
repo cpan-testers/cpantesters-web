@@ -102,9 +102,11 @@ var vm = new Vue({
 
                 for ( var os in osnames ) {
                     var series = { pass: [], fail: [], na: [], unknown: [] };
+                    var count = 0;
                     for ( var i = 0; i < data.length; i++ ) {
                         if ( data[i].osname == os ) {
                             series[ data[i].grade ]++;
+                            count++;
                         }
                     }
                     var myChart = Highcharts.chart( osnames[os]['id'], {
@@ -122,7 +124,7 @@ var vm = new Vue({
                             }
                         },
                         title: {
-                            text: osnames[os]['title']
+                            text: osnames[os]['title'] + ' (' + count + ')'
                         },
                         series: [{
                             name: 'Reports',
