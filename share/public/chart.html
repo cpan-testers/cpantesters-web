@@ -11,7 +11,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
 <title>Dashboard</title>
 <div class="container" id="app">
     <h1>Dashboard</h1>
-    <form class="form form-inline" @submit="fetchRelease">
+    <form class="form form-inline" @submit.prevent="fetchRelease">
         <input class="form-control col-md-3" type="text" placeholder="Distribution name" v-model="dist">
         <select class="form-control col-md-3" name="versions" v-model="size">
             <option value="0">all</option>
