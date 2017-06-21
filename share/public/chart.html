@@ -55,17 +55,19 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
         <thead>
             <tr>
                 <th style="width: 1.4em"></th>
-                <th>Grade</th>
-                <th>Perl</th>
+                <th style="width: 6em; text-align: center">Grade</th>
+                <th style="width: 8em; text-align: center">Perl</th>
                 <th>Platform</th>
+                <th>Tester</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="s in filteredSummaryRows()">
                 <td style="text-align: center"><a :href="'http://www.cpantesters.org/cpan/report/' + s.guid" title="View full report"><i class="fa fa-file-text-o" aria-hidden="true"></i></a></td>
-                <td :class="_gradeClass(s.grade)">{{ s.grade }}</td>
-                <td>{{ s.perl }}</td>
+                <td style="text-align: center" :class="_gradeClass(s.grade)">{{ s.grade }}</td>
+                <td style="text-align: center">{{ s.perl }}</td>
                 <td>{{ s.platform }} ({{ s.osname }})</td>
+                <td>{{ s.reporter.replace( /\@[^.]+/, '@[...]' ) }}</td>
             </tr>
         </tbody>
     </table>
