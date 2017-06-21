@@ -127,6 +127,15 @@ var vm = new Vue({
             self.summary = [];
             self.fetchingSummary = true;
 
+            this.summaryFilter = {};
+            // clear all other filters
+            for ( var name in self.chart ) {
+                var points = self.chart[ name ].getSelectedPoints();
+                for ( var j = 0; j < points.length; j++ ) {
+                    points[j].select( false, false );
+                }
+            }
+
             history.pushState(
                 { dist: this.dist, version: this.version },
                 "",
