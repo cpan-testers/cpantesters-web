@@ -47,18 +47,18 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
     <table v-show="summary.length" class="table table-striped">
         <thead>
             <tr>
+                <th style="width: 1.4em"></th>
                 <th>Grade</th>
                 <th>Perl</th>
-                <th>OS</th>
-                <th></th>
+                <th>Platform</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="s in summary">
+                <td style="text-align: center"><a :href="'http://www.cpantesters.org/cpan/report/' + s.guid" title="View full report"><i class="fa fa-file-text-o" aria-hidden="true"></i></a></td>
                 <td :class="_gradeClass(s.grade)">{{ s.grade }}</td>
                 <td>{{ s.perl }}</td>
-                <td>{{ s.osname }}</td>
-                <td>[<a :href="'http://www.cpantesters.org/cpan/report/' + s.guid">Text</a>]</td>
+                <td>{{ s.platform }}</td>
             </tr>
         </tbody>
     </table>
