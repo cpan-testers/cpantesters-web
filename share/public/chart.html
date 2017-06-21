@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.12/css/highcharts.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script
@@ -22,33 +22,47 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
         </select>
         <button class="btn btn-primary">Refresh</button>
     </form>
-    <div id="release-chart" style="width: 100%; height: 400px"></div>
-    <h2 v-show="version">{{version}}</h2>
-    <div id="list" v-show="summary.length">
+
+    <div style="position: relative; width: 100%; height: 400px;">
+        <div v-show="fetchingRelease" style="opacity: 0.8; background-color: white; position: absolute; z-index: 10; left: 0; top: 0; bottom: 0; right: 0;
+        display: flex; flex: 1 1; align-items: center; justify-content: center">
+            <i style="display: flex-item; color: #ccc; font-size: 1500%" class="fa fa-spinner fa-pulse fa-fw"></i>
+        </div>
+        <div id="release-chart" style="width: 100%; height: 400px"></div>
+    </div>
+
+    <h2 v-show="version">{{version}}</i></h2>
+    <div style="position: relative; width: 100%; height: 400px;">
+        <div v-show="fetchingSummary" style="opacity: 0.8; background-color: white; position: absolute; z-index: 10; left: 0; top: 0; bottom: 0; right: 0;
+        display: flex; flex: 1 1; align-items: center; justify-content: center">
+            <i style="display: flex-item; color: #ccc; font-size: 1500%" class="fa fa-spinner fa-pulse fa-fw"></i>
+        </div>
         <div style="display: flex">
             <div id="os-linux" style="width: 32%; height: 300px"></div>
             <div id="os-win" style="width: 32%; height: 300px"></div>
             <div id="os-osx" style="width: 32%; height: 300px"></div>
         </div>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Grade</th>
-                    <th>Perl</th>
-                    <th>OS</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="s in summary">
-                    <td :class="_gradeClass(s.grade)">{{ s.grade }}</td>
-                    <td>{{ s.perl }}</td>
-                    <td>{{ s.osname }}</td>
-                    <td>[<a :href="'http://www.cpantesters.org/cpan/report/' + s.guid">Text</a>]</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
+
+    <table v-show="summary.length" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Grade</th>
+                <th>Perl</th>
+                <th>OS</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="s in summary">
+                <td :class="_gradeClass(s.grade)">{{ s.grade }}</td>
+                <td>{{ s.perl }}</td>
+                <td>{{ s.osname }}</td>
+                <td>[<a :href="'http://www.cpantesters.org/cpan/report/' + s.guid">Text</a>]</td>
+            </tr>
+        </tbody>
+    </table>
+
 </div>
 <script>
 
@@ -61,7 +75,9 @@ var vm = new Vue({
             version: params.get( 'version' ),
             dist: params.get( 'dist' ),
             size: 10,
-            summary: []
+            summary: [],
+            fetchingRelease: false,
+            fetchingSummary: false
         };
         if ( obj.dist ) {
             setTimeout( function () { self.fetchRelease(); }, 10 );
@@ -84,6 +100,8 @@ var vm = new Vue({
 
         fetchSummary: function () {
             var self = this;
+            self.summary = [];
+            self.fetchingSummary = true;
 
             history.pushState(
                 { dist: this.dist, version: this.version },
@@ -92,6 +110,7 @@ var vm = new Vue({
             );
 
             $.getJSON( 'http://api.cpantesters.org/v3/summary/' + this.dist + '/' + this.version, function (data ) {
+                self.fetchingSummary = false;
                 self.summary = data;
 
                 var osnames = {
@@ -144,9 +163,11 @@ var vm = new Vue({
         fetchRelease: function ( ) {
             if ( !this.dist ) { return; }
             var self = this;
+            self.fetchingRelease = true;
 
             var show_versions = this.size;
             $.getJSON('http://api.cpantesters.org/v3/release/dist/' + this.dist, function (data) {
+                self.fetchingRelease = false;
                 var sorted = data.sort( function (a, b) { return a.version < b.version ? -1 : a.version > b.version ? 1 : 0 } );
                 if ( show_versions ) {
                     sorted = sorted.slice( -show_versions );
