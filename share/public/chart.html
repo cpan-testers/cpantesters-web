@@ -37,7 +37,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
         display: flex; flex: 1 1; align-items: center; justify-content: center">
             <i style="display: flex-item; color: #ccc; font-size: 1500%" class="fa fa-spinner fa-pulse fa-fw"></i>
         </div>
-        <div style="display: flex">
+        <div style="display: flex" v-show="summary.length">
             <div id="os-linux" style="width: 32%; height: 300px"></div>
             <div id="os-win" style="width: 32%; height: 300px"></div>
             <div id="os-osx" style="width: 32%; height: 300px"></div>
@@ -80,7 +80,7 @@ var vm = new Vue({
             fetchingSummary: false
         };
         if ( obj.dist ) {
-            setTimeout( function () { self.fetchRelease(); }, 10 );
+            setTimeout( function () { self.fetchRelease({ replace: false }); }, 10 );
         }
         if ( obj.version ) {
             setTimeout( function () { self.fetchSummary(); }, 10 );
@@ -160,10 +160,21 @@ var vm = new Vue({
             } );
         },
 
-        fetchRelease: function ( ) {
+        fetchRelease: function ( opt ) {
             if ( !this.dist ) { return; }
             var self = this;
             self.fetchingRelease = true;
+
+            if ( opt.replace !== false ) {
+                this.version = null;
+                this.summary = [];
+            }
+
+            history.pushState(
+                { dist: this.dist },
+                "",
+                "?dist=" + this.dist
+            );
 
             var show_versions = this.size;
             $.getJSON('http://api.cpantesters.org/v3/release/dist/' + this.dist, function (data) {
@@ -222,7 +233,7 @@ var vm = new Vue({
 window.onpopstate = function (event) {
     vm.dist = event.state.dist;
     if ( vm.dist ) {
-        vm.fetchRelease();
+        vm.fetchRelease({ replace: false });
     }
     vm.version = event.state.version;
     if ( vm.version ) {
