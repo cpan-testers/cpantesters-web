@@ -44,9 +44,10 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
             <i style="display: flex-item; color: #ccc; font-size: 1500%" class="fa fa-spinner fa-pulse fa-fw"></i>
         </div>
         <div style="display: flex" v-show="summary.length">
-            <div id="os-linux" style="width: 32%; height: 300px"></div>
-            <div id="os-win" style="width: 32%; height: 300px"></div>
-            <div id="os-osx" style="width: 32%; height: 300px"></div>
+            <div id="os-linux" style="width: 25%; height: 300px"></div>
+            <div id="os-win" style="width: 25%; height: 300px"></div>
+            <div id="os-osx" style="width: 25%; height: 300px"></div>
+            <div id="os-other" style="width: 25%; height: 300px"></div>
         </div>
     </div>
 
@@ -64,7 +65,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
                 <td style="text-align: center"><a :href="'http://www.cpantesters.org/cpan/report/' + s.guid" title="View full report"><i class="fa fa-file-text-o" aria-hidden="true"></i></a></td>
                 <td :class="_gradeClass(s.grade)">{{ s.grade }}</td>
                 <td>{{ s.perl }}</td>
-                <td>{{ s.platform }}</td>
+                <td>{{ s.platform }} ({{ s.osname }})</td>
             </tr>
         </tbody>
     </table>
@@ -111,6 +112,13 @@ var vm = new Vue({
             if ( !f.osname && !f.grade ) {
                 return this.summary;
             }
+            if ( f.osname == "other" ) {
+                return this.summary.filter( function ( r ) {
+                    return r.osname != 'darwin' &&
+                    r.osname.toLowerCase() != 'mswin32' &&
+                    r.osname != 'linux' && r.grade == f.grade;
+                } );
+            }
             return this.summary.filter( function ( r ) { return r.osname == f.osname && r.grade == f.grade } );
         },
 
@@ -131,19 +139,25 @@ var vm = new Vue({
 
                 var osnames = {
                     linux: { id: "os-linux", title: 'Linux' },
-                    MSWin32: { id: "os-win", title: 'Windows' },
-                    darwin: { id: "os-osx", title: 'MacOSX' }
+                    mswin32: { id: "os-win", title: 'Windows' },
+                    darwin: { id: "os-osx", title: 'MacOSX' },
+                    other: { id: "os-other", title: 'Other' }
+                };
+                var series = {
+                    linux: { count: 0, pass: [], fail: [], na: [], unknown: [] },
+                    mswin32: { count: 0, pass: [], fail: [], na: [], unknown: [] },
+                    darwin: { count: 0, pass: [], fail: [], na: [], unknown: [] },
+                    other: { count: 0, pass: [], fail: [], na: [], unknown: [] }
                 };
 
+                for ( var i = 0; i < data.length; i++ ) {
+                    var s = series[ data[i].osname.toLowerCase() ] || series.other;
+                    s[ data[i].grade ]++;
+                    s.count++;
+                }
+
                 for ( var os in osnames ) {
-                    var series = { pass: [], fail: [], na: [], unknown: [] };
                     var count = 0;
-                    for ( var i = 0; i < data.length; i++ ) {
-                        if ( data[i].osname == os ) {
-                            series[ data[i].grade ]++;
-                            count++;
-                        }
-                    }
                     self.chart[ os ] = Highcharts.chart( osnames[os]['id'], {
                         defs: {
                             osname: os
@@ -184,16 +198,16 @@ var vm = new Vue({
                             }
                         },
                         title: {
-                            text: osnames[os]['title'] + ' (' + count + ')'
+                            text: osnames[os]['title'] + ' (' + series[os].count + ')'
                         },
                         series: [{
                             name: 'Reports',
                             colorByPoint: true,
                             data: [
-                                { name: 'Pass', y: series.pass, grade: "pass", osname: os },
-                                { name: 'Fail', y: series.fail, grade: "fail", osname: os },
-                                { name: 'NA', y: series.na, grade: "na", osname: os },
-                                { name: 'Unknown', y: series.unknown, grade: "unknown", osname: os }
+                                { name: 'Pass', y: series[os].pass, grade: "pass", osname: os },
+                                { name: 'Fail', y: series[os].fail, grade: "fail", osname: os },
+                                { name: 'NA', y: series[os].na, grade: "na", osname: os },
+                                { name: 'Unknown', y: series[os].unknown, grade: "unknown", osname: os }
                             ]
                         }]
                     });
