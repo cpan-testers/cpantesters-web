@@ -35,7 +35,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
     </div>
 
     <div v-show="version" style="display: flex; justify-content: space-between; align-items: flex-end;">
-        <h2>{{version}}</h2>
+        <h2 id="summary">{{version}}</h2>
         <p style="vertical-align: middle"><i class="fa fa-2x fa-info-circle text-info" aria-hidden="true"></i> Click a pie piece to show reports for that OS/grade</p>
     </div>
     <div style="position: relative; height: 300px">
@@ -94,7 +94,7 @@ var vm = new Vue({
             setTimeout( function () { self.fetchRelease({ replace: false }); }, 10 );
         }
         if ( obj.version ) {
-            setTimeout( function () { self.fetchSummary(); }, 10 );
+            setTimeout( function () { self.fetchSummary({ scroll: false }); }, 10 );
         }
         return obj;
     },
@@ -126,7 +126,7 @@ var vm = new Vue({
             } );
         },
 
-        fetchSummary: function () {
+        fetchSummary: function (opt) {
             var self = this;
             self.summary = [];
             self.fetchingSummary = true;
@@ -225,6 +225,15 @@ var vm = new Vue({
                         }]
                     });
                 }
+
+                // Scroll into view
+                if ( !opt || opt.scroll !== false ) {
+                    setTimeout(
+                        function () {
+                            window.scrollTo( 0, $( '#summary' ).offset().top );
+                        }, 10
+                    );
+                }
             } );
         },
 
@@ -305,7 +314,7 @@ window.onpopstate = function (event) {
     }
     vm.version = event.state.version;
     if ( vm.version ) {
-        vm.fetchSummary();
+        vm.fetchSummary({ scroll: false });
     }
 };
 
