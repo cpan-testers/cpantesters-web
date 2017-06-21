@@ -121,7 +121,9 @@ var vm = new Vue({
                     r.osname != 'linux' && r.grade == f.grade;
                 } );
             }
-            return this.summary.filter( function ( r ) { return r.osname == f.osname && r.grade == f.grade } );
+            return this.summary.filter( function ( r ) {
+                return r.osname.toLowerCase() == f.osname && r.grade == f.grade;
+            } );
         },
 
         fetchSummary: function () {
