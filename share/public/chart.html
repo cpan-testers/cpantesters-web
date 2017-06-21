@@ -34,8 +34,11 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
         <div id="release-chart" style="width: 100%; height: 400px"></div>
     </div>
 
-    <h2 v-show="version">{{version}}</i></h2>
-    <div style="position: relative; width: 100%; height: 400px;">
+    <div v-show="version" style="display: flex; justify-content: space-between; align-items: flex-end;">
+        <h2>{{version}}</h2>
+        <p style="vertical-align: middle"><i class="fa fa-2x fa-info-circle text-info" aria-hidden="true"></i> Click a pie piece to show reports for that OS/grade</p>
+    </div>
+    <div style="position: relative; height: 300px">
         <div v-show="fetchingSummary" style="opacity: 0.8; background-color: white; position: absolute; z-index: 10; left: 0; top: 0; bottom: 0; right: 0;
         display: flex; flex: 1 1; align-items: center; justify-content: center">
             <i style="display: flex-item; color: #ccc; font-size: 1500%" class="fa fa-spinner fa-pulse fa-fw"></i>
@@ -57,7 +60,7 @@ src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap
             </tr>
         </thead>
         <tbody>
-            <tr v-for="s in summary">
+            <tr v-for="s in filteredSummaryRows()">
                 <td style="text-align: center"><a :href="'http://www.cpantesters.org/cpan/report/' + s.guid" title="View full report"><i class="fa fa-file-text-o" aria-hidden="true"></i></a></td>
                 <td :class="_gradeClass(s.grade)">{{ s.grade }}</td>
                 <td>{{ s.perl }}</td>
@@ -80,7 +83,9 @@ var vm = new Vue({
             size: 10,
             summary: [],
             fetchingRelease: false,
-            fetchingSummary: false
+            fetchingSummary: false,
+            chart: {},
+            summaryFilter: { }
         };
         if ( obj.dist ) {
             setTimeout( function () { self.fetchRelease({ replace: false }); }, 10 );
@@ -99,6 +104,14 @@ var vm = new Vue({
                 na: 'bg-info',
                 unknown: 'bg-warning'
             }[ grade ];
+        },
+
+        filteredSummaryRows: function () {
+            var f = this.summaryFilter;
+            if ( !f.osname && !f.grade ) {
+                return this.summary;
+            }
+            return this.summary.filter( function ( r ) { return r.osname == f.osname && r.grade == f.grade } );
         },
 
         fetchSummary: function () {
@@ -131,7 +144,10 @@ var vm = new Vue({
                             count++;
                         }
                     }
-                    var myChart = Highcharts.chart( osnames[os]['id'], {
+                    self.chart[ os ] = Highcharts.chart( osnames[os]['id'], {
+                        defs: {
+                            osname: os
+                        },
                         chart: {
                             type: 'pie',
                         },
@@ -142,7 +158,29 @@ var vm = new Vue({
                                 dataLabels: {
                                     enabled: false
                                 },
-                                showInLegend: true
+                                showInLegend: true,
+                                events: {
+                                    click: function ( event ) {
+                                        if ( event.point.selected ) {
+                                            self.summaryFilter = {};
+                                            return;
+                                        }
+
+                                        // clear all other filters
+                                        for ( var name in self.chart ) {
+                                            var points = self.chart[ name ].getSelectedPoints();
+                                            for ( var j = 0; j < points.length; j++ ) {
+                                                points[j].select( false, false );
+                                            }
+                                        }
+
+                                        // set this filter
+                                        self.summaryFilter = {
+                                            osname: event.point.osname,
+                                            grade: event.point.grade,
+                                        };
+                                    }
+                                }
                             }
                         },
                         title: {
@@ -152,10 +190,10 @@ var vm = new Vue({
                             name: 'Reports',
                             colorByPoint: true,
                             data: [
-                                { name: 'Pass', y: series.pass },
-                                { name: 'Fail', y: series.fail },
-                                { name: 'NA', y: series.na },
-                                { name: 'Unknown', y: series.unknown }
+                                { name: 'Pass', y: series.pass, grade: "pass", osname: os },
+                                { name: 'Fail', y: series.fail, grade: "fail", osname: os },
+                                { name: 'NA', y: series.na, grade: "na", osname: os },
+                                { name: 'Unknown', y: series.unknown, grade: "unknown", osname: os }
                             ]
                         }]
                     });
