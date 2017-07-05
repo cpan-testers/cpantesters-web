@@ -1,5 +1,5 @@
 
-% title 'Index';
+% title 'Recent';
 
 % content_for feeds => begin
 <link rel="alternate" type="application/rss+xml" href="/recent.rss" />

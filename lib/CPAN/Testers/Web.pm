@@ -165,9 +165,22 @@ sub startup ( $app ) {
         $c->render( 'report' );
     } );
 
-    $r->get( '/*tmpl', { tmpl => 'index' } )->to( cb => sub {
+    # Add a special route to show the main landing page, which is
+    # replaced by a different page in beta mode
+    if ( $app->mode eq 'beta' ) {
+        $r->get( '/web' )
+          ->name( 'web' )
+          ->to( cb => sub {
+            my ( $c ) = @_;
+            $c->render( 'index' );
+        } );
+    }
+
+    $r->get( '/*tmpl', { tmpl => 'index' } )
+      ->name( 'web' )
+      ->to( cb => sub {
         my ( $c ) = @_;
-        $c->render( $c->stash( 'tmpl' ) );
+        $c->render( $c->stash( 'tmpl' ), variant => $app->mode );
     } );
 
 }

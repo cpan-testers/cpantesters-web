@@ -18,7 +18,7 @@
                         <span class="icon-bar"></span>
                     </button>
                     <div class="navbar-brand">
-                        <a href="/">
+                        <a href="<%= url_for 'web' %>">
                             <strong>CPAN Testers</strong>
                         </a>
                     </div>

@@ -1,0 +1,54 @@
+
+% title 'CPAN Testers Sandbox';
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>CPAN Testers Beta</h1>
+
+            <p>This site is a collection of pre-release projects not yet
+            ready for the main production site. Use these projects at
+            your own risk: They may disappear or change without
+            warning.</p>
+
+            <p>If you find these projects useful and would like to help
+            make them production-ready, you can <a
+            href="https://github.com/cpan-testers/cpantesters-web">see
+            the CPAN Testers Web project on Github</a>, ask about the
+            project <a
+            href="http://lists.perl.org/list/cpan-testers-discuss.html">on
+            the CPAN Testers Discussion mailing list</a>, talk to us on
+            <a
+            href="https://chat.mibbit.com/?channel=%23cpantesters-discuss&server=irc.perl.org">#cpan-testers
+            disucss on irc.perl.org</a> or e-mail the project leader at
+            <a href="mailto:preaction@cpan.org">preaction@cpan.org</a>.</p>
+
+            <h2>Active Projects</h2>
+
+            <h3><a href="<%= url_for 'web' %>">Website Mockup</a></h3>
+
+            <p>This is a mockup of a new CPAN Testers website using the
+            <a href="http://mojolicious.org">Mojolicious web framework</a> and
+            the <a href="http://getbootstrap.com">Bootstrap frontend
+            library</a>.
+
+            <p><a href="<%= url_for 'web' %>">View the CPAN Testers Mockup</a></p>
+
+            <h3><a href="/chart.html">Distribution Dashboard</a></h3>
+
+            <p>This is a demonstration of using the <a
+            href="http://api.cpantesters.org/">CPAN Testers API</a> to
+            build a dashboard for a CPAN distribution which displays the
+            last few release versions, and charts showing the pass/fail
+            percentages on different OSes. It uses the <a
+            href="http://vuejs.org">Vue.js JavaScript library</a> for
+            interactivity and <a href="http://highcharts.com">HighCharts
+            JavaScript charting library</a> for dynamic, interactive
+            charts.</p>
+
+            <p><a href="/chart.html">View the Distribution
+            Dashboard</a></p>
+
+        </div>
+    </div>
+</div>
