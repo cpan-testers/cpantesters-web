@@ -23,7 +23,8 @@ subtest 'main landing page in beta is correct' => sub {
     $t->get_ok( '/' )
       ->status_is( 200 )
       ->text_is( 'h1' => 'CPAN Testers Beta', 'beta landing h1 is correct' )
-      ->text_is( 'h2' => 'Active Projects', 'beta landing h2 is correct' );
+      ->text_is( 'h2' => 'Active Projects', 'beta landing h2 is correct' )
+      ->text_is( '.navbar-brand a *' => 'CPAN Testers Beta', 'layout is correct' );
 };
 
 subtest 'main webapp landing page is moved' => sub {
