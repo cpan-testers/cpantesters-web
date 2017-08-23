@@ -53,6 +53,7 @@ and registers helpers.
 =cut
 
 sub startup ( $app ) {
+    $app->log( Mojo::Log->new ); # Log only to STDERR
     unshift @{ $app->renderer->paths },
         catdir( dist_dir( 'CPAN-Testers-Web' ), 'templates' );
     unshift @{ $app->static->paths },

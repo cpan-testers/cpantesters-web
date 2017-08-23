@@ -117,7 +117,7 @@ task deploy_config =>
     group => 'web',
     sub {
         Rex::Logger::info( 'Deploying service config' );
-        file '~/service/web/log/main',
+        file '~/service/web/log',
             ensure => 'directory';
         file '~/service/web/run',
             source => 'etc/runit/web/run';
@@ -125,7 +125,7 @@ task deploy_config =>
             source => 'etc/runit/web/web.conf';
         file '~/service/web/log/run',
             source => 'etc/runit/web/log/run';
-        file '~/service/web-beta/log/main',
+        file '~/service/web-beta/log',
             ensure => 'directory';
         file '~/service/web-beta/run',
             source => 'etc/runit/web-beta/run';

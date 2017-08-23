@@ -3,5 +3,6 @@
 eval $( perl -Mlocal::lib )
 
 export MOJO_HOME=$(pwd)
+export MOJO_LOG_SHORT=1 # Remove timestamps from Mojo, added by log svc
 
 exec cpantesters-web prefork -l http://*:6000 2>&1
