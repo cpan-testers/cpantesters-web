@@ -101,6 +101,9 @@ task deploy_dev =>
 
         Rex::Logger::info( 'Installing ' . $dist );
         run 'source ~/.profile; cpanm ~/dist/' . $dist;
+        if ( $? ) {
+            say last_command_output;
+        }
         run_task 'deploy_config', on => connection->server;
     };
 
