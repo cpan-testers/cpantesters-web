@@ -68,6 +68,18 @@ sub startup ( $app ) {
     $app->helper( schema => sub { shift->app->schema } );
     Log::Any::Adapter->set( 'MojoLog', logger => $app->log );
 
+    if ( $app->config->{Minion} ) {
+        $app->plugin( 'Minion', $app->config->{Minion} );
+        my $under = $app->routes->under('/minion' =>sub {
+            my $c = shift;
+            return 1 if $c->req->url->to_abs->userinfo eq 'Bender:rocks';
+            $c->res->headers->www_authenticate('Basic');
+            $c->render(text => 'Authentication required!', status => 401);
+            return undef;
+        });
+        $app->plugin('Minion::Admin' => {route => $under});
+    }
+
     # Compile JS and CSS assets
     $app->plugin( 'AssetPack', { pipes => [qw( Css JavaScript )] } );
     $app->asset->store->paths([
