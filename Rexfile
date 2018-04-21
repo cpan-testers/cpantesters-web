@@ -100,7 +100,7 @@ task deploy_dev =>
             source => $dist;
 
         Rex::Logger::info( 'Installing ' . $dist );
-        run 'source ~/.profile; cpanm ~/dist/' . $dist;
+        run 'source ~/.profile; cpanm --notest ~/dist/' . $dist;
         if ( $? ) {
             say last_command_output;
         }
