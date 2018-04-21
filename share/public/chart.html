@@ -254,56 +254,78 @@ var vm = new Vue({
             );
 
             var show_versions = this.size;
-            $.getJSON('http://api.cpantesters.org/v3/release/dist/' + this.dist, function (data) {
-                self.fetchingRelease = false;
-                var sorted = data.sort( function (a, b) { return a.version < b.version ? -1 : a.version > b.version ? 1 : 0 } );
+
+            $.getJSON('http://api.cpantesters.org/v3/upload/dist/' + this.dist, function (data) {
+                var sorted = data.sort( function (a, b) { return a.released < b.released ? -1 : a.released > b.released ? 1 : 0 } );
                 if ( show_versions ) {
                     sorted = sorted.slice( -show_versions );
                 }
                 var versions = sorted.map( function (d) { return d.version } );
-                var series = { pass: [], fail: [], na: [], unknown: [] };
-                for ( var i = 0; i < sorted.length; i++ ) {
-                    series.pass.push( sorted[i].pass );
-                    series.fail.push( sorted[i].fail );
-                    series.na.push( sorted[i].na );
-                    series.unknown.push( sorted[i].unknown );
-                }
-                var myChart = Highcharts.chart('release-chart', {
-                    chart: {
-                        type: 'column',
-                    },
-                    plotOptions: {
-                        column: {
-                            stacking: 'normal',
-                            events: {
-                                click: function ( event ) {
-                                    self.version = event.point.category;
-                                    self.fetchSummary();
+
+                var done = 0;
+                var results = [];
+
+                var checkDone = function () {
+                    if ( done < show_versions ) { return; }
+                    self.fetchingRelease = false;
+                    var series = { pass: [], fail: [], na: [], unknown: [] };
+                    for ( var i = 0; i < results.length; i++ ) {
+                        series.pass.push( results[i].pass );
+                        series.fail.push( results[i].fail );
+                        series.na.push( results[i].na );
+                        series.unknown.push( results[i].unknown );
+                    }
+                    var myChart = Highcharts.chart('release-chart', {
+                        chart: {
+                            type: 'column',
+                        },
+                        plotOptions: {
+                            column: {
+                                stacking: 'normal',
+                                events: {
+                                    click: function ( event ) {
+                                        self.version = event.point.category;
+                                        self.fetchSummary();
+                                    }
                                 }
                             }
-                        }
-                    },
-                    title: {
-                        text: 'Report Summary'
-                    },
-                    xAxis: {
-                        title: { text: 'Version' },
-                        categories: versions
-                    },
-                    yAxis: {
+                        },
                         title: {
-                            text: 'Reports by Grade'
-                        }
-                    },
-                    series: [
-                        { name: 'Pass', data: series.pass },
-                        { name: 'Fail', data: series.fail },
-                        { name: 'NA', data: series.na },
-                        { name: 'Unknown', data: series.unknown }
-                    ]
-                });
+                            text: 'Report Summary'
+                        },
+                        xAxis: {
+                            title: { text: 'Version' },
+                            categories: versions
+                        },
+                        yAxis: {
+                            title: {
+                                text: 'Reports by Grade'
+                            }
+                        },
+                        series: [
+                            { name: 'Pass', data: series.pass },
+                            { name: 'Fail', data: series.fail },
+                            { name: 'NA', data: series.na },
+                            { name: 'Unknown', data: series.unknown }
+                        ]
+                    });
+                };
+
+                versions.forEach( function ( version ) {
+                    $.getJSON('http://api.cpantesters.org/v3/release/dist/' + self.dist + '/' + version )
+                     .done( function (data) {
+                        done++;
+                        results.push( data );
+                        checkDone();
+                     } )
+                     .fail( function ( jqXHR ) {
+                        done++;
+                        checkDone();
+                     } );
+                } );
             });
         }
+
     }
 });
 
