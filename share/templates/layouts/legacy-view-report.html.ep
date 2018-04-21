@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CPAN Testers Reports: <%= title %></title>
+        <style>
+            body {
+                font-size: 80%;
+                font-family: Verdana, Arial, sans-serif;
+            }
+            h1 {
+                margin: 0 0 0.4em 0;
+                padding: 0 0 2px 0;
+                border-bottom: solid 7px rgb(225,225,225);
+                font-family: "trebuchet ms",arial,sans-serif;
+                color: rgb(100,100,100);
+                font-weight: bold;
+                font-size: 220%;
+            }
+            footer {
+                border-top: 3px solid rgb(225,225,225);
+            }
+
+            pre {
+                clear: both;
+                margin: 0 30px 0.6em 30px;
+            }
+
+            .back, .back:hover, .back:visited, .back:active {
+                float: right;
+                border: 1px solid;
+                border-color: #FC9 #630 #330 #F96;
+                padding: 0 3px;
+                font: bold 10px verdana,sans-serif;
+                color: #FFF;
+                background: #F60;
+                text-decoration: none;
+                margin: 0 0 0 2px;
+            }
+
+            main a:visited {
+                color: rgb(42,90,138);
+            }
+            main a:hover {
+                color: rgb(42,90,138);
+                text-decoration: underline;
+            }
+            h1 a {
+                color: rgb(70,122,167);
+                font-weight: normal;
+                text-decoration: none;
+            }
+            main a {
+                color: rgb(70,122,167);
+                font-weight: bold;
+                text-decoration: none;
+            }
+
+        </style>
+    </head>
+    <body>
+
+        <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <script type="text/javascript">
+        var pageTracker = _gat._getTracker("UA-1826389-16");
+        pageTracker._trackPageview();
+        </script>
+
+        <main>
+            %= content
+        </main>
+
+        <footer>
+            <p>
+            CPAN::Testers::Web v<%= $CPAN::Testers::Web::VERSION %> is powered by <a href="http://mojolicious.org">Mojolicious</a><br />
+            All data and statistics are copyright &copy; 1999-2018 CPAN Testers, and available under the <a href="https://opensource.org/licenses/Artistic-2.0">Artistic License 2.0</a>. Comments and design patches to admin@cpantesters.org.
+            </p>
+
+            <p>
+            The CPAN Testers Family: <br />
+              <a href="http://blog.cpantesters.org"     title="CPAN Testers Blog"       >Blog</a>         &#8226;
+              <a href="http://www.cpantesters.org"      title="CPAN Testers Reports"    >Reports</a>      &#8226;
+              <a href="http://wiki.cpantesters.org"     title="CPAN Testers Wiki"       >Wiki</a>         &#8226;
+              <a href="http://stats.cpantesters.org"    title="CPAN Testers Statistics" >Statistics</a>   &#8226;
+              <a href="http://pass.cpantesters.org"     title="CPAN Testers PASS Matrix">PASS Matrix</a>  &#8226;
+              <a href="http://prefs.cpantesters.org"    title="CPAN Testers Preferences">Preferences</a>  &#8226;
+              <a href="http://metabase.cpantesters.org" title="CPAN Testers Metabase"   >Metabase</a>     &#8226;
+              <a href="http://devel.cpantesters.org"    title="CPAN Testers Development">Development</a>  &#8226;
+              <a href="http://deps.cpantesters.org"     title="CPAN Dependencies"       >Dependencies</a> &#8226;
+              <a href="http://matrix.cpantesters.org"   title="CPAN Testers Matrix"     >Matrix</a>       &#8226;
+              <a href="http://analysis.cpantesters.org" title="CPAN Testers Analysis"   >Analysis</a>     &#8226;
+              <a href="http://admin.cpantesters.org"    title="CPAN Testers Admin"      >Admin</a>
+            </p>
+            <p>
+            CPAN Testers, supporting the Perl programming language since 1999.
+            </p>
+        </footer>
+
+    </body>
+</html>

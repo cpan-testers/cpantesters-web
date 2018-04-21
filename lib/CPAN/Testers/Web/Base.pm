@@ -44,7 +44,7 @@ our @IMPORT_MODULES = (
 
 our %IMPORT_BUNDLES = (
     Test => [
-        'Test::More', 'Test::Lib', 'Test::Mojo',
+        'Test::More', 'Test::Mojo',
     ],
 );
 

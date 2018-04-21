@@ -178,6 +178,10 @@ sub startup ( $app ) {
         $c->render( 'report' );
     } );
 
+    $r->get( '/legacy/cpan/report/:id' )
+      ->name( 'legacy-view-report' )
+      ->to( 'legacy#view_report' );
+
     # Add a special route to show the main landing page, which is
     # replaced by a different page in beta mode
     if ( $app->mode eq 'beta' ) {
