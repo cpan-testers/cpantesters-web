@@ -57,7 +57,20 @@ sub view_report( $c ) {
     my $report;
 
     # First try to find it in the new test reports database
-    $c->app->log->debug( 'ID: ' . $id );
+    $c->app->log->debug( 'Got ID: ' . $id );
+    if ( $id =~ /^\d+$/ ) {
+        my $stat = $schema->resultset( 'Stats' )->find( $id );
+        if ( !$stat ) {
+            $c->app->log->error( 'Stat row not found: ' . $id );
+            if ( $c->param( 'json' ) ) {
+                return $c->render( json => { success => 0 } );
+            }
+            return $c->render( 'legacy/report-not-found' );
+        }
+        $id = $stat->guid;
+        $c->app->log->debug( 'Translated to GUID: ' . $id );
+    }
+
     if ( my $row = $schema->resultset( 'TestReport' )->find( $id ) ) {
         $report = $c->_new_report_to_metabase_json( $row );
     }
@@ -82,6 +95,7 @@ sub view_report( $c ) {
     }
 
     if ( !$report ) {
+        $c->app->log->error( 'Report not found: ' . $id );
         return $c->render( 'legacy/report-not-found' );
     }
 

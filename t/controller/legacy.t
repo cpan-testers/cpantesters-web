@@ -84,6 +84,9 @@ push @reports, $schema->resultset('TestReport')->create({
     },
 });
 
+my @stats;
+push @stats, $schema->resultset( 'Stats' )->insert_test_report( $_ ) for @reports;
+
 # Metabase Fact
 my $metabase_report = {
     id => 'cfa81824-3343-11e7-b830-917e22bfee97',
@@ -261,22 +264,50 @@ subtest 'view-report.cgi' => sub {
             };
         };
 
-        subtest 'report not found' => sub {
-            $t->get_ok( '/legacy/cpan/report/1' )
+        subtest 'report not found (guid)' => sub {
+            $t->get_ok( '/legacy/cpan/report/99999999-8a32-11e3-8f3c-fc23d5af1b80' )
                 ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
                 ->text_is( h1 => 'Report not found' )
                 ;
-            $t->get_ok( '/legacy/cpan/report/1?raw=1' )
+            $t->get_ok( '/legacy/cpan/report/99999999-8a32-11e3-8f3c-fc23d5af1b80?raw=1' )
                 ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
                 ->element_exists_not( 'h1' )
                 ->text_is( p => 'Sorry, but that report does not exist.' )
                 ;
             subtest '... as json' => sub {
-                $t->get_ok( '/legacy/cpan/report/1?json=1' )
+                $t->get_ok( '/legacy/cpan/report/99999999-8a32-11e3-8f3c-fc23d5af1b80?json=1' )
                     ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
                     ->json_is( { success => 0 } )
                     ;
             };
+        };
+
+
+        subtest 'report not found (stat ID)' => sub {
+            $t->get_ok( '/legacy/cpan/report/23872349' )
+                ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
+                ->text_is( h1 => 'Report not found' )
+                ;
+            $t->get_ok( '/legacy/cpan/report/23872349?raw=1' )
+                ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
+                ->element_exists_not( 'h1' )
+                ->text_is( p => 'Sorry, but that report does not exist.' )
+                ;
+            subtest '... as json' => sub {
+                $t->get_ok( '/legacy/cpan/report/23872349?json=1' )
+                    ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
+                    ->json_is( { success => 0 } )
+                    ;
+            };
+        };
+
+        subtest 'by stats ID' => sub {
+            $t->get_ok( '/legacy/cpan/report/' . $stats[0]->id . '?json=1' )
+                ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
+                ->json_is( '/success', 1 )
+                ->json_is( '/result/metadata/core/guid', $stats[0]->guid )
+                ->or( sub { diag shift->tx->res->body } )
+                ;
         };
     };
 
