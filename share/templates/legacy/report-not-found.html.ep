@@ -1,0 +1,14 @@
+<%
+    if ( $c->param( 'raw' ) ) {
+        layout 'blank';
+    }
+    else {
+        layout 'legacy-view-report';
+    }
+%>
+
+% if ( !$c->param( 'raw' ) ) {
+<h1>Report not found</h1>
+% }
+
+<p>Sorry, but that report does not exist.</p>

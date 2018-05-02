@@ -61,13 +61,13 @@ sub view_report( $c ) {
     if ( my $row = $schema->resultset( 'TestReport' )->find( $id ) ) {
         $report = $c->_new_report_to_metabase_json( $row );
     }
-    else {
+    elsif (
         my $row = $schema->storage->dbh->selectrow_hashref(
             'SELECT * FROM metabase.metabase WHERE guid=?',
             {},
             $id,
-        );
-
+        )
+    ) {
         # deparse the Metabase row
         $report = $c->_deserialize_metabase_report( $row );
     }
@@ -75,10 +75,14 @@ sub view_report( $c ) {
     if ( $c->param( 'json' ) ) {
         return $c->render(
             json => {
-                success => 1,
-                result => $report,
+                success => $report ? 1 : 0,
+                ( $report ? ( result => $report ) : () ),
             },
         );
+    }
+
+    if ( !$report ) {
+        return $c->render( 'legacy/report-not-found' );
     }
 
     my $user = $schema->resultset( 'MetabaseUser' )->search(

@@ -260,6 +260,24 @@ subtest 'view-report.cgi' => sub {
                     ;
             };
         };
+
+        subtest 'report not found' => sub {
+            $t->get_ok( '/legacy/cpan/report/1' )
+                ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
+                ->text_is( h1 => 'Report not found' )
+                ;
+            $t->get_ok( '/legacy/cpan/report/1?raw=1' )
+                ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
+                ->element_exists_not( 'h1' )
+                ->text_is( p => 'Sorry, but that report does not exist.' )
+                ;
+            subtest '... as json' => sub {
+                $t->get_ok( '/legacy/cpan/report/1?json=1' )
+                    ->status_is( 200 ) # CPAN::Testers::WWW::Reports::Query::Report expects 200 OK
+                    ->json_is( { success => 0 } )
+                    ;
+            };
+        };
     };
 
     subtest 'backcompat' => sub {
