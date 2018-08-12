@@ -1,5 +1,10 @@
 Changelog for CPAN-Testers-Web
 
-0.001     2017-02-04 22:21:47-06:00 America/Chicago
+{{ $NEXT }}
 
-    - Initial release
+    [Added]
+
+    - Added replacement for legacy view-report.cgi. This improves
+      performance immensely over the existing CGI scripts.
+    - Added a beta dashboard with pretty charts
+    - Added a mockup of a new CPAN Testers website
