@@ -11,7 +11,11 @@
     }
 
     use CPAN::DistnameInfo;
-    my $dist = CPAN::DistnameInfo->new( $report->{metadata}{core}{resource} );
+    my @parts = split m{/}, $report->{metadata}{core}{resource};
+    my @letters = split //, $parts[-2];
+    my $dist = CPAN::DistnameInfo->new(
+        "authors/id/$letters[0]/$letters[0]$letters[1]/" . join '/', @parts[-2,-1]
+    );
 
     my $subject = sprintf "%s %s-%s %s %s",
         uc $content->{grade}, $dist->dist,

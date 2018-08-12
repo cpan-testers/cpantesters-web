@@ -193,6 +193,11 @@ subtest 'view-report.cgi' => sub {
         $t->get_ok( '/legacy/cpan/report/d0ab4d36-3343-11e7-b830-917e22bfee97' )
             ->status_is( 200 )
             ->content_like( qr{Test report}, 'content contains full text of report' )
+            ->element_exists(
+                'a[href=http://metacpan.org/release/YUKI/Sorauta-SVN-AutoCommit-0.02]',
+                'dist link to metacpan is correct',
+            )
+            ->or( sub { diag shift->tx->res->dom->at( 'h1 a' ) } )
             ;
 
         subtest '... as json' => sub {
@@ -214,6 +219,10 @@ subtest 'view-report.cgi' => sub {
             $t->get_ok( '/legacy/cpan/report/cfa81824-3343-11e7-b830-917e22bfee97' )
                 ->status_is( 200 )
                 ->content_like( qr{Test report}, 'content contains full text of report' )
+                ->element_exists(
+                    'a[href=http://metacpan.org/release/YUKI/Sorauta-SVN-AutoCommit-0.02]',
+                    'dist link to metacpan is correct',
+                )
                 ;
             subtest '... as json' => sub {
                 $t->get_ok( '/legacy/cpan/report/cfa81824-3343-11e7-b830-917e22bfee97?json=1' )
@@ -238,6 +247,10 @@ subtest 'view-report.cgi' => sub {
             $t->get_ok( '/legacy/cpan/report/cfa81824-3343-11e7-b830-917e22bfee97' )
                 ->status_is( 200 )
                 ->content_like( qr{Test report}, 'content contains full text of report' )
+                ->element_exists(
+                    'a[href=http://metacpan.org/release/YUKI/Sorauta-SVN-AutoCommit-0.02]',
+                    'dist link to metacpan is correct',
+                )
                 ;
             subtest '... as json' => sub {
                 $t->get_ok( '/legacy/cpan/report/cfa81824-3343-11e7-b830-917e22bfee97?json=1' )
