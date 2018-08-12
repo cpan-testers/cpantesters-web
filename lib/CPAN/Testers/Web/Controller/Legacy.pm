@@ -75,7 +75,7 @@ sub view_report( $c ) {
         $report = $c->_new_report_to_metabase_json( $row );
     }
     elsif (
-        my $row = $schema->storage->dbh->selectrow_hashref(
+        $row = $schema->storage->dbh->selectrow_hashref(
             'SELECT * FROM metabase.metabase WHERE guid=?',
             {},
             $id,
