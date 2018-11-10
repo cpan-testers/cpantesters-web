@@ -28,21 +28,6 @@ use File::Share qw( dist_dir dist_file );
 use Log::Any::Adapter;
 use File::Spec::Functions qw( catdir catfile );
 
-=method schema
-
-    my $schema = $c->schema;
-
-Get the schema, a L<CPAN::Testers::Schema> object. By default, the
-schema is connected from the local user's config. See
-L<CPAN::Testers::Schema/connect_from_config> for details.
-
-=cut
-
-has schema => sub {
-    require CPAN::Testers::Schema;
-    return CPAN::Testers::Schema->connect_from_config;
-};
-
 =method startup
 
     # Called automatically by Mojolicious
@@ -58,6 +43,7 @@ sub startup ( $app ) {
         catdir( dist_dir( 'CPAN-Testers-Web' ), 'templates' );
     unshift @{ $app->static->paths },
         catdir( dist_dir( 'CPAN-Testers-Web' ), 'public' );
+    unshift @{ $app->commands->namespaces }, 'CPAN::Testers::Web::Command';
 
     $app->moniker( 'web' );
     # This application has no configuration yet
@@ -65,7 +51,20 @@ sub startup ( $app ) {
         default => { }, # Allow living without config file
     } );
 
-    $app->helper( schema => sub { shift->app->schema } );
+    # XXX We need a better way to handle schema objects for other
+    # languages, which will be CPAN::Testers::Schema object connected to
+    # different databases
+    $app->helper( 'schema.perl5' => sub {
+        require CPAN::Testers::Schema;
+        state $schema = CPAN::Testers::Schema->connect_from_config;
+        return $schema;
+    } );
+    $app->helper( 'schema.web' => sub {
+        require CPAN::Testers::Web::Schema;
+        state $schema = CPAN::Testers::Web::Schema->connect_from_config;
+        return $schema;
+    } );
+
     Log::Any::Adapter->set( 'MojoLog', logger => $app->log );
 
     if ( $app->config->{Minion} ) {
