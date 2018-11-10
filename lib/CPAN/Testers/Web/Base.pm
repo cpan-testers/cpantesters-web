@@ -39,10 +39,17 @@ use base 'Import::Base';
 our @IMPORT_MODULES = (
     'strict', 'warnings',
     feature => [qw( :5.24 signatures refaliasing )],
-    '-warnings' => [qw( experimental::signatures experimental::refaliasing )],
+    'CPAN::Testers::Web', # For File::Share to find dist dir
+    '>-warnings' => [qw( experimental::signatures experimental::refaliasing )],
 );
 
 our %IMPORT_BUNDLES = (
+    Result => [
+        'DBIx::Class::Candy',
+    ],
+    ResultSet => [
+        'DBIx::Class::Candy::ResultSet',
+    ],
     Test => [
         'Test::More', 'Test::Mojo',
     ],
