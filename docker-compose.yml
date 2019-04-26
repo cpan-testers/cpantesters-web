@@ -1,0 +1,24 @@
+version: '3'
+services:
+    tester_db:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpw
+            MYSQL_DATABASE: cpantesters
+    web_db:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpw
+            MYSQL_DATABASE: cpantesters_web
+    web:
+        build: .
+        depends_on:
+            - tester_db
+            - web_db
+        environment:
+            OAUTH2_GITHUB_CLIENT: a765a2b1dd2302dc4abd
+            OAUTH2_GITHUB_SECRET: f368e10f53b0587a0e6753a187a537009113d522
+        ports:
+            - '3000:3000'
+
+
