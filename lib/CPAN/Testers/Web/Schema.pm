@@ -51,7 +51,7 @@ L<DBIx::Class::Storage::DBI/connect_info>).
 sub connect_from_config ( $class, %config ) {
     my $schema = $class->connect(
         "DBI:mysql:dbname=cpan_testers_web;mysql_read_default_file=$ENV{HOME}/.cpanstats.cnf;".
-        "mysql_read_default_group=application;mysql_enable_utf8=1",
+        "mysql_read_default_group=cpantesters-web;mysql_enable_utf8=1",
         undef,  # user
         undef,  # pass
         {

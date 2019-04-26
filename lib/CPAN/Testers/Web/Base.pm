@@ -51,6 +51,13 @@ our %IMPORT_BUNDLES = (
         'DBIx::Class::Candy::ResultSet',
     ],
     Test => [
+        # Do not send out e-mail, hold on to it so we can examine that we're
+        # sending the correct e-mails
+        sub { $ENV{EMAIL_SENDER_TRANSPORT} = 'Test' },
+        # This must be loaded before 'Test::More' to fix "ok: plan
+        # before you test!" errors caused by the wrong 'ok' sub being
+        # imported into the main namespace
+        'Email::Stuffer',
         'Test::More', 'Test::Mojo',
     ],
 );

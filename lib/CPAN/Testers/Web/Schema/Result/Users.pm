@@ -107,6 +107,22 @@ sub generate_pause_token( $self, $pause_id=undef ) {
     return $token;
 }
 
+=method validate_pause_token
+
+    my $success = $row->validate_pause_token( $check_token );
+
+Validate the given token against the record. Returns true if successful.
+
+=cut
+
+sub validate_pause_token( $self, $token ) {
+    if ( $self->pause_token eq $token ) {
+        $self->update({ pause_token => undef });
+        return 1;
+    }
+    return undef;
+}
+
 =method valid_pause_id
 
     my $pause_id = $row->valid_pause_id;

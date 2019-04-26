@@ -52,7 +52,7 @@ my %OSNAME = (
 );
 
 sub view_report( $c ) {
-    my $schema = $c->schema;
+    my $schema = $c->schema->perl5;
     my $id = $c->stash( 'id' );
     my $report;
 
@@ -169,7 +169,7 @@ sub _deserialize_metabase_report( $c, $row ) {
 }
 
 sub _new_report_to_metabase_json( $c, $row ) {
-    my $schema = $c->schema;
+    my $schema = $c->schema->perl5;
     my $created = $row->created->iso8601 . 'Z';
     my $id = $row->id;
     my $user = $schema->resultset( 'MetabaseUser' )->search({
