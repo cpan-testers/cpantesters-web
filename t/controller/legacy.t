@@ -184,7 +184,7 @@ $schema->storage->dbh->do(
 
 my $t = Test::Mojo->new(
     CPAN::Testers::Web->new(
-        schema => $schema,
+        tester_schema => $schema,
     )
 );
 

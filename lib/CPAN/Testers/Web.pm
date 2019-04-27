@@ -28,7 +28,7 @@ use File::Share qw( dist_dir dist_file );
 use Log::Any::Adapter;
 use File::Spec::Functions qw( catdir catfile );
 
-has schema =>;
+has tester_schema =>;
 
 =method startup
 
@@ -58,7 +58,7 @@ sub startup ( $app ) {
     # different databases
     $app->helper( 'schema.perl5' => sub {
         require CPAN::Testers::Schema;
-        state $schema = $app->schema || CPAN::Testers::Schema->connect_from_config;
+        state $schema = $app->tester_schema || CPAN::Testers::Schema->connect_from_config;
         return $schema;
     } );
     $app->helper( 'schema.web' => sub {
