@@ -32,12 +32,11 @@ __PACKAGE__->upgrade_directory( catdir( dist_dir( 'CPAN-Testers-Web' ), 'schema'
 Connect to the MySQL database using a local MySQL configuration file
 in C<$HOME/.cpanstats.cnf>. This configuration file should look like:
 
-    [client]
+    [cpantesters-web]
     host     = ""
     user     = my_usr
     password = my_pwd
-
-The C<dbname> will be set to C<cpan_testers_web>.
+    database = cpantesters_web
 
 See L<DBD::mysql/mysql_read_default_file>.
 
@@ -50,7 +49,7 @@ L<DBIx::Class::Storage::DBI/connect_info>).
 # Convenience connect method
 sub connect_from_config ( $class, %config ) {
     my $schema = $class->connect(
-        "DBI:mysql:dbname=cpan_testers_web;mysql_read_default_file=$ENV{HOME}/.cpanstats.cnf;".
+        "DBI:mysql:mysql_read_default_file=$ENV{HOME}/.cpanstats.cnf;".
         "mysql_read_default_group=cpantesters-web;mysql_enable_utf8=1",
         undef,  # user
         undef,  # pass
