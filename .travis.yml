@@ -5,10 +5,11 @@ services:
 
 env:
   global:
-  - DOCKER_USERNAME=cpantestersbot
-  - DOCKER_IMAGE_NAME=cpantesters/base
-  - DOCKER_VERSION_TAG=${DOCKER_IMAGE_NAME}:${TRAVIS_BUILD_NUMBER}
-  - secure: "excqwqVv1N0T/j1/jimm2NFf1Y8w3JBQV0+P7EpE1gSwwRgSf2GdQno8+VRoPLiiheT4cbPYKp+U9N26NNB0VWjIpEmEloNZTQtnSXnLYOSAD1XUFJTTRUzPjjLiIi8EMm34nY+4vhD2MHP/kWy5drB9Mjr9NIRq59gba/aukBvgU7tdkM60uixD/dPqBBdfznm9njt4O6eX/3YTt96HNIOF1Uy717j6nkofoXiqQxI5ktH4zEahQyYiKU2SvqvI9xtakJ6zq4dlCowPx+ktLTU/b0PQ6sphRXAQV9HYv2vs2b3OuXC+fA5JXcwzoTlKrVxQ6LHIwypJflku7gYDoaTJyxfYBxDw2LewlRBaReP9kLpqTH3eftwCMWoi079AI9mpnWeP3HbKvUyQM3EE+VhEALV5k9H0ppCDZUQSWgXnS1kdQc4Ppb+DDmq4VblXmFvFXnHG51bm12uWzFAsHMWaxVkppQSKFgRV6jmPtmV2ObHoP8Jc4dyD9VNXiYGutQLKeSUD1ndJ+XYrp/F3rbEQT3JqdXP5OSQCcF2Ki7sq6HynnJX/+IM8/2gwWFEAvj/BD1b1TW3N+zySIgxH5T6VVPh+Daga86FOaNsyi9K1Y3iFb5LZLibAQwHBTxgXSNdJRxKcW8poDO2LNJGheyVtEWT8Se4JQU3zLDLKKJk="
+    - MYSQL_VERSION=5.7
+    - DOCKER_USERNAME=cpantestersbot
+    - DOCKER_IMAGE_NAME=cpantesters/base
+    - DOCKER_VERSION_TAG=${DOCKER_IMAGE_NAME}:${TRAVIS_BUILD_NUMBER}
+    - secure: "excqwqVv1N0T/j1/jimm2NFf1Y8w3JBQV0+P7EpE1gSwwRgSf2GdQno8+VRoPLiiheT4cbPYKp+U9N26NNB0VWjIpEmEloNZTQtnSXnLYOSAD1XUFJTTRUzPjjLiIi8EMm34nY+4vhD2MHP/kWy5drB9Mjr9NIRq59gba/aukBvgU7tdkM60uixD/dPqBBdfznm9njt4O6eX/3YTt96HNIOF1Uy717j6nkofoXiqQxI5ktH4zEahQyYiKU2SvqvI9xtakJ6zq4dlCowPx+ktLTU/b0PQ6sphRXAQV9HYv2vs2b3OuXC+fA5JXcwzoTlKrVxQ6LHIwypJflku7gYDoaTJyxfYBxDw2LewlRBaReP9kLpqTH3eftwCMWoi079AI9mpnWeP3HbKvUyQM3EE+VhEALV5k9H0ppCDZUQSWgXnS1kdQc4Ppb+DDmq4VblXmFvFXnHG51bm12uWzFAsHMWaxVkppQSKFgRV6jmPtmV2ObHoP8Jc4dyD9VNXiYGutQLKeSUD1ndJ+XYrp/F3rbEQT3JqdXP5OSQCcF2Ki7sq6HynnJX/+IM8/2gwWFEAvj/BD1b1TW3N+zySIgxH5T6VVPh+Daga86FOaNsyi9K1Y3iFb5LZLibAQwHBTxgXSNdJRxKcW8poDO2LNJGheyVtEWT8Se4JQU3zLDLKKJk="
 
 matrix:
     include:
@@ -19,6 +20,18 @@ matrix:
           env: BUILD_DOCKER=1
 
 before_install:
+    - if [ x"$MYSQL_VERSION" != "x" ];
+      then
+        sudo service mysql stop;
+        sudo aptitude purge -y mysql-server libmysqlclient-dev mysql-server-5.6 mysql-common-5.6 mysql-client-5.6 libmysqlclient18 mysql-client-core-5.6 mysql-server-core-5.6 libdbd-mysql-perl mysql-common;
+        sudo apt-key adv --keyserver pgp.mit.edu --recv-keys 5072E1F5;
+        . /etc/lsb-release;
+        sudo add-apt-repository "deb http://repo.mysql.com/apt/ubuntu/ $DISTRIB_CODENAME mysql-$MYSQL_VERSION";
+        sudo apt-get update;
+        sudo DEBIAN_FRONTEND=noninteractive apt-get -q --yes --fix-broken --allow-unauthenticated --option DPkg::Options::=--force-confnew install mysql-server libmysqlclient-dev;
+        sudo mysql_upgrade -u root --password='' --force;
+        sudo service mysql restart;
+      fi
     - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
     - source ~/travis-perl-helpers/init
     - build-perl
