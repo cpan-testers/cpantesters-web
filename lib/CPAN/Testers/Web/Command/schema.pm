@@ -51,19 +51,25 @@ sub check {
     my ( $self, $args, $opt ) = @_;
     my $schema = $self->app->schema->web;
     say "  Current: " . $schema->get_db_version;
+    say "      Dir: " . $schema->upgrade_directory;
     say "Available: " . join ", ", $schema->ordered_schema_versions;
 }
 
 sub install {
     my ( $self, $args, $opt ) = @_;
     my $schema = $self->app->schema->web;
-    $schema->install;
+    $schema->install();
 }
 
 sub upgrade {
     my ( $self, $args, $opt ) = @_;
     my $schema = $self->app->schema->web;
-    $schema->upgrade;
+    if ( !$schema->get_db_version ) {
+        $schema->deploy;
+    }
+    else {
+        $schema->upgrade;
+    }
 }
 
 1;
