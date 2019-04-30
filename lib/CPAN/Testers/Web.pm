@@ -93,50 +93,6 @@ sub startup ( $app ) {
             %{ $app->config->{Yancy} },
             route => $yancy_auth,
             read_schema => 1,
-            collections => {
-                LatestIndex => {
-                    'x-list-columns' => [qw( dist version author released )],
-                },
-                MetabaseUser => {
-                    'x-list-columns' => [qw( resource fullname email )],
-                },
-                PerlVersion => {
-                    'x-list-columns' => [qw( version perl devel patch )],
-                    properties => {
-                        version => {
-                            description => q{The raw version from the reporter's Config},
-                        },
-                        perl => {
-                            description => 'The parsed / normalized Perl version',
-                        },
-                        devel => {
-                            title => 'Is Devel?',
-                            description => 'If true, is a development Perl',
-                        },
-                        patch => {
-                            title => 'Is Patched?',
-                            description => 'If true, is a patched Perl',
-                        },
-                    },
-                },
-                Release => {
-                    description => 'Per-release data, rolled up into a summary',
-                    'x-list-columns' => [qw( dist version perlmat patched pass fail na unknown )],
-                },
-                ReleaseStat => {
-                    description => 'Useless table that reduces the Stats (cpanstats) table to a `1` in one of the pass/fail/na/unknown columns. Used to build the Release (release_summary) table.',
-                    'x-list-columns' => [qw( dist version perlmat patched pass fail na unknown )],
-                },
-                Stats => {
-                    'x-list-columns' => [qw( id dist version perl osname state tester )],
-                },
-                Upload => {
-                    'x-list-columns' => [qw( dist version author released )],
-                },
-                TestReport => {
-                    'x-list-columns' => [qw( id created )],
-                },
-            },
         });
     }
 
