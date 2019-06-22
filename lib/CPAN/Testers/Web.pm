@@ -50,7 +50,9 @@ sub startup ( $app ) {
     $app->moniker( 'web' );
     # This application has no configuration yet
     $app->plugin( Config => {
-        default => { }, # Allow living without config file
+        default => {
+            api_host => 'api.cpantesters.org',
+        },
     } );
 
     # XXX We need a better way to handle schema objects for other
