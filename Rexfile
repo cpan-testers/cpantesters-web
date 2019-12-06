@@ -31,7 +31,7 @@ use Rex::Commands::Sync;
 
 #######################################################################
 # Groups
-group web => 'cpantesters3.dh.bytemark.co.uk';
+group web => 'cpantesters4.dh.bytemark.co.uk';
 
 #######################################################################
 # Settings
@@ -100,7 +100,7 @@ task deploy_dev =>
             source => $dist;
 
         Rex::Logger::info( 'Installing ' . $dist );
-        run 'source ~/.profile; cpanm --notest ~/dist/' . $dist;
+        run 'source ~/.profile; cpanm -v --notest ~/dist/' . $dist . ' 2>&1';
         if ( $? ) {
             say last_command_output;
         }
