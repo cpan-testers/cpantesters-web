@@ -15,9 +15,19 @@ L<Mojolicious template variants|http://mojolicious.org/perldoc/Mojolicious/Guide
 use Mojo::Base '-strict';
 use Test::More;
 use Test::Mojo;
+use CPAN::Testers::Web::Schema;
+use CPAN::Testers::Schema;
 
 local $ENV{MOJO_MODE} = "beta";
 my $t = Test::Mojo->new( 'CPAN::Testers::Web' );
+
+# Fake Schemas
+my $web_schema = CPAN::Testers::Web::Schema->connect( 'dbi:SQLite::memory:', undef, undef, { ignore_version => 1 } );
+$web_schema->deploy;
+my $perl_schema = CPAN::Testers::Schema->connect( 'dbi:SQLite::memory:', undef, undef, { ignore_version => 1 } );
+$perl_schema->deploy;
+$t->app->helper( 'schema.web' => sub { $web_schema } );
+$t->app->helper( 'schema.perl5' => sub { $perl_schema } );
 
 subtest 'main landing page in beta is correct' => sub {
     $t->get_ok( '/' )

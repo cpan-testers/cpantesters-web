@@ -67,6 +67,19 @@
             <!-- XXX: NA and UNKNOWN are not part of this table, so
                 reports may not be equal to PASS + FAIL -->
 
+            <%= include 'moai/table',
+                columns => [
+                    { key => 'dist', title => 'distribution' },
+                    { key => 'author', title => 'Author' },
+                    { key => 'released', title => 'Released' },
+                    { key => 'reports', title => 'Reports' },
+                    { key => 'pass', title => 'Pass' },
+                    { key => 'fail', title => 'Fail' },
+                ],
+                class => {
+                    table => 'table-striped',
+                },
+            %>
             <table class="table table-striped">
                 <thead>
                     <tr>

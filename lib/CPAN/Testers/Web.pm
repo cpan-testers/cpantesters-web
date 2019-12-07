@@ -55,6 +55,8 @@ sub startup ( $app ) {
         },
     } );
 
+    $app->plugin( 'Moai', [ 'Bootstrap4' ] );
+
     # XXX We need a better way to handle schema objects for other
     # languages, which will be CPAN::Testers::Schema object connected to
     # different databases
@@ -276,11 +278,15 @@ sub startup ( $app ) {
     # replaced by a different page in beta mode
     if ( $app->mode eq 'beta' ) {
         $r->get( '/web' )
-          ->name( 'web' )
-          ->to( cb => sub {
-            my ( $c ) = @_;
-            $c->render( 'index' );
-        } );
+          ->name( 'reports.recent_uploads' )
+          ->to( 'reports#recent_uploads' )
+          ;
+    }
+    else {
+        $r->get( '/' )
+          ->name( 'reports.recent_uploads' )
+          ->to( 'reports#recent_uploads' )
+          ;
     }
 
     $r->get( '/*tmpl', { tmpl => 'index' } )

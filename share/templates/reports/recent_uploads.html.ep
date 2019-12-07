@@ -1,0 +1,87 @@
+
+% title 'Recent';
+
+% content_for feeds => begin
+<link rel="alternate" type="application/rss+xml" href="/recent.rss" />
+<link rel="alternate" type="application/atom+xml" href="/recent.atom" />
+<link rel="alternate" type="application/json" href="/recent.json" />
+% end
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <h1>CPAN Testers</h1>
+
+            <p>CPAN Testers is a network of contributors testing uploads
+            to <a href="http://www.cpan.org">CPAN, the Comprehensive
+                Perl Archive Network</a>.</p>
+
+            <!-- This is the primary sponsor banner, reserved for
+                high-level sponsors. We will need some others... -->
+            <p>
+            <a href="#">
+                <img src="http://placehold.it/300x100" title="Our Sponsor"/>
+            <br/>
+            <caption>This is one of our sponsors' information blurb</caption>
+            </a>
+            </p>
+
+            <p>CPAN Testers is made possible by the support of
+            sponsors. <a href="/static/sponsor">You can help!</a></p>
+
+            <h2>Search Reports</h2>
+
+            <form class="form-inline" method="get" action="/search">
+                <div class="form-group">
+                    <label class="sr-only" for="q">Search</label>
+                    <input type="text" class="form-control" id="q" placeholder="Search">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            <h2>Report APIs</h2>
+
+            <p>All the <a href="http://api.cpantesters.org">data in CPAN Testers is available through
+            our APIs</a>.</p>
+
+            <h2>Get Involved</h2>
+
+            <p>Want to help CPAN Testers? <a
+            href="/static/sponsor">Become a CPAN Testers
+            Sponsor!</a> Or, <a href="/static/contribute">contribute
+            to the CPAN Testers project.</a></p>
+
+        </div>
+
+        <div class="col-md-8">
+            <h2>
+                Recent Updates
+                <small><a href="/recent.rss"><i class="fa fa-rss fa-lg"></i></a></small>
+            </h2>
+
+            <!-- XXX: This should be recent uploads to CPAN, bug only after they
+                get a single report -->
+            <!-- XXX: Less than 80% PASS is warning. Less than 50% PASS
+                is danger. Greater than 0 FAIL is warning. Greater than
+                50% FAIL is danger. -->
+            <!-- XXX: NA and UNKNOWN are not part of this table, so
+                reports may not be equal to PASS + FAIL -->
+
+            <%= include 'moai/table',
+                id => 'recent-uploads',
+                columns => [
+                    { key => 'dist', title => 'Distribution', link_to => 'reports.dist' },
+                    { key => 'author', title => 'Author', link_to => 'reports.author' },
+                    { key => 'released', title => 'Released' },
+                    { key => 'total', title => 'Reports', class => { col => 'text-center' } },
+                    { key => 'pass', title => 'Pass', class => { col => 'text-center' } },
+                    { key => 'fail', title => 'Fail', class => { col => 'text-center' } },
+                ],
+                class => {
+                    table => 'table-striped',
+                },
+            %>
+
+        </div>
+    </div>
+</div>
