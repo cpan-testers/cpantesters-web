@@ -35,11 +35,21 @@ $t->get_ok( '/' )->status_is( 200 )
       qr{^\s*My-Other\s*$},
       'latest dist is correct',
   )
+  ->element_exists(
+      '#recent-uploads tbody tr:first-child td:nth-child(1) a[href=/dist/My-Other/1.001]',
+      'latest dist link is correct',
+  )
+  ->or( sub { diag shift->tx->res->dom->at( '#recent-uploads tbody tr:first-child td:nth-child(1) a' ) } )
   ->text_like(
       '#recent-uploads tbody tr:first-child td:nth-child(2) a',
       qr{^\s*PREACTION\s*$},
       'dist author is correct',
   )
+  ->element_exists(
+      '#recent-uploads tbody tr:first-child td:nth-child(2) a[href=/author/PREACTION]',
+      'author link is correct',
+  )
+  ->or( sub { diag shift->tx->res->dom->at( '#recent-uploads tbody tr:first-child td:nth-child(2) a' ) } )
   ->text_like(
       '#recent-uploads tbody tr:first-child td:nth-child(3)',
       qr{^\s*2016-11-19 03:08:20\s*$},

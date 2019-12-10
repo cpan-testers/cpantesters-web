@@ -215,7 +215,7 @@ sub startup ( $app ) {
     } );
 
     $r->get( '/dist/:dist/#version', { version => 'latest' } )
-      ->name( 'dist' )
+      ->name( 'reports.dist' )
       ->to( cb => sub {
         my ( $c ) = @_;
         $c->render( 'dist' );
@@ -229,7 +229,7 @@ sub startup ( $app ) {
     } );
 
     $r->get( '/author/:author' )
-      ->name( 'author' )
+      ->name( 'reports.author' )
       ->to( cb => sub {
         my ( $c ) = @_;
         $c->render( 'author' );
