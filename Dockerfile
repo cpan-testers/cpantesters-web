@@ -11,17 +11,18 @@ RUN cpanm -v \
     Mojolicious::Plugin::AssetPack \
     Mojolicious::Plugin::Yancy
 # Load last version's modules, to again cut down on rebuild time
-COPY ./cpanfile ./cpanfile
+COPY ./cpanfile /app/cpanfile
 RUN cpanm --installdeps .
 
-COPY ./ ./
+COPY ./ /app
 RUN dzil authordeps --missing | cpanm -v --notest
 RUN dzil listdeps --missing | cpanm -v --notest
 RUN cd share && npm install
 RUN dzil install --install-command "cpanm -v ."
 
-COPY ./etc/docker/web/my.cnf ./.cpanstats.cnf
-COPY ./etc/docker/web/web.development.conf ./
-ENV MOJO_HOME=./
+COPY ./etc/docker/web/my.cnf /root/.cpanstats.cnf
+COPY ./etc/docker/web/web.development.conf /app
+ENV MOJO_HOME=/app
 CMD [ "cpantesters-web", "daemon" ]
 EXPOSE 3000
+VOLUME /app
