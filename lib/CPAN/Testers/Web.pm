@@ -216,10 +216,7 @@ sub startup ( $app ) {
 
     $r->get( '/dist/:dist/#version', { version => 'latest' } )
       ->name( 'reports.dist' )
-      ->to( cb => sub {
-        my ( $c ) = @_;
-        $c->render( 'dist' );
-    } );
+      ->to( 'reports#dist_reports' );
 
     $r->get( '/dist' )
       ->name( 'dist-search' )
@@ -264,11 +261,9 @@ sub startup ( $app ) {
     } );
 
     $r->get( '/report/:guid' )
-      ->name( 'report' )
-      ->to( cb => sub {
-        my ( $c ) = @_;
-        $c->render( 'report' );
-    } );
+      ->to( 'reports#report' )
+      ->name( 'reports.report' )
+      ;
 
     $r->get( '/legacy/cpan/report/:id' )
       ->name( 'legacy-view-report' )

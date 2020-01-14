@@ -41,4 +41,64 @@ sub recent_uploads( $c ) {
     );
 }
 
+=method dist_reports
+
+List the reports for a distribution / version.
+
+=cut
+
+sub dist_reports( $c ) {
+    my $dist = $c->stash( 'dist' );
+    my $version = $c->stash( 'version' );
+    my @releases = $c->schema->perl5->resultset( 'Release' )->by_dist( $dist )
+        ->search(
+            undef,
+            {
+                join => 'upload',
+                order_by => { -desc => 'upload.released' },
+            }
+        )
+        ->all;
+    if ( $version eq 'latest' ) {
+        $version = $releases[0]->version;
+    }
+
+    my $reports = $c->schema->perl5->resultset( 'Stats' )
+        ->search(
+            {
+                dist => $dist,
+                version => $version,
+            },
+        );
+
+    $c->render(
+        'reports/dist_reports',
+        releases => \@releases,
+        reports => [
+            map +{
+                guid => $_->guid,
+                grade => $_->grade,
+                lang_version => $_->lang_version,
+                platform => $_->platform,
+                tester_name => $_->tester_name,
+            },
+            $reports->all,
+        ],
+    );
+}
+
+=method report
+
+View a single report
+
+=cut
+
+sub report( $c ) {
+    my $id = $c->stash( 'guid' );
+    $c->render(
+        'reports/report',
+        report => $c->schema->perl5->resultset( 'TestReport' )->find( $id ),
+    );
+}
+
 1;
