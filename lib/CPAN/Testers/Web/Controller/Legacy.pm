@@ -11,6 +11,7 @@ our $VERSION = '0.001';
 use Mojo::Base 'Mojolicious::Controller';
 use CPAN::Testers::Web::Base;
 use JSON::MaybeXS qw( decode_json );
+use Mojo::Util qw( html_unescape );
 
 =method view_report
 
@@ -108,6 +109,47 @@ sub view_report( $c ) {
         user => $user,
         osname => \%OSNAME,
     );
+}
+
+=method distro
+
+This returns a JSON feed of all the distribution reports to be used by
+external services like analysis.cpantesters.org (via
+L<CPAN::Testers::ParseReport>).
+
+=cut
+
+sub distro( $c ) {
+    my $dist = $c->stash->{dist};
+    my $rs = $c->schema->perl5->resultset( 'Stats' )->search({
+        dist => $dist,
+    });
+    my @records;
+    while ( my $row = $rs->next ) {
+        push @records, {
+            status => uc $row->state,
+            state => $row->state,
+            guid => $row->guid,
+            dist => $row->dist,
+            distribution => $row->dist,
+            version => $row->version,
+            distversion => join( '-', $row->dist, $row->version ),
+            type => $row->type,
+            osname => $row->osname,
+            osvers => $row->osvers,
+            ostext => $OSNAME{ $row->osname },
+            perl => $row->perl,
+            platform => $row->platform,
+            uploadid => $row->uploadid,
+            tester => html_unescape( $row->tester ),
+            id => $row->id,
+            postdate => $row->postdate,
+            fulldate => $row->fulldate,
+            csspatch => ( $row->perl =~ /\b(RC\d+|patch)\b/ ? 'pat' : 'unp' ),
+            cssperl => ( $row->perl =~ /^5.(7|9|[1-9][13579])/ ? 'dev' : 'rel' ),
+        };
+    }
+    return $c->render( json => \@records );
 }
 
 sub _deserialize_metabase_report( $c, $row ) {

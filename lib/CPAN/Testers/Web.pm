@@ -269,6 +269,10 @@ sub startup ( $app ) {
       ->name( 'legacy-view-report' )
       ->to( 'legacy#view_report' );
 
+    $r->get( '/legacy/distro/:letter/:dist' )
+      ->name( 'legacy-distro-feed' )
+      ->to( 'legacy#distro' );
+
     # Add a special route to show the main landing page, which is
     # replaced by a different page in beta mode
     if ( $app->mode eq 'beta' ) {

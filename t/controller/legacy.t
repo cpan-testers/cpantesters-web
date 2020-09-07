@@ -10,6 +10,7 @@ use CPAN::Testers::Web::Base 'Test';
 use CPAN::Testers::Schema;
 use CPAN::Testers::Web;
 use JSON::MaybeXS qw( decode_json encode_json );
+use DateTime;
 
 # Schema
 my $schema = CPAN::Testers::Schema->connect( 'dbi:SQLite::memory:', undef, undef, { ignore_version => 1 } );
@@ -54,6 +55,10 @@ my $other_metabase_user = $schema->resultset( 'MetabaseUser' )->create({
 my @reports;
 push @reports, $schema->resultset('TestReport')->create({
     id => 'd0ab4d36-3343-11e7-b830-917e22bfee97',
+    created => DateTime->new(
+        year => 2020, month => 1, day => 1,
+        hour => 0, minute => 0, second => 0,
+    ),
     report => {
         id => 'd0ab4d36-3343-11e7-b830-917e22bfee97',
         reporter => {
@@ -336,6 +341,31 @@ subtest 'view-report.cgi' => sub {
             # isa_ok $report, 'CPAN::Testers::Report', 'report is parsed correctly';
         };
     };
+};
+
+subtest 'distro feed' => sub {
+    $t->get_ok( '/legacy/distro/S/Sorauta-SVN-AutoCommit.json' )->status_is( 200 )
+      ->json_is( '/0/status', 'FAIL' )
+      ->json_is( '/0/state', 'fail' )
+      ->json_is( '/0/guid', 'd0ab4d36-3343-11e7-b830-917e22bfee97' )
+      ->json_is( '/0/dist', 'Sorauta-SVN-AutoCommit' )
+      ->json_is( '/0/distribution', 'Sorauta-SVN-AutoCommit' )
+      ->json_is( '/0/version', '0.02' )
+      ->json_is( '/0/distversion', 'Sorauta-SVN-AutoCommit-0.02' )
+      ->json_is( '/0/type', 2 )
+      ->json_is( '/0/osname', 'linux' )
+      ->json_is( '/0/ostext', 'GNU/Linux' ) # %OSNAME map
+      ->json_is( '/0/osvers', '4.8.0-2-amd64' )
+      ->json_is( '/0/perl', '5.22.2' )
+      ->json_is( '/0/platform', 'x86_64-linux' )
+      ->json_is( '/0/csspatch', 'unp' )
+      ->json_is( '/0/cssperl', 'rel' ) # or 'dev'
+      ->json_is( '/0/postdate', '202001' )
+      ->json_is( '/0/fulldate', '202001010000' )
+      ->json_is( '/0/uploadid', '169497' )
+      ->json_is( '/0/tester', '"Andreas J. Koenig" <andreas.koenig.gmwojprw@franz.ak.mind.de>' )
+      ->json_is( '/0/id', $stats[0]->id )
+      ;
 };
 
 done_testing;
