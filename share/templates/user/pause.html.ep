@@ -1,0 +1,53 @@
+
+<h1>PAUSE ID</h1>
+
+% if ( my $pause_id = current_user()->valid_pause_id ) {
+    <p><a href="http://pause.perl.org">PAUSE</a> ID is associated with
+    your account.</p>
+    %= form_for 'user.update_pause' => begin
+        %= submit_button 'Clear your PAUSE ID'
+    % end
+    <p>Associate a different PAUSE ID with your account.</p>
+    %= form_for 'user.update_pause' => begin
+        %= csrf_field
+        %= text_field 'pause_id'
+        %= submit_button
+    % end
+% }
+% elsif ( $pause_id = current_user()->pause_id ) {
+    % if ( my $message = flash 'message' ) {
+        <p class="alert alert-success"><%= $message %></p>
+    % }
+    % else {
+        <p class="alert alert-warning">
+            Awaiting authentication of <%= $pause_id %>.
+        </p>
+    % }
+    <p>We've sent an e-mail to your PAUSE e-mail address. Enter the token
+    from that e-mail below.</p>
+
+    %= form_for 'user.validate_pause' => begin
+        %= text_field 'pause_token'
+        %= submit_button
+    % end
+
+    <p>Associate a different PAUSE ID with your account.</p>
+    %= form_for 'user.update_pause' => begin
+        %= csrf_field
+        %= text_field 'pause_id'
+        %= submit_button
+    % end
+% }
+% else {
+    <p>Associate a PAUSE ID with your account to enable author features.</p>
+    % if ( my $error = validation->error( 'pause_id' ) ) {
+        % if ( $error->[0] eq 'required' ) {
+            <p class="error">Error: You must give a PAUSE ID</p>
+        % }
+    % }
+    %= form_for 'user.update_pause' => begin
+        %= csrf_field
+        %= text_field 'pause_id'
+        %= submit_button
+    % end
+% }

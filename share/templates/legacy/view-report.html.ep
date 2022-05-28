@@ -1,0 +1,49 @@
+<%
+    my ( $content ) =
+        map { $_->{content} }
+        grep { $_->{metadata}{core}{type} eq 'CPAN-Testers-Fact-LegacyReport' }
+        $report->{content}->@*;
+    if ( $c->param( 'raw' ) ) {
+        layout 'blank';
+    }
+    else {
+        layout 'legacy-view-report';
+    }
+
+    use CPAN::DistnameInfo;
+    my @parts = split m{/}, $report->{metadata}{core}{resource};
+    my @letters = split //, $parts[-2];
+    my $dist = CPAN::DistnameInfo->new(
+        "authors/id/$letters[0]/$letters[0]$letters[1]/" . join '/', @parts[-2,-1]
+    );
+
+    my $subject = sprintf "%s %s-%s %s %s",
+        uc $content->{grade}, $dist->dist,
+        $dist->version, $content->{perl_version},
+        $osname->{ $content->{osname} },
+        ;
+    title $subject;
+
+    my $letter = uc substr $dist->dist, 0, 1;
+%>
+
+% if ( !$c->param( 'raw' ) ) {
+<h1>
+    Report for
+    <a href="http://metacpan.org/release/<%= $dist->cpanid %>/<%= $dist->distvname %>">
+        <%= $dist->dist %>-<%= $dist->version %>
+    </a>
+</h1>
+
+<a class="back" href="http://www.cpantesters.org/distro/<%= $letter %>/<%= $dist->dist %>.html?version=<%= $dist->version %>">
+    Back
+</a>
+% }
+
+<pre>
+From: <strong><%== $user->fullname %></strong>
+Subject: <strong><%= $subject %></strong>
+Date: <strong><%= $report->{metadata}{core}{creation_time} %></strong>
+
+%= $content->{textreport}
+</pre>

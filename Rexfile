@@ -31,7 +31,7 @@ use Rex::Commands::Sync;
 
 #######################################################################
 # Groups
-group web => 'cpantesters3.dh.bytemark.co.uk';
+group web => 'cpantesters4.dh.bytemark.co.uk';
 
 #######################################################################
 # Settings
@@ -69,15 +69,7 @@ task deploy =>
     group => 'web',
     sub {
         run 'source ~/.profile; cpanm CPAN::Testers::Web DBD::mysql';
-        file '~/service/web/log/main',
-            ensure => 'directory';
-        file '~/service/web/run',
-            source => 'etc/runit/web/run';
-        file '~/service/web/web.conf',
-            source => 'etc/runit/web/web.conf';
-        file '~/service/web/log/run',
-            source => 'etc/runit/web/log/run';
-        run 'sv restart ~/service/web';
+        run_task 'deploy_config', on => connection->server;
     };
 
 =head2 deploy_dev
@@ -108,8 +100,27 @@ task deploy_dev =>
             source => $dist;
 
         Rex::Logger::info( 'Installing ' . $dist );
-        run 'source ~/.profile; cpanm ~/dist/' . $dist;
-        file '~/service/web/log/main',
+        run 'source ~/.profile; cpanm -v --notest ~/dist/' . $dist . ' 2>&1';
+        if ( $? ) {
+            say last_command_output;
+        }
+        run_task 'deploy_config', on => connection->server;
+    };
+
+=head2 deploy_config
+
+    rex deploy_config
+
+Deploy the service scripts and configuration files, and then restart
+the services.
+
+=cut
+
+task deploy_config =>
+    group => 'web',
+    sub {
+        Rex::Logger::info( 'Deploying service config' );
+        file '~/service/web/log',
             ensure => 'directory';
         file '~/service/web/run',
             source => 'etc/runit/web/run';
@@ -117,7 +128,18 @@ task deploy_dev =>
             source => 'etc/runit/web/web.conf';
         file '~/service/web/log/run',
             source => 'etc/runit/web/log/run';
+        file '~/service/web-beta/log',
+            ensure => 'directory';
+        file '~/service/web-beta/run',
+            source => 'etc/runit/web-beta/run';
+        file '~/service/web-beta/web.conf',
+            source => 'etc/runit/web-beta/web.conf';
+        file '~/service/web-beta/log/run',
+            source => 'etc/runit/web-beta/log/run';
+
+        Rex::Logger::info( 'Restarting' );
         run 'sv restart ~/service/web';
+        run 'sv restart ~/service/web-beta';
     };
 
 #######################################################################

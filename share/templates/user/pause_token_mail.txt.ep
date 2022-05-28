@@ -1,0 +1,10 @@
+% my $validate_url = url_for( 'user.validate_pause' )->to_abs;
+Someone (probably you) has requested CPAN Testers (<http://cpantesters.org>)
+verify ownership of this PAUSE ID: <%= stash 'pause_id' %>.
+
+To verify, go to <%= $validate_url %> and enter the following token:
+
+<%= stash 'pause_token' %>
+
+If you have not requested validation of your PAUSE ID, please ignore
+this message.

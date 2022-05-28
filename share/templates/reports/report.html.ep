@@ -1,0 +1,38 @@
+
+<% title sprintf 'Report - %s v%s %s %s',
+        $report->dist_name, $report->dist_version, $report->lang_version,
+        $report->platform,
+        ;
+%>
+
+<div class="container">
+    <div class="row">
+        <h1><%=
+            sprintf '%s v%s %s %s',
+                $report->dist_name, $report->dist_version, $report->lang_version,
+                $report->platform,
+                ;
+        %></h1>
+
+        <dl class="dl-horizontal">
+            <dt>Status</dt>
+            <dd><%= ucfirst $report->grade %></dd>
+            <dt>From</dt>
+            <dd><%= $report->tester_name %></dd>
+            <dt>Dist</dt>
+            <dd><%= link_to 'reports.dist', { dist => $report->dist_name, version => $report->dist_version }, begin %>
+                <%= $report->dist_name %> v<%= $report->dist_version %>
+            <% end %></dd>
+            <dt>Platform</dt>
+            <dd><%= join ' ', $report->lang_version, $report->platform %></dd>
+            <dt>Date</dt>
+            <dd><%= $report->created->datetime( ' ' ) %></dd>
+            <dt>ID</dt>
+            <dd><%= $report->id %></dd>
+        </dl>
+
+        <pre><%= $report->text %></pre>
+
+    </div>
+</div>
+

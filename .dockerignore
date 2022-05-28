@@ -1,0 +1,3 @@
+.build
+*.tar.gz
+/CPAN-Testers-Web-*

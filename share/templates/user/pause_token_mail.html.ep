@@ -1,0 +1,14 @@
+% my $validate_url = url_for( 'user.validate_pause' )->to_abs;
+<p>Someone (probably you) has requested <a
+href="http://cpantesters.org">CPAN Testers</a> verify ownership of this
+PAUSE ID: <%= stash 'pause_id' %>.</p>
+
+<p><%= link_to 'Click this link to verify', $validate_url->clone->query(
+pause_token => stash 'pause_token' ) %>,
+or enter the following token on <a href="<%= url_for( 'user.pause' )->to_abs %>">
+<%= url_for( 'user.pause' )->to_abs %></a></p>
+
+<pre><%= stash 'pause_token' %></pre>
+
+<p>If you have not requested validation of your PAUSE ID, please ignore
+this message.</p>

@@ -39,12 +39,26 @@ use base 'Import::Base';
 our @IMPORT_MODULES = (
     'strict', 'warnings',
     feature => [qw( :5.24 signatures refaliasing )],
-    '-warnings' => [qw( experimental::signatures experimental::refaliasing )],
+    'CPAN::Testers::Web', # For File::Share to find dist dir
+    '>-warnings' => [qw( experimental::signatures experimental::refaliasing )],
 );
 
 our %IMPORT_BUNDLES = (
+    Result => [
+        'DBIx::Class::Candy',
+    ],
+    ResultSet => [
+        'DBIx::Class::Candy::ResultSet',
+    ],
     Test => [
-        'Test::More', 'Test::Lib', 'Test::Mojo',
+        # Do not send out e-mail, hold on to it so we can examine that we're
+        # sending the correct e-mails
+        sub { $ENV{EMAIL_SENDER_TRANSPORT} = 'Test' },
+        # This must be loaded before 'Test::More' to fix "ok: plan
+        # before you test!" errors caused by the wrong 'ok' sub being
+        # imported into the main namespace
+        'Email::Stuffer',
+        'Test::More', 'Test::Mojo',
     ],
 );
 

@@ -1,0 +1,48 @@
+
+% my $dist = stash( 'dist' ) . ' (' . stash( 'version' ) . ')';
+% title $dist;
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1><%= stash 'dist' %></h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <h2>Releases</h2>
+
+            <div class="list-group">
+                % for my $r ( @$releases ) {
+                <a href="<%= url_with { version => $r->version } %>" class="list-group-item <%= stash( 'version' ) == 1.000001 || stash( 'version' ) eq 'latest' ? "active" : "" %>">
+                    <%= $r->version %>
+                    <span class="pull-right">
+                        <span class="label label-success"><%= $r->pass %></span>
+                        <span class="label label-danger"><%= $r->fail %></span>
+                    </span>
+                </a>
+                % }
+            </div>
+
+        </div>
+        <div class="col-md-9">
+            <h2>Reports (<%= stash 'version' %>)</h2>
+
+            <%= include 'moai/table',
+                items => $reports,
+                columns => [
+                    { title => '', key => 'guid', link_to => 'reports.report' },
+                    { title => 'Grade', key => 'grade' },
+                    { title => 'Language', key => 'lang_version' },
+                    { title => 'Platform', key => 'platform' },
+                    { title => 'Tester', key => 'tester_name' },
+                ],
+                classes => {
+                    table => 'table-striped table-hover',
+                },
+            %>
+
+        </div>
+    </div>
+</div>
+
