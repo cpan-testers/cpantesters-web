@@ -75,7 +75,7 @@
         <footer>
             <p>
             CPAN::Testers::Web v<%= $CPAN::Testers::Web::VERSION %> is powered by <a href="http://mojolicious.org">Mojolicious</a><br />
-            All data and statistics are copyright &copy; 1999-2018 CPAN Testers, and available under the <a href="https://opensource.org/licenses/Artistic-2.0">Artistic License 2.0</a>. Comments and design patches to admin@cpantesters.org.
+            All data and statistics are copyright &copy; 1999-2023 CPAN Testers, and available under the <a href="https://opensource.org/licenses/Artistic-2.0">Artistic License 2.0</a>. Comments and design patches to admin@cpantesters.org.
             </p>
 
             <p>
