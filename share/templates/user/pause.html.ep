@@ -41,7 +41,7 @@
 % else {
     <p>Associate a PAUSE ID with your account to enable author features.</p>
     % if ( my $error = validation->error( 'pause_id' ) ) {
-        % if ( $error->[0] eq 'required' ) {
+        % if ( $error->[0] eq 'required' || $error->[0] eq 'size' ) {
             <p class="error">Error: You must give a PAUSE ID</p>
         % }
     % }

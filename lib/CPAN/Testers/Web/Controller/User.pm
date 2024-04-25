@@ -38,7 +38,7 @@ sub update_pause( $c ) {
     return $c->render(text => 'Bad CSRF token!', status => 403)
         if $v->csrf_protect->has_error('csrf_token');
 
-    $v->required( 'pause_id' );
+    $v->required( 'pause_id' )->size(1, undef);
     if ( $v->has_error ) {
         return $c->render( 'user/pause', status => 400 );
     }

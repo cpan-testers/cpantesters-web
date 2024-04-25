@@ -269,7 +269,7 @@ sub startup ( $app ) {
       ->name( 'legacy-view-report' )
       ->to( 'legacy#view_report' );
 
-    $r->get( '/legacy/distro/:letter/:dist' )
+    $r->get( '/legacy/distro/:letter/:dist', [format => ['json']] )
       ->name( 'legacy-distro-feed' )
       ->to( 'legacy#distro' );
 
