@@ -124,6 +124,10 @@ sub distro( $c ) {
     my $rs = $c->schema->perl5->resultset( 'Stats' )->search({
         dist => $dist,
     });
+    return $c->render( json => _rs_to_json($rs) );
+}
+
+sub _rs_to_json( $rs ) {
     my @records;
     while ( my $row = $rs->next ) {
         push @records, {
@@ -149,7 +153,23 @@ sub distro( $c ) {
             cssperl => ( $row->perl =~ /^5.(7|9|[1-9][13579])/ ? 'dev' : 'rel' ),
         };
     }
-    return $c->render( json => \@records );
+    return \@records;
+}
+
+=method author
+
+This returns a JSON feed of all the reports for the latest version of
+all dists from a given author to be used by external services like
+analysis.cpantesters.org (via L<CPAN::Testers::ParseReport>).
+
+=cut
+
+sub author( $c ) {
+    my $author = $c->stash->{author};
+    my $rs = $c->schema->perl5->resultset( 'Upload' )
+      ->by_author($author)->latest_by_dist
+      ->search_related('report_stats');
+    return $c->render( json => _rs_to_json($rs) );
 }
 
 sub _deserialize_metabase_report( $c, $row ) {

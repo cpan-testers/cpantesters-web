@@ -273,6 +273,10 @@ sub startup ( $app ) {
       ->name( 'legacy-distro-feed' )
       ->to( 'legacy#distro' );
 
+    $r->get( '/legacy/author/:letter/:author', [format => ['json']] )
+      ->name( 'legacy-author-feed' )
+      ->to( 'legacy#author' );
+
     # Add a special route to show the main landing page, which is
     # replaced by a different page in beta mode
     if ( $app->mode eq 'beta' ) {

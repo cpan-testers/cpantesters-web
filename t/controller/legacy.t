@@ -41,6 +41,15 @@ my $upload = $schema->resultset( 'Upload' )->create({
     filename => 'Sorauta-SVN-AutoCommit-0.02.tar.gz',
     released => 1327657454,
 });
+my $upload2 = $schema->resultset( 'Upload' )->create({
+    uploadid => 169496,
+    type => 'cpan',
+    author => 'YUKI',
+    dist => 'Sorauta-SVN-AutoCommit',
+    version => 0.01,
+    filename => 'Sorauta-SVN-AutoCommit-0.01.tar.gz',
+    released => 1327657453,
+});
 my $metabase_user = $schema->resultset( 'MetabaseUser' )->create({
     resource => 'metabase:user:11111111-1111-1111-1111-111111111111',
     email => 'andreas.koenig.gmwojprw@franz.ak.mind.de',
@@ -53,41 +62,78 @@ my $other_metabase_user = $schema->resultset( 'MetabaseUser' )->create({
 });
 
 my @reports;
-push @reports, $schema->resultset('TestReport')->create({
-    id => 'd0ab4d36-3343-11e7-b830-917e22bfee97',
-    created => DateTime->new(
-        year => 2020, month => 1, day => 1,
-        hour => 0, minute => 0, second => 0,
-    ),
-    report => {
-        id => 'd0ab4d36-3343-11e7-b830-917e22bfee97',
-        reporter => {
-            name  => 'Andreas J. Koenig',
-            email => 'andreas.koenig.gmwojprw@franz.ak.mind.de',
-        },
-        environment => {
-            system => {
-                osname => 'linux',
-                osversion => '4.8.0-2-amd64',
-            },
-            language => {
-                name => 'Perl 5',
-                version => '5.22.2',
-                archname => 'x86_64-linux',
-            },
-        },
-        distribution => {
-            name => 'Sorauta-SVN-AutoCommit',
-            version => '0.02',
-        },
-        result => {
-            grade => 'FAIL',
-            output => {
-                uncategorized => 'Test report',
-            },
-        },
-    },
-});
+push @reports,
+    $schema->resultset('TestReport')->create({
+      id => 'd0ab4d36-3343-11e7-b830-917e22bfee97',
+      created => DateTime->new(
+          year => 2020, month => 1, day => 1,
+          hour => 0, minute => 0, second => 0,
+      ),
+      report => {
+          id => 'd0ab4d36-3343-11e7-b830-917e22bfee97',
+          reporter => {
+              name  => 'Andreas J. Koenig',
+              email => 'andreas.koenig.gmwojprw@franz.ak.mind.de',
+          },
+          environment => {
+              system => {
+                  osname => 'linux',
+                  osversion => '4.8.0-2-amd64',
+              },
+              language => {
+                  name => 'Perl 5',
+                  version => '5.22.2',
+                  archname => 'x86_64-linux',
+              },
+          },
+          distribution => {
+              name => 'Sorauta-SVN-AutoCommit',
+              version => '0.02',
+          },
+          result => {
+              grade => 'FAIL',
+              output => {
+                  uncategorized => 'Test report',
+              },
+          },
+      },
+  }),
+  $schema->resultset('TestReport')->create({
+      id => 'a1e92b97-da53-473e-bf2d-0866b4c2c20c',
+      created => DateTime->new(
+          year => 2020, month => 1, day => 2,
+          hour => 0, minute => 0, second => 0,
+      ),
+      report => {
+          id => 'a1e92b97-da53-473e-bf2d-0866b4c2c20c',
+          reporter => {
+              name  => 'Andreas J. Koenig',
+              email => 'andreas.koenig.gmwojprw@franz.ak.mind.de',
+          },
+          environment => {
+              system => {
+                  osname => 'linux',
+                  osversion => '4.8.0-2-amd64',
+              },
+              language => {
+                  name => 'Perl 5',
+                  version => '5.22.2',
+                  archname => 'x86_64-linux',
+              },
+          },
+          distribution => {
+              name => 'Sorauta-SVN-AutoCommit',
+              version => '0.01',
+          },
+          result => {
+              grade => 'PASS',
+              output => {
+                  uncategorized => 'Test report',
+              },
+          },
+      },
+  }),
+  ;
 
 my @stats;
 push @stats, $schema->resultset( 'Stats' )->insert_test_report( $_ ) for @reports;
@@ -365,6 +411,40 @@ subtest 'distro feed' => sub {
       ->json_is( '/0/uploadid', '169497' )
       ->json_is( '/0/tester', '"Andreas J. Koenig" <andreas.koenig.gmwojprw@franz.ak.mind.de>' )
       ->json_is( '/0/id', $stats[0]->id )
+      ->json_is( '/1/status', 'PASS' )
+      ->json_is( '/1/state', 'pass' )
+      ->json_is( '/1/guid', 'a1e92b97-da53-473e-bf2d-0866b4c2c20c' )
+      ->json_is( '/1/dist', 'Sorauta-SVN-AutoCommit' )
+      ->json_is( '/1/distribution', 'Sorauta-SVN-AutoCommit' )
+      ->json_is( '/1/version', '0.01' )
+      ->json_is( '/1/distversion', 'Sorauta-SVN-AutoCommit-0.01' )
+      ->json_is( '/1/id', $stats[1]->id )
+      ;
+};
+
+subtest 'author feed' => sub {
+    $t->get_ok( '/legacy/author/Y/YUKI.json' )->status_is( 200 )
+      ->json_is( '/0/status', 'FAIL' )
+      ->json_is( '/0/state', 'fail' )
+      ->json_is( '/0/guid', 'd0ab4d36-3343-11e7-b830-917e22bfee97' )
+      ->json_is( '/0/dist', 'Sorauta-SVN-AutoCommit' )
+      ->json_is( '/0/distribution', 'Sorauta-SVN-AutoCommit' )
+      ->json_is( '/0/version', '0.02' )
+      ->json_is( '/0/distversion', 'Sorauta-SVN-AutoCommit-0.02' )
+      ->json_is( '/0/type', 2 )
+      ->json_is( '/0/osname', 'linux' )
+      ->json_is( '/0/ostext', 'GNU/Linux' ) # %OSNAME map
+      ->json_is( '/0/osvers', '4.8.0-2-amd64' )
+      ->json_is( '/0/perl', '5.22.2' )
+      ->json_is( '/0/platform', 'x86_64-linux' )
+      ->json_is( '/0/csspatch', 'unp' )
+      ->json_is( '/0/cssperl', 'rel' ) # or 'dev'
+      ->json_is( '/0/postdate', '202001' )
+      ->json_is( '/0/fulldate', '202001010000' )
+      ->json_is( '/0/uploadid', '169497' )
+      ->json_is( '/0/tester', '"Andreas J. Koenig" <andreas.koenig.gmwojprw@franz.ak.mind.de>' )
+      ->json_is( '/0/id', $stats[0]->id )
+      ->json_hasnt( '/1', 'only latest dist version is returned' )
       ;
 };
 
