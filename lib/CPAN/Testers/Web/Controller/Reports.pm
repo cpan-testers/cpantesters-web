@@ -95,10 +95,15 @@ View a single report
 
 sub report( $c ) {
     my $id = $c->stash( 'guid' );
-    $c->render(
-        'reports/report',
-        report => $c->schema->perl5->resultset( 'TestReport' )->find( $id ),
-    );
+    if ( my $report = $c->schema->perl5->resultset( 'TestReport' )->find( $id ) ) {
+      $c->render(
+          'reports/report',
+          report => $report,
+      );
+      return;
+    }
+    # We didn't find a report, so look for a metabase report?
+    $c->redirect_to('/cpan/report/' . $id)
 }
 
 1;
