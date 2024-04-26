@@ -14,7 +14,7 @@
 
             <div class="list-group releases">
                 % for my $r ( @$releases ) {
-                <a href="<%= url_with { version => $r->version } %>" class="list-group-item <%= stash( 'version' ) eq $r->version ? "active" : "" %>">
+                <a href="<%= url_with { version => $r->version } %>" class="list-group-item <%= stash( 'version' ) eq $r->version ? 'active' : '' %>">
                     <%= $r->version %>
                     <span class="pull-right">
                         <span class="label label-success"><%= $r->pass %></span>
@@ -37,7 +37,7 @@
                     { title => 'Platform', key => 'platform' },
                     { title => 'Tester', key => 'tester_name' },
                 ],
-                classes => {
+                class => {
                     table => 'table-striped table-hover reports',
                 },
             %>

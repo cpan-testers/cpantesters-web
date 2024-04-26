@@ -50,7 +50,7 @@ List the reports for a distribution / version.
 sub dist_reports( $c ) {
     my $dist = $c->stash( 'dist' );
     my $version = $c->stash( 'version' );
-    my $is_latest = $version eq 'latest';
+    my $is_latest = !$version || $version eq 'latest';
     my @releases = $c->schema->perl5->resultset( 'Release' )->by_dist( $dist )
         ->search(
             undef,
@@ -60,7 +60,7 @@ sub dist_reports( $c ) {
             }
         )
         ->all;
-    if ( $version eq 'latest' ) {
+    if ( $is_latest ) {
         $version = $releases[0]->version;
     }
 
