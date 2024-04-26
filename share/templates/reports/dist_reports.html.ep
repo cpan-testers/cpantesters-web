@@ -12,9 +12,9 @@
         <div class="col-md-3">
             <h2>Releases</h2>
 
-            <div class="list-group">
+            <div class="list-group releases">
                 % for my $r ( @$releases ) {
-                <a href="<%= url_with { version => $r->version } %>" class="list-group-item <%= stash( 'version' ) == 1.000001 || stash( 'version' ) eq 'latest' ? "active" : "" %>">
+                <a href="<%= url_with { version => $r->version } %>" class="list-group-item <%= stash( 'version' ) eq $r->version ? "active" : "" %>">
                     <%= $r->version %>
                     <span class="pull-right">
                         <span class="label label-success"><%= $r->pass %></span>
@@ -26,7 +26,7 @@
 
         </div>
         <div class="col-md-9">
-            <h2>Reports (<%= stash 'version' %>)</h2>
+            <h2>Reports (<span class="current-version"><%= stash( 'is_latest' ) ? 'latest' : stash( 'version' ) %></span>)</h2>
 
             <%= include 'moai/table',
                 items => $reports,
@@ -38,7 +38,7 @@
                     { title => 'Tester', key => 'tester_name' },
                 ],
                 classes => {
-                    table => 'table-striped table-hover',
+                    table => 'table-striped table-hover reports',
                 },
             %>
 

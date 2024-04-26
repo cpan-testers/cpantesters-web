@@ -72,6 +72,14 @@ $t->get_ok( '/' )->status_is( 200 )
   )
   ;
 
+$t->get_ok('/dist/My-Dist')->status_is(200)
+  ->text_like('.releases a:nth-child(1)', qr{1\.002})
+  ->element_exists('.releases a:nth-child(1).active')
+  ->text_like('.releases a:nth-child(2)', qr{1\.001})
+  ->element_exists_not('.releases a:nth-child(2).active')
+  ->text_like('.current-version', qr{latest})
+  ;
+
 done_testing;
 
 sub populate_schema( $schema ) {
