@@ -77,7 +77,7 @@ sub startup ( $app ) {
         $app->plugin( 'Minion', $app->config->{Minion} );
         my $under = $app->routes->under('/minion' =>sub {
             my $c = shift;
-            return 1 if $c->req->url->to_abs->userinfo eq 'Bender:rocks';
+            #return 1 if $c->req->url->to_abs->userinfo eq 'Bender:rocks';
             $c->res->headers->www_authenticate('Basic');
             $c->render(text => 'Authentication required!', status => 401);
             return undef;
@@ -88,7 +88,7 @@ sub startup ( $app ) {
     if ( $app->config->{Yancy} ) {
         my $yancy_auth = $app->routes->under('/yancy' =>sub {
             my $c = shift;
-            return 1 if $c->req->url->to_abs->userinfo eq 'Bender:rocks';
+            #return 1 if $c->req->url->to_abs->userinfo eq 'Bender:rocks';
             $c->res->headers->www_authenticate('Basic');
             $c->render(text => 'Authentication required!', status => 401);
             return undef;
@@ -214,9 +214,13 @@ sub startup ( $app ) {
         $c->render( 'user/dist/settings' );
     } );
 
-    $r->get( '/dist/:dist/#version', { version => 'latest' } )
+    $r->get( '/dist/:dist/#version', [ format => [qw( html rss )] ], { format => 'html', version => 'latest' } )
       ->name( 'reports.dist' )
       ->to( 'reports#dist_reports' );
+
+    $r->get( '/release/:dist', [ format => [qw( json )] ], { format => 'json' } )
+      ->name( 'release.dist' )
+      ->to( 'reports#dist_versions' );
 
     $r->get( '/dist' )
       ->name( 'dist-search' )
@@ -225,19 +229,13 @@ sub startup ( $app ) {
         $c->render( 'dist-search' );
     } );
 
-    $r->get( '/author/:author' )
+    $r->get( '/author/:author', [ format => [qw( html rss json)] ] )
       ->name( 'reports.author' )
-      ->to( cb => sub {
-        my ( $c ) = @_;
-        $c->render( 'author' );
-    } );
+      ->to( 'reports#author', format => 'html' );
 
     $r->get( '/author' )
       ->name( 'author-search' )
-      ->to( cb => sub {
-        my ( $c ) = @_;
-        $c->render( 'author-search' );
-    } );
+      ->to( 'reports#author_search' );
 
     $r->get( '/tester/:tester/:machine' )
       ->name( 'tester-machine' )
@@ -277,6 +275,19 @@ sub startup ( $app ) {
       ->name( 'legacy-author-feed' )
       ->to( 'legacy#author' );
 
+    # TODO:
+    # /author/<name>-nopass.rss
+
+    ### These routes are for the CPAN Testers Matrix
+    $r->get('/show/:dist', [format => [qw( html json yaml rss )]])
+      ->name('show-dist')
+      ->to('legacy#show_dist', format => 'html');
+
+    ### This route handles the CPAN::Testers::WWW::Reports::Query::Reports API module
+    $r->get('/cgi-bin/reports-metadata.cgi')
+      ->name('reports-metadata')
+      ->to('legacy#reports_metadata');
+
     # Add a special route to show the main landing page, which is
     # replaced by a different page in beta mode
     if ( $app->mode eq 'beta' ) {
@@ -291,14 +302,6 @@ sub startup ( $app ) {
           ->to( 'reports#recent_uploads' )
           ;
     }
-
-    $r->get( '/*tmpl', { tmpl => 'index' } )
-      ->name( 'web' )
-      ->to( cb => sub {
-        my ( $c ) = @_;
-        $c->render( $c->stash( 'tmpl' ), variant => $app->mode );
-    } );
-
 }
 
 1;

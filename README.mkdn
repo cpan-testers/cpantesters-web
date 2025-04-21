@@ -23,14 +23,6 @@ interacting with CPAN Testers data.
 
 # METHODS
 
-## schema
-
-    my $schema = $c->schema;
-
-Get the schema, a [CPAN::Testers::Schema](https://metacpan.org/pod/CPAN::Testers::Schema) object. By default, the
-schema is connected from the local user's config. See
-["connect\_from\_config" in CPAN::Testers::Schema](https://metacpan.org/pod/CPAN::Testers::Schema#connect_from_config) for details.
-
 ## startup
 
     # Called automatically by Mojolicious
@@ -48,6 +40,10 @@ and registers helpers.
 # AUTHOR
 
 Doug Bell <preaction@cpan.org>
+
+# CONTRIBUTOR
+
+dependabot\[bot\] <49699333+dependabot\[bot\]@users.noreply.github.com>
 
 # COPYRIGHT AND LICENSE
 

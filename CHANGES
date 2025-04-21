@@ -6,5 +6,8 @@ Changelog for CPAN-Testers-Web
 
     - Added replacement for legacy view-report.cgi. This improves
       performance immensely over the existing CGI scripts.
+    - Added replacement for legacy APIs used by the CPANTesters Matrix.
+      This also improves performance and stability over the existing CGI
+      scripts.
     - Added a beta dashboard with pretty charts
     - Added a mockup of a new CPAN Testers website

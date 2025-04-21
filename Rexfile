@@ -140,6 +140,12 @@ task deploy_config =>
         Rex::Logger::info( 'Restarting' );
         run 'sv restart ~/service/web';
         run 'sv restart ~/service/web-beta';
+
+        Rex::Logger::info( 'Purging Fastly cache' );
+        run 'curl -X PURGE https://cpantesters.org';
+        run 'curl -X PURGE http://cpantesters.org';
+        run 'curl -X PURGE https://www.cpantesters.org';
+        run 'curl -X PURGE http://www.cpantesters.org';
     };
 
 #######################################################################

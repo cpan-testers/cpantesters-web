@@ -100,13 +100,9 @@ sub view_report( $c ) {
         return $c->render( 'legacy/report-not-found' );
     }
 
-    my $user = $schema->resultset( 'MetabaseUser' )->search(
-        { resource => $report->{metadata}{core}{creator} },
-    )->first;
-
     return $c->render( 'legacy/view-report',
         report => $report,
-        user => $user,
+        user => $report->{metadata}{core}{creator},
         osname => \%OSNAME,
     );
 }
@@ -133,6 +129,7 @@ sub _rs_to_json( $rs ) {
         push @records, {
             status => uc $row->state,
             state => $row->state,
+            grade => $row->state,
             guid => $row->guid,
             dist => $row->dist,
             distribution => $row->dist,
@@ -143,6 +140,7 @@ sub _rs_to_json( $rs ) {
             osvers => $row->osvers,
             ostext => $OSNAME{ $row->osname },
             perl => $row->perl,
+            lang_version => $row->perl,
             platform => $row->platform,
             uploadid => $row->uploadid,
             tester => html_unescape( $row->tester ),
@@ -151,6 +149,7 @@ sub _rs_to_json( $rs ) {
             fulldate => $row->fulldate,
             csspatch => ( $row->perl =~ /\b(RC\d+|patch)\b/ ? 'pat' : 'unp' ),
             cssperl => ( $row->perl =~ /^5.(7|9|[1-9][13579])/ ? 'dev' : 'rel' ),
+            datetime => $row->datetime,
         };
     }
     return \@records;
@@ -158,18 +157,34 @@ sub _rs_to_json( $rs ) {
 
 =method author
 
-This returns a JSON feed of all the reports for the latest version of
-all dists from a given author to be used by external services like
-analysis.cpantesters.org (via L<CPAN::Testers::ParseReport>).
+This returns a JSON or RSS feed of all the reports for the latest
+version of all dists from a given author to be used by external services
+like analysis.cpantesters.org (via L<CPAN::Testers::ParseReport>).
 
 =cut
 
 sub author( $c ) {
     my $author = $c->stash->{author};
+    my $nopass = 0;
+    if ($author =~ /^(.+)-nopass$/) {
+        $author = $c->stash->{author} = $1;
+        $nopass = 1;
+    }
     my $rs = $c->schema->perl5->resultset( 'Upload' )
-      ->by_author($author)->latest_by_dist
-      ->search_related('report_stats');
-    return $c->render( json => _rs_to_json($rs) );
+        ->by_author($author)->latest_by_dist
+        ->search_related('report_stats');
+    if ( $nopass ) {
+        $rs = $rs->search({ state => { '!=' => 'pass' }});
+    }
+    return $c->respond_to(
+        json => sub { $c->render( json => _rs_to_json($rs) ) },
+        rss => sub {
+            # Limit RSS feed to one year of reports, by month
+            my $last_year = DateTime->now->strftime('%Y%m000000');
+            $rs = $rs->search({ fulldate => { '>=' => $last_year } });
+            $c->render( 'legacy/author_reports', items => _rs_to_json($rs) );
+        },
+    );
 }
 
 sub _deserialize_metabase_report( $c, $row ) {
@@ -238,6 +253,7 @@ sub _new_report_to_metabase_json( $c, $row ) {
         email => $row->report->{reporter}{email},
     })->first;
     my $report = $row->report;
+    my $creator = $user ? $user->resource : "$report->{reporter}{name} <$report->{reporter}{email}>";
 
     my $distname = $report->{distribution}{name};
     my $distversion = $report->{distribution}{version};
@@ -258,7 +274,7 @@ sub _new_report_to_metabase_json( $c, $row ) {
                 resource => $distfile,
                 schema_version => 1,
                 guid => $id,
-                creator => $user->resource,
+                creator => $creator,
             },
         },
         content => [
@@ -266,7 +282,7 @@ sub _new_report_to_metabase_json( $c, $row ) {
                 metadata => {
                     core => {
                         guid => $id,
-                        creator => $user->resource,
+                        creator => $creator,
                         type => "CPAN-Testers-Fact-LegacyReport",
                         valid => 1,
                         schema_version => 1,
@@ -291,7 +307,7 @@ sub _new_report_to_metabase_json( $c, $row ) {
                 metadata => {
                     core => {
                         guid => $id,
-                        creator => $user->resource,
+                        creator => $creator,
                         valid => 1,
                         type => "CPAN-Testers-Fact-TestSummary",
                         resource => $distfile,
@@ -312,6 +328,78 @@ sub _new_report_to_metabase_json( $c, $row ) {
     };
 
     return $metabase_report;
+}
+
+=method show_dist
+
+For the CPAN Testers Matrix, show a dist.
+
+=cut
+
+sub show_dist( $c ) {
+    $c->respond_to(
+        json => sub {
+            $c->distro();
+        },
+        rss => sub {
+            $c->redirect_to('reports.dist');
+        },
+        html => sub {
+            $c->redirect_to('reports.dist');
+        },
+    );
+}
+
+=method reports_metadata
+
+Handle the legacy CGI for CPAN::Testers::WWW::Reports::Query::Reports
+
+=cut
+
+sub reports_metadata( $c ) {
+    my $rs = $c->schema->perl5->resultset('Stats')->search(undef, {order_by => 'id'});
+    if ( my $date = $c->param('date') ) {
+        my $fulldate = $date =~ s/[-:T]//gr;
+        $fulldate = substr $fulldate, 0, 8; # 8 digits makes YYYYMMDD
+        my $min_date = $fulldate . '0000'; # 12 makes YYYYMMDDHHNN
+        my $max_date = $fulldate + 10000; # the next day
+        $rs = $rs->search({
+            fulldate => { '>=', $min_date, '<', $max_date },
+        });
+    }
+    else {
+        my $MAX_REPORTS = 2500;
+        my ( $min_id, $max_id ) = split /-/, $c->param('range');
+        # A single number, no -, means get a single report
+        if ($min_id && !defined $max_id) {
+            $max_id = $min_id;
+        }
+        elsif ($min_id eq '') {
+            $min_id = $max_id - $MAX_REPORTS;
+        }
+        elsif ($max_id eq '') {
+            $max_id = $min_id + $MAX_REPORTS;
+        }
+        elsif ($max_id > $min_id + $MAX_REPORTS) {
+            $max_id = $min_id + $MAX_REPORTS;
+        }
+        $rs = $rs->search({
+            id => { '>=' => $min_id, '<=' => $max_id },
+        });
+    }
+
+    my $rows = _rs_to_json($rs);
+    my ( $min_id, $max_id ) = ( $rows->[0]{id}, $rows->[-1]{id} );
+    return $c->render(
+        json => {
+            from => $min_id,
+            to => $max_id,
+            range => "$min_id-$max_id",
+            list => {
+                map {; $_->{id} => $_ } @$rows,
+            },
+        },
+    );
 }
 
 1;

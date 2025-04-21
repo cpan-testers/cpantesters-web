@@ -1,0 +1,29 @@
+<%
+  use DateTime::Format::Mail;
+%>
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:blogChannel="http://backend.userland.com/blogChannelModule"
+>
+  <channel>
+    <atom:link href="<%= url_for('reports.author', { format => 'rss' }) %>" rel="self" type="application/rss+xml" />
+    <title><%= title %></title>
+    <link><%= url_for('reports.author') %></link>
+    <description>CPAN Testers reports for <%= param 'author' %></description>
+    <language>en</language>
+    <pubDate><%= stash('items')->[0] ? DateTime::Format::Mail->format_datetime( stash('items')->[0]{datetime} ) : '' %></pubDate>
+    <generator>Mojolicious <%= $Mojolicious::VERSION %></generator>
+
+    % for my $r ( @{stash 'items'} ) {
+      <item>
+        <title><%= uc $r->{grade} %> <%= $r->{dist} %>-<%= $r->{version} %> <%= $r->{lang_version} %> on <%= $r->{osname} %> <%= $r->{osvers} %> (<%= $r->{platform} %>)</title>
+        <description><%= uc $r->{grade} %> <%= $r->{dist} %>-<%= $r->{version} %> <%= $r->{lang_version} %> on <%= $r->{osname} %> <%= $r->{osvers} %> (<%= $r->{platform} %>)</description>
+        <link><%= url_for('reports.report', { guid => $r->{guid} }) %></link>
+        <guid isPermaLink="false"><%= url_for('reports.report', { guid => $r->{guid} }) %></guid>
+        <pubDate><%= DateTime::Format::Mail->format_datetime($r->{datetime}) %></pubDate>
+      </item>
+    % }
+
+  </channel>
+</rss>

@@ -41,7 +41,7 @@
 % }
 
 <pre>
-From: <strong><%== $user->fullname %></strong>
+From: <strong><%== $user %></strong>
 Subject: <strong><%= $subject %></strong>
 Date: <strong><%= $report->{metadata}{core}{creation_time} %></strong>
 

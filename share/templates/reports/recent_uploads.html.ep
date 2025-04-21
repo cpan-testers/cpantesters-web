@@ -54,6 +54,9 @@
         </div>
 
         <div class="col-md-8">
+
+            %== include '_news'
+
             <h2>
                 Recent Updates
                 <small><a href="/recent.rss"><i class="fa fa-rss fa-lg"></i></a></small>

@@ -4,7 +4,7 @@
       "Doug Bell <preaction@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 6.008, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Dist::Zilla version 6.030, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -32,14 +32,30 @@
       },
       "runtime" : {
          "requires" : {
-            "CPAN::Testers::Schema" : "0.004",
+            "CPAN::DistnameInfo" : "0",
+            "CPAN::Testers::Report" : "0",
+            "CPAN::Testers::Schema" : "0.026",
+            "CSS::Minifier::XS" : "0",
+            "Data::FlexSerializer" : "0",
+            "DateTime::Format::Mail" : "0.403",
+            "Email::Stuffer" : "0",
             "File::Share" : "0",
             "Import::Base" : "0.012",
+            "JSON::MaybeXS" : "0",
+            "JavaScript::Minifier::XS" : "0",
             "Log::Any" : "1.045",
             "Log::Any::Adapter::MojoLog" : "0.02",
-            "Mojolicious" : "6",
+            "Metabase::User::Profile" : "0",
+            "Minion" : "8",
+            "Minion::Backend::mysql" : "0.15",
+            "Mojo::mysql" : "1.04",
+            "Mojolicious" : "7.40",
             "Mojolicious::Plugin::AssetPack" : "0",
             "Mojolicious::Plugin::Config" : "0",
+            "Mojolicious::Plugin::Moai" : "0.006",
+            "Mojolicious::Plugin::OAuth2" : "0",
+            "Mojolicious::Plugin::Yancy" : "1.005",
+            "Sereal" : "0",
             "perl" : "5.024"
          }
       },
@@ -48,11 +64,11 @@
             "CPAN::Meta" : "2.120900"
          },
          "requires" : {
+            "DateTime::Format::SQLite" : "0",
             "ExtUtils::MakeMaker" : "0",
             "File::Spec" : "0",
             "IO::Handle" : "0",
             "IPC::Open3" : "0",
-            "Test::Lib" : "0",
             "Test::More" : "1.001005"
          }
       }
@@ -64,6 +80,30 @@
       },
       "CPAN::Testers::Web::Base" : {
          "file" : "lib/CPAN/Testers/Web/Base.pm",
+         "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Command::schema" : {
+         "file" : "lib/CPAN/Testers/Web/Command/schema.pm",
+         "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Controller::Legacy" : {
+         "file" : "lib/CPAN/Testers/Web/Controller/Legacy.pm",
+         "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Controller::Reports" : {
+         "file" : "lib/CPAN/Testers/Web/Controller/Reports.pm",
+         "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Controller::User" : {
+         "file" : "lib/CPAN/Testers/Web/Controller/User.pm",
+         "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Schema" : {
+         "file" : "lib/CPAN/Testers/Web/Schema.pm",
+         "version" : "0.001"
+      },
+      "CPAN::Testers::Web::Schema::Result::Users" : {
+         "file" : "lib/CPAN/Testers/Web/Schema/Result/Users.pm",
          "version" : "0.001"
       }
    },
@@ -82,6 +122,11 @@
    },
    "version" : "0.001",
    "x_authority" : "cpan:PREACTION",
-   "x_serialization_backend" : "Cpanel::JSON::XS version 3.0216"
+   "x_contributors" : [
+      "dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>"
+   ],
+   "x_generated_by_perl" : "v5.28.0",
+   "x_serialization_backend" : "Cpanel::JSON::XS version 4.06",
+   "x_spdx_expression" : "Artistic-1.0-Perl OR GPL-1.0-or-later"
 }
 

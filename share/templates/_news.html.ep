@@ -1,0 +1,29 @@
+
+<h2>Site News</h2>
+<p>CPAN Testers is currently running in a degraded state: It
+has lost its original server with the original application, and
+the replacement application is not feature-complete. The
+following things should at least currently be working:
+<ul>
+    <li><input type="checkbox" disabled checked/> Viewing dists and authors on the <a href="https://matrix.cpantesters.org">CPAN Testers Matrix</a>, which is an external application.
+    <li><input type="checkbox" disabled checked/> Viewing individual reports linked from the CPAN
+        Testers Matrix.
+    <li><input type="checkbox" disabled checked/> Searching for authors
+        and viewing author summaries on this site.
+    <li><input type="checkbox" disabled checked/> The
+        <a href="https://metacpan.org/pod/CPAN::Testers::WWW::Reports::Query::Reports">CPAN::Testers::WWW::Reports::Query::Reports</a>
+        module used by (e.g.) <a href="http://deps.cpantesters.org">CPAN Testers Deps</a> and <a href="http://analysis.cpantesters.org">CPAN Testers Analysis</a>. Though, applications using this module should, when possible, migrate to using <a href="http://api.cpantesters.org">the new CPAN Testers API.</a>
+</ul>
+
+<p>Anything else I can't guarantee is still working. The priorities for fixes are going to be:
+
+<ul>
+    <li><input type="checkbox" disabled /> Anything currently generating an error in the HTTP logs. If you get an error, please let me know so I can prioritize fixing it (because there are so many robots generating so many errors).</li>
+    <li><input type="checkbox" disabled /> Notification e-mails (assuming these are broken). Notifications will continue with the current settings, and later we will add back the ability to change notification settings.</li>
+    <li><input type="checkbox" disabled /> Implement remaining mockups.
+        There are likely pages in this application that do not connect
+        to real data.
+    <li><input type="checkbox" disabled /> Personalization. Here we add back the ability to customize notifications. This is the most complex part, as it requires an authentication system (I'm planning on using one-time codes sent to PAUSE-configured e-mail addresses)</li>
+</ul>
+
+<p>If you would like to help restore our operations, <a href="mailto:doug@preaction.me">e-mail me at doug@preaction.me</a>.
