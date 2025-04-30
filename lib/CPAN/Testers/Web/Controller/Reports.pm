@@ -169,6 +169,7 @@ sub author( $c ) {
     my $author_dists = $c->schema->perl5->resultset('Upload')->by_author($c->stash('author'))->latest_by_dist;
     my @all_dists = $author_dists->all;
     if ( !@all_dists ) {
+        return $c->render('author', items => [])
     }
     my $rs = $c->schema->perl5->resultset('Release')->search({
             -or => [
