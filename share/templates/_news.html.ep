@@ -26,4 +26,4 @@ following things should at least currently be working:
     <li><input type="checkbox" disabled /> Personalization. Here we add back the ability to customize notifications. This is the most complex part, as it requires an authentication system (I'm planning on using one-time codes sent to PAUSE-configured e-mail addresses)</li>
 </ul>
 
-<p>If you would like to help restore our operations, <a href="mailto:doug@preaction.me">e-mail me at doug@preaction.me</a>.
+<p>If you would like to help restore our operations, <a href="https://github.com/orgs/cpan-testers/discussions">visit the discussions on GitHub</a>, <a href="https://lists.perl.org/list/cpan-testers-discuss.html">join the mailing list</a>, or <a href="mailto:admin@cpantesters.org">e-mail admin@cpantesters.org directly</a>.</p>
