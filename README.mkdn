@@ -33,7 +33,7 @@ and registers helpers.
 # SEE ALSO
 
 [Mojolicious](https://metacpan.org/pod/Mojolicious),
-[CPAN::Testers::Schema](https://metacpan.org/pod/CPAN::Testers::Schema),
+[CPAN::Testers::Schema](https://metacpan.org/pod/CPAN%3A%3ATesters%3A%3ASchema),
 [http://github.com/cpan-testers/cpantesters-project](http://github.com/cpan-testers/cpantesters-project),
 [http://www.cpantesters.org](http://www.cpantesters.org)
 
