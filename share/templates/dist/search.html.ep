@@ -96,7 +96,6 @@
                             let self = this;
                             if (inc < 10) inc++;
                             let pdists = dists.splice(0, inc);
-                            console.log(dists);
                             self.request('/dist', { dists: pdists }, function (res) {
                                 res.dists.forEach(function (dist) {
                                     self.render_dist(dist);
