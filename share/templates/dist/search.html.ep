@@ -1,0 +1,97 @@
+
+% title 'Search Distributions';
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+
+            <h1>Search Distributions</h1>
+
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="search">Search:</label>
+                    <input id="search" class="form-control"
+                        placeholder="Search Distributions"
+                    >
+                </div>
+                <button class="btn btn-primary">Search</button>
+            </form>
+
+            <h2>Results</h2>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Distribution</th>
+                        <th>Last Version</th>
+                        <th>Released</th>
+                        <th class="text-center">Reports</th>
+                        <th class="text-center">Pass</th>
+                        <th class="text-center">Fail</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td>
+                            <a href="/dist/Statocles">Statocles</a>
+                        </td>
+                        <td>0.066</td>
+                        <td>
+                            <time>2015-01-11 00:12:34</time>
+                        </td>
+                        <td class="text-center">
+                            12
+                        </td>
+                        <td class="bg-success text-center">
+                            11
+                        </td>
+                        <td class="bg-warning text-center">
+                            1
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <a href="/dist/Beam-Wire">Beam-Wire</a>
+                        </td>
+                        <td>1.011</td>
+                        <td>
+                            <time>2015-01-10 01:24:12</time>
+                        </td>
+                        <td class="text-center">
+                            50
+                        </td>
+                        <td class="bg-success text-center">
+                            50
+                        </td>
+                        <td class="bg-success text-center">
+                            0
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <a href="/dist/Import-Base">Import-Base</a>
+                        </td>
+                        <td>1.001</td>
+                        <td>
+                            <time>2015-01-07 01:24:12</time>
+                        </td>
+                        <td class="text-center">
+                            74
+                        </td>
+                        <td class="bg-success text-center">
+                            70
+                        </td>
+                        <td class="bg-warning text-center">
+                            4
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
