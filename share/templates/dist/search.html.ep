@@ -7,7 +7,7 @@
 
             <h1>Search Distributions</h1>
 
-            <form class="form-inline">
+            <form id="search-form" class="form-inline">
                 <div class="form-group">
                     <label for="search">Search:</label>
                     <input id="search" class="form-control"
@@ -19,7 +19,7 @@
 
             <h2>Results</h2>
 
-            <table class="table table-striped">
+            <table id="popular" class="table table-striped">
                 <thead>
                     <tr>
                         <th>Distribution</th>
@@ -28,70 +28,124 @@
                         <th class="text-center">Reports</th>
                         <th class="text-center">Pass</th>
                         <th class="text-center">Fail</th>
+                        <th class="text-center">Unkn</th>
+                        <th class="text-center">NA</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <template>
+                        <tr>
+                            <td>
+                                <a data-id="dist" href="/dist/Statocles">Statocles</a>
+                            </td>
+                            <td data-id="version">0.066</td>
+                            <td>
+                                <time data-id="released">2015-01-11 00:12:34</time>
+                            </td>
+                            <td data-id="total" class="text-center">
+                                12
+                            </td>
+                            <td data-id="pass" class="bg-success text-center">
+                                11
+                            </td>
+                            <td data-id="fail" class="text-center">
+                                1
+                            </td>
+                            <td data-id="unknown" class="text-center">
+                                1
+                            </td>
+                            <td data-id="na" class="text-center">
+                                1
+                            </td>
+                        </tr>
+                    </template>
 
-                    <tr>
-                        <td>
-                            <a href="/dist/Statocles">Statocles</a>
-                        </td>
-                        <td>0.066</td>
-                        <td>
-                            <time>2015-01-11 00:12:34</time>
-                        </td>
-                        <td class="text-center">
-                            12
-                        </td>
-                        <td class="bg-success text-center">
-                            11
-                        </td>
-                        <td class="bg-warning text-center">
-                            1
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <a href="/dist/Beam-Wire">Beam-Wire</a>
-                        </td>
-                        <td>1.011</td>
-                        <td>
-                            <time>2015-01-10 01:24:12</time>
-                        </td>
-                        <td class="text-center">
-                            50
-                        </td>
-                        <td class="bg-success text-center">
-                            50
-                        </td>
-                        <td class="bg-success text-center">
-                            0
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <a href="/dist/Import-Base">Import-Base</a>
-                        </td>
-                        <td>1.001</td>
-                        <td>
-                            <time>2015-01-07 01:24:12</time>
-                        </td>
-                        <td class="text-center">
-                            74
-                        </td>
-                        <td class="bg-success text-center">
-                            70
-                        </td>
-                        <td class="bg-warning text-center">
-                            4
-                        </td>
-                    </tr>
 
                 </tbody>
             </table>
+            <script>
+                (function () {
 
+                    let Dist = function (dists) {
+                        this.search_form = document.querySelector('#search-form');
+                        this.tbody = document.querySelector('#popular tbody');
+                        this.template = this.tbody.querySelector('template');
+                        this.init(dists);
+                    };
+
+                    Dist.prototype = {
+                        init: function (dists) {
+                            this.setupEvents();
+                            this.poll(dists, 0);
+                        },
+                        setupEvents: function () {
+                            let self = this;
+                            let input = self.search_form.querySelector('input#search');
+                            self.search_form.addEventListener('submit', function (evt) {
+                                evt.preventDefault();
+                                self.request('/dist/valid', { dist: input.value }, function (res) {
+                                    if (res.ok) {
+                                        window.location.pathname = '/dist/' + input.value;
+                                    } else {
+                                        alert('Distribution with the name ' + input.value + ' not found');
+                                    }
+                                });
+                            });
+                        },
+                        poll: function (dists, inc) {
+                            let self = this;
+                            if (inc < 10) inc++;
+                            let pdists = dists.splice(0, inc);
+                            console.log(dists);
+                            self.request('/dist', { dists: pdists }, function (res) {
+                                res.dists.forEach(function (dist) {
+                                    self.render_dist(dist);
+                                });
+                                if (dists.length > 0) self.poll(dists, inc);
+                            });
+                        },
+                        request: function (url, params, cb) {
+                            fetch(url, {
+                                method: "POST",
+                                body: JSON.stringify(params),
+                            }).then(function (res) {
+                                return res.json();
+                            }).then(function (res) {
+                                cb(res);
+                            }).catch(function (res) {
+                                 console.log(res);
+                            });
+                        },
+                        render_dist: function (dist) {
+                            let tr = this.template.content.cloneNode(true);
+                            let name = tr.querySelector('[data-id="dist"]');
+                            name.innerText = dist.dist;
+                            name.href = '/dist/' + dist.dist;
+                            dist.total = dist.pass + dist.fail + dist.unknown + dist.na;
+                            ['version', 'released', 'total', 'pass'].forEach(function (n) {
+                                tr.querySelector('[data-id="' + n + '"]').innerText = dist[n];
+                            });
+                            let fail = tr.querySelector('[data-id="fail"]');
+                            fail.innerText = dist.fail;
+                            fail.classList.add(dist.fail ? 'bg-danger' : 'bg-success');
+                            ['unknown', 'na'].forEach(function (n) {
+                                let x = tr.querySelector('[data-id="' + n + '"]');
+                                x.innerText = dist[n];
+                                x.classList.add(dist[n] ? 'bg-warning' : 'bg-success');
+                            });
+                            this.tbody.appendChild(tr);
+                        }
+                    };
+
+                    let dists = [
+                        % for my $dist (@$dists) {
+                            "<%= $dist %>",
+                        % }
+                    ];
+
+                    new Dist(dists);
+                })();
+            </script>
         </div>
     </div>
 </div>
