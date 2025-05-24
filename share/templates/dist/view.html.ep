@@ -283,6 +283,11 @@
                                 }
                             }
                         },
+                        legend: {
+                            labelFormatter: function (l) {
+                                return this.name + ' (' + this.y + ')';
+                            }
+                        },
                         title: {
                             text: series[os]['title'] + ' (' + series[os].count + ')'
                         },
