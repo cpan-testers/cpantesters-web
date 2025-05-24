@@ -1,185 +1,254 @@
-<!DOCTYPE html>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.12/css/highcharts.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script
-src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.12/highcharts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/2.6.0/vue-router.min.js"></script>
-<title>Dashboard</title>
 <div class="container" id="app">
     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-        <h1>Dashboard</h1>
+        <h1>Dist - <%= $dist %></h1>
         <p style="vertical-align: middle"><i class="fa fa-2x fa-info-circle text-info" aria-hidden="true"></i> Click a version bar to see reports for that version</p>
     </div>
-    <form class="form form-inline" @submit.prevent="fetchRelease">
-        <input class="form-control col-md-3" type="text" placeholder="Distribution name" v-model="dist">
-        <select class="form-control col-md-3" name="versions" v-model="size">
-            <option value="0">all</option>
-            <option value="50">50</option>
-            <option value="25">25</option>
-            <option value="10" selected>10</option>
-            <option value="5">5</option>
-        </select>
-        <button class="btn btn-primary">Refresh</button>
+    <form id="dist-search" class="form form-inline flex flex-justify">
+        <div class="hide">
+            <input class="form-control col-md-3" type="text" placeholder="Distribution name">
+            <button class="btn btn-primary">Search</button>
+        </div>
+        <div></div>
+        <div>
+            <select class="form-control col-md-3" name="dist_graph_size">
+                <option value="0" selected>all</option>
+                <option value="50">50</option>
+                <option value="25">25</option>
+                <option value="10>10</option>
+                <option value="5">5</option>
+                <option value="4">4</option>
+                <option value="2">2</option>
+            </select>
+        </div>
     </form>
 
-    <div style="position: relative; width: 100%; height: 400px;">
-        <div v-show="fetchingRelease" style="opacity: 0.8; background-color: white; position: absolute; z-index: 10; left: 0; top: 0; bottom: 0; right: 0;
-        display: flex; flex: 1 1; align-items: center; justify-content: center">
-            <i style="display: flex-item; color: #ccc; font-size: 1500%" class="fa fa-spinner fa-pulse fa-fw"></i>
-        </div>
-        <div id="release-chart" style="width: 100%; height: 400px"></div>
-    </div>
+    <div id="release-graph" class="loading-content"></div>
+    <form id="release-search" class="form form-inline flex flex-justify">
+        <div>
+            <h4>Select a release: </h4>
+            <select class="form-control col-md-3" name="releases">
 
-    <div v-show="version" style="display: flex; justify-content: space-between; align-items: flex-end;">
-        <h2 id="summary">{{version}}</h2>
-        <p style="vertical-align: middle"><i class="fa fa-2x fa-info-circle text-info" aria-hidden="true"></i> Click a pie piece to show reports for that OS/grade</p>
-    </div>
-    <div style="position: relative; height: 300px">
-        <div v-show="fetchingSummary" style="opacity: 0.8; background-color: white; position: absolute; z-index: 10; left: 0; top: 0; bottom: 0; right: 0;
-        display: flex; flex: 1 1; align-items: center; justify-content: center">
-            <i style="display: flex-item; color: #ccc; font-size: 1500%" class="fa fa-spinner fa-pulse fa-fw"></i>
+            </select>
         </div>
-        <div style="display: flex" v-show="summary.length">
-            <div id="os-linux" style="width: 25%; height: 300px"></div>
-            <div id="os-win" style="width: 25%; height: 300px"></div>
-            <div id="os-osx" style="width: 25%; height: 300px"></div>
-            <div id="os-other" style="width: 25%; height: 300px"></div>
+        <div>
+            <p style="vertical-align: middle"><i class="fa fa-2x fa-info-circle text-info" aria-hidden="true"></i> Click a pie piece to show reports for that OS/grade</p>
         </div>
+    </form>
+    <div id="version-graphs" class="flex">
+        <div id="linux-graph" class="loading-content small-graph"></div>
+        <div id="darwin-graph" class="loading-content small-graph"></div>
+        <div id="mswin32-graph" class="loading-content small-graph"></div>
+        <div id="other-graph" class="loading-content small-graph"></div>
     </div>
+    <div id="reports" class="loading-content">
+          <table class="table table-striped hide">
+                <thead>
+                    <tr>
+                        <th style="width:20px"></th>
+                        <th class="text-center">Grade</th>
+                        <th class="text-center">Perl</th>
+                        <th class="text-center">OS</th>
+                        <th class="text-center">Platform</th>
+                        <th class="text-center">Tester</th>
+                        <th class="text-center">Time</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-    <table v-show="summary.length" class="table table-striped">
-        <thead>
-            <tr>
-                <th style="width: 1.4em"></th>
-                <th style="width: 6em; text-align: center">Grade</th>
-                <th style="width: 8em; text-align: center">Perl</th>
-                <th style="width: 40%">Platform</th>
-                <th>Tester</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="s in filteredSummaryRows()">
-                <td style="text-align: center"><a :href="'http://www.cpantesters.org/cpan/report/' + s.guid" title="View full report"><i class="fa fa-file-text-o" aria-hidden="true"></i></a></td>
-                <td style="text-align: center" :class="_gradeClass(s.grade)">{{ s.grade }}</td>
-                <td style="text-align: center">{{ s.perl }}</td>
-                <td>{{ s.platform }} ({{ s.osname }})</td>
-                <td>{{ s.reporter.replace( /\@[^.]+/, '@[...]' ) }}</td>
-            </tr>
-        </tbody>
-    </table>
+                </tbody>
+            </table>
 
+    </div>
 </div>
+<template id="reports-row-template">
+    <tr>
+        <td class="text-center">
+            <a target="_blank" data-id="report" href="/cpan/report/70688390-3e50-11e7-bbe8-c4ce9b75e0ae" title="View full report"><i aria-hidden="true" class="fa fa-file-text-o"></i></a>
+        </td>
+        <td data-id="state" class="text-center"></td>
+        <td data-id="perl" class="text-center"></td>
+        <td data-id="osname" class="text-center"></td>
+        <td data-id="platform" class="text-center"></td>
+        <td data-id="tester" class="text-center"></td>
+        <td data-id="fulldate" class="text-center"></td>
+    </tr>
+</template>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/5.0.12/highcharts.js"></script>
 <script>
-
-var vm = new Vue({
-    el: '#app',
-    data: function () {
-        var self = this;
-        var params = (new URL(document.location)).searchParams;
-        var obj = {
-            version: params.get( 'version' ),
-            dist: params.get( 'dist' ),
-            size: 10,
-            summary: [],
-            fetchingRelease: false,
-            fetchingSummary: false,
-            chart: {},
-            summaryFilter: { }
+    (function () {
+        let DistView = function (dist, version) {
+            this.dist = dist;
+            this.version = version;
+            this.dist_search = document.querySelector('#dist-search');
+            this.size = this.dist_search.querySelector('[name="dist_graph_size"]').value;
+            this.release_search = document.querySelector('#release-search select');
+            this.reports = document.querySelector('#reports');
+            this.reports_row_template = document.querySelector('#reports-row-template');
+            this.release_data = [];
+            this.report_data = { };
+            this.report_graphs = { };
+            this.report_filter = { };
+            return this.init();
         };
-        if ( obj.dist ) {
-            setTimeout( function () { self.fetchRelease({ replace: false }); }, 10 );
-        }
-        if ( obj.version ) {
-            setTimeout( function () { self.fetchSummary({ scroll: false }); }, 10 );
-        }
-        return obj;
-    },
-    methods: {
 
-        _gradeClass: function ( grade ) {
-            return {
-                pass: 'bg-success',
-                fail: 'bg-danger',
-                na: 'bg-info',
-                unknown: 'bg-warning'
-            }[ grade ];
-        },
-
-        filteredSummaryRows: function () {
-            var f = this.summaryFilter;
-            if ( !f.osname && !f.grade ) {
-                return this.summary;
-            }
-            if ( f.osname == "other" ) {
-                return this.summary.filter( function ( r ) {
-                    return r.osname != 'darwin' &&
-                    r.osname.toLowerCase() != 'mswin32' &&
-                    r.osname != 'linux' && r.grade == f.grade;
-                } );
-            }
-            return this.summary.filter( function ( r ) {
-                return r.osname.toLowerCase() == f.osname && r.grade == f.grade;
-            } );
-        },
-
-        fetchSummary: function (opt) {
-            var self = this;
-            self.summary = [];
-            self.fetchingSummary = true;
-
-            this.summaryFilter = {};
-            // clear all other filters
-            for ( var name in self.chart ) {
-                var points = self.chart[ name ].getSelectedPoints();
-                for ( var j = 0; j < points.length; j++ ) {
-                    points[j].select( false, false );
+        DistView.prototype = {
+            init: function () {
+                this.dist_search.querySelector('input').value = this.dist;
+                this.initEvents();
+                this.fetchReleases();
+            },
+            initEvents: function () {
+                let self = this;
+                self.dist_search.querySelector('[name="dist_graph_size"]').addEventListener('change', function (evt) {
+                    self.size = evt.target.value;
+                    self.drawReleaseGraph(self.release_data);
+                });
+                self.release_search.addEventListener('change', function (evt) {
+                    self.version = evt.target.value;
+                    self.fetchReports(self.version);
+                });
+            },
+            setVersion: function (version) {
+                let self = this;
+                self.version = version;
+                self.release_search.value = version;
+                self.release_search.dispatchEvent(new Event('change'))
+            },
+            fetchReleases: function () {
+                let self = this;
+                self.request('/dist/' + self.dist + '/releases', {}, function (res) {
+                    if (!res.dists.length) return;
+                    self.release_data = res.dists.reverse();
+                    self.drawReleaseGraph(self.release_data);
+                    self.drawReleaseSelector(self.release_data);
+                    if (self.version == 'latest') {
+                        self.version =  self.release_data[0].version;
+                    }
+                    self.fetchReports(self.version);
+                });
+            },
+            clearReports: function () {
+                let self = this;
+                self.report_filter = {};
+                for ( let key in self.report_graphs ) {
+                    let g = document.querySelector('#' + key + '-graph');
+                    g.innerHTML = '';
+                    g.classList.add('loading-content');
                 }
-            }
+                self.report_graphs = {};
+                self.reports.classList.add('loading-content');
+                self.reports.querySelector('table').classList.add('hide');
+            },
+            fetchReports: function (version) {
+                let self = this;
 
-            history.pushState(
-                { dist: this.dist, version: this.version },
-                "",
-                "?dist=" + this.dist + "&version=" + this.version
-            );
+                self.clearReports();
 
-            $.getJSON( '//<%= config->{api_host} %>/v3/summary/' + this.dist + '/' + this.version + '?perl_maturity=stable', function (data ) {
-                self.fetchingSummary = false;
-                self.summary = data;
+                if (self.report_data[version]) {
+                    self.drawReportGraphs(self.report_data[version]);
+                    self.drawReportTable(self.report_data[version]);
+                    return;
+                }
 
-                var osnames = {
-                    linux: { id: "os-linux", title: 'Linux' },
-                    mswin32: { id: "os-win", title: 'Windows' },
-                    darwin: { id: "os-osx", title: 'MacOSX' },
-                    other: { id: "os-other", title: 'Other' }
+                self.request('/dist/' + self.dist + '/releases/' + version, {}, function (res) {
+                    if (!res.reports || !res.reports.length) return;
+                    self.report_data[version] = res.reports;
+                    if (version != self.version) return;
+                    self.drawReportGraphs(self.report_data[version]);
+                    self.drawReportTable(self.report_data[version]);
+                });
+            },
+            drawReleaseSelector: function (data) {
+                let self = this;
+                self.release_search.innerHTML = '';
+                data.forEach(function (d) {
+                    let o = new Option(d.version, d.version);
+                    if (d.version == self.version) {
+                        o.selected = true;
+                    }
+                    self.release_search.appendChild(o);
+                });
+            },
+            drawReleaseGraph: function (data) {
+                let self = this;
+                let size = this.size != 0 && this.size < data.length ? this.size : data.length;
+                let series = { version: [], pass: [], fail: [], na: [], unknown: [] };
+                for ( var i = 0; i < size; i++ ) {
+                    ['version', 'pass', 'fail', 'na', 'unknown'].forEach(function (n) {
+                        series[n].push(data[i][n]);
+                    });
+                }
+
+                ['version', 'pass', 'fail', 'na', 'unknown'].forEach(function (n) {
+                    series[n] =  series[n].reverse();
+                });
+
+                let myChart = Highcharts.chart('release-graph', {
+                    chart: {
+                        type: 'column',
+                    },
+                    plotOptions: {
+                        column: {
+                            stacking: 'normal',
+                            events: {
+                                click: function (event) {
+                                    self.setVersion(event.point.category);
+                                }
+                            }
+                        }
+                    },
+                    title: {
+                        text: 'Report Summary'
+                    },
+                    xAxis: {
+                        title: { text: 'Version' },
+                        categories: series.version
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Reports by Grade'
+                        }
+                    },
+                    series: [
+                        { name: "Pass", data: series.pass, color: '#dff0d8' },
+                        { name: "Fail", data: series.fail, color: '#f2dede' },
+                        { name: "NA", data: series.na, color: '#fcf8e3' },
+                        { name: "Unknown", data: series.unknown, color: '#f6ddc3' }
+                    ]
+                });
+
+                document.querySelector('#release-graph').classList.remove('loading-content');
+            },
+            drawReportGraphs: function (data) {
+                let self = this;
+                let series = {
+                    linux: { title: "Linux", count: 0, pass: 0, fail: 0, na: 0, unknown: 0 },
+                    mswin32: { title: "Windows", count: 0, pass: 0, fail: 0, na: 0, unknown: 0 },
+                    darwin: { title: "MacOSX", count: 0, pass: 0, fail: 0, na: 0, unknown: 0 },
+                    other: { title: "Other", count: 0, pass: 0, fail: 0, na: 0, unknown: 0 },
                 };
-                var series = {
-                    linux: { count: 0, pass: [], fail: [], na: [], unknown: [] },
-                    mswin32: { count: 0, pass: [], fail: [], na: [], unknown: [] },
-                    darwin: { count: 0, pass: [], fail: [], na: [], unknown: [] },
-                    other: { count: 0, pass: [], fail: [], na: [], unknown: [] }
-                };
 
-                for ( var i = 0; i < data.length; i++ ) {
-                    var s = series[ data[i].osname.toLowerCase() ] || series.other;
-                    s[ data[i].grade ]++;
+                data.forEach(function (d) {
+                    let s = series[ d.osname.toLowerCase() ] || series.other;
+                    s[ d.state ]++;
                     s.count++;
-                }
+                });
 
-                for ( var os in osnames ) {
-                    var count = 0;
-                    self.chart[ os ] = Highcharts.chart( osnames[os]['id'], {
+                ['linux', 'mswin32', 'darwin', 'other'].forEach(function (os) {
+
+                    self.report_graphs[os] = Highcharts.chart( os + "-graph", {
                         defs: {
                             osname: os
                         },
                         chart: {
                             type: 'pie',
                         },
+                        colors: ["#dff0d8", "#f2dede", "#fcf8e3", "#f6ddc3" ],
                         plotOptions: {
                             pie: {
+                                colorByPoint: true,
                                 allowPointSelect: true,
                                 cursor: 'pointer',
                                 dataLabels: {
@@ -189,156 +258,130 @@ var vm = new Vue({
                                 events: {
                                     click: function ( event ) {
                                         if ( event.point.selected ) {
-                                            self.summaryFilter = {};
+                                            self.report_filter = {};
+                                            self.drawReportTable();
                                             return;
                                         }
 
                                         // clear all other filters
-                                        for ( var name in self.chart ) {
-                                            var points = self.chart[ name ].getSelectedPoints();
+                                        for ( var name in self.report_graphs ) {
+                                            var points = self.report_graphs[ name ].getSelectedPoints();
                                             for ( var j = 0; j < points.length; j++ ) {
                                                 points[j].select( false, false );
                                             }
                                         }
 
                                         // set this filter
-                                        self.summaryFilter = {
+                                        self.report_filter = {
                                             osname: event.point.osname,
-                                            grade: event.point.grade,
+                                            state: event.point.grade,
                                         };
+
+
+                                        self.drawReportTable();
                                     }
                                 }
                             }
                         },
                         title: {
-                            text: osnames[os]['title'] + ' (' + series[os].count + ')'
+                            text: series[os]['title'] + ' (' + series[os].count + ')'
                         },
                         series: [{
                             name: 'Reports',
-                            colorByPoint: true,
                             data: [
-                                { name: 'Pass', y: series[os].pass, grade: "pass", osname: os },
+                                { name: 'Pass',  y: series[os].pass, grade: "pass", osname: os },
                                 { name: 'Fail', y: series[os].fail, grade: "fail", osname: os },
-                                { name: 'NA', y: series[os].na, grade: "na", osname: os },
+                                { name: 'NA',  y: series[os].na, grade: "na", osname: os },
                                 { name: 'Unknown', y: series[os].unknown, grade: "unknown", osname: os }
                             ]
                         }]
-                    });
-                }
 
-                // Scroll into view
-                if ( !opt || opt.scroll !== false ) {
-                    setTimeout(
-                        function () {
-                            window.scrollTo( 0, $( '#summary' ).offset().top );
-                        }, 10
+                    });
+
+                    document.querySelector('#' + os + '-graph').classList.remove('loading-content');
+                });
+            },
+            drawReportTable: function (data) {
+                let self = this;
+                if (!data) data = self.report_data[self.version];
+                data = self.filterReportTable(data);
+                self.reports.classList.remove('loading-content');
+                self.reports.querySelector('table').classList.remove('hide');
+                let tbody = self.reports.querySelector('tbody');
+                tbody.innerHTML = '';
+                data.forEach(function (d) {
+                    let tr = self.reports_row_template.content.cloneNode(true);
+                    let state = tr.querySelector('[data-id="state"]');
+                    state.innerText = d.state;
+                    state.classList.add(
+                        d.state == 'pass'
+                            ? 'bg-success'
+                            : d.state == 'fail'
+                                ? 'bg-danger'
+                                : d.state == 'na'
+                                ? 'bg-warning'
+                                : 'bg-unknown'
                     );
-                }
-            } );
-        },
 
-        fetchRelease: function ( opt ) {
-            if ( !this.dist ) { return; }
-            var self = this;
-            self.fetchingRelease = true;
+                    tr.querySelector('[data-id="report"]').href = 'https://www.cpantesters.org/cpan/report/' + d.guid;
+                    d.fulldate = self.fixWeirdDate(d.fulldate);
 
-            if ( opt.replace !== false ) {
-                this.version = null;
-                this.summary = [];
-            }
-
-            history.pushState(
-                { dist: this.dist },
-                "",
-                "?dist=" + this.dist
-            );
-
-            var show_versions = this.size;
-
-            $.getJSON('http://<%= config->{api_host} %>/v3/upload/dist/' + this.dist, function (data) {
-                var sorted = data.sort( function (a, b) { return a.released < b.released ? -1 : a.released > b.released ? 1 : 0 } );
-                if ( show_versions ) {
-                    sorted = sorted.slice( -show_versions );
-                }
-                var versions = sorted.map( function (d) { return d.version } );
-
-                var done = 0;
-                var results = [];
-
-                var checkDone = function () {
-                    if ( done < show_versions ) { return; }
-                    self.fetchingRelease = false;
-                    var series = { pass: [], fail: [], na: [], unknown: [] };
-                    for ( var i = 0; i < results.length; i++ ) {
-                        series.pass.push( results[i].pass );
-                        series.fail.push( results[i].fail );
-                        series.na.push( results[i].na );
-                        series.unknown.push( results[i].unknown );
-                    }
-                    var myChart = Highcharts.chart('release-chart', {
-                        chart: {
-                            type: 'column',
-                        },
-                        plotOptions: {
-                            column: {
-                                stacking: 'normal',
-                                events: {
-                                    click: function ( event ) {
-                                        self.version = event.point.category;
-                                        self.fetchSummary();
-                                    }
-                                }
-                            }
-                        },
-                        title: {
-                            text: 'Report Summary'
-                        },
-                        xAxis: {
-                            title: { text: 'Version' },
-                            categories: versions
-                        },
-                        yAxis: {
-                            title: {
-                                text: 'Reports by Grade'
-                            }
-                        },
-                        series: [
-                            { name: 'Pass', data: series.pass },
-                            { name: 'Fail', data: series.fail },
-                            { name: 'NA', data: series.na },
-                            { name: 'Unknown', data: series.unknown }
-                        ]
+                    ['state', 'perl', 'osname', 'platform', 'tester', 'fulldate'].forEach(function (k) {
+                        tr.querySelector('[data-id="' + k + '"]').innerText = d[k];
                     });
-                };
 
-                versions.forEach( function ( version ) {
-                    $.getJSON('http://<%= config->{api_host} %>/v3/release/dist/' + self.dist + '/' + version )
-                     .done( function (data) {
-                        done++;
-                        results.push( data );
-                        checkDone();
-                     } )
-                     .fail( function ( jqXHR ) {
-                        done++;
-                        checkDone();
-                     } );
-                } );
-            });
-        }
+                    tbody.appendChild(tr);
+                });
+            },
+            filterReportTable: function (data) {
+                let filter = this.report_filter;
+                if ( !filter.osname ) {
+                    return data;
+                }
+                return data.filter(function (d) {
 
-    }
-});
+                    if (filter.osname == 'other') {
+                         return ( !d.osname.toLowerCase().match(/^(linux|darwin|mswin32)$/) && filter.state == d.state ) ? 1 : 0;
 
-window.onpopstate = function (event) {
-    vm.dist = event.state.dist;
-    if ( vm.dist ) {
-        vm.fetchRelease({ replace: false });
-    }
-    vm.version = event.state.version;
-    if ( vm.version ) {
-        vm.fetchSummary({ scroll: false });
-    }
-};
+                    }
 
+                    return  (
+                        filter.osname == d.osname.toLowerCase() && filter.state == d.state
+                    ) ? 1 : 0
+                });
+            },
+            fixWeirdDate: function (data) {
+                let regex = /(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})/g;
+                return data.replace(regex, function (match, y, m, d, h, M) {
+                    return y + '-' + m + '-' + d + ' ' + h + ':' + M;
+                });
+            },
+            queryParams: function (url, params) {
+                let str = "";
+                for (param in params) {
+                    if (str) str += "&";
+                    str += encodeURI(param + "=" + params[param]);
+                }
+                return str ? ( url + "?" + str ) : url;
+            },
+            request: function (url, params, cb) {
+                url = this.queryParams(url, params);
+                fetch(url, {
+                    method: "GET",
+                }).then(function (res) {
+                    return res.json();
+                }).then(function (res) {
+                    cb(res);
+                }).catch(function (res) {
+                     console.log(res);
+                });
+            },
+        };
+
+        let dist = "<%= $dist %>";
+        let version = "<%= $version %>"
+        window.addEventListener('DOMContentLoaded', function () {
+            new DistView(dist, version);
+        });
+    })();
 </script>
-

@@ -247,14 +247,16 @@ sub startup ( $app ) {
         $c->render( 'user/dist/settings' );
     } );
 
-    $r->get( '/dist/:dist/#version', [ format => [qw( html rss )] ], { format => 'html', version => 'latest' } )
-      ->name( 'reports.dist' )
-      ->to( 'reports#dist_reports' );
-
     $r->get( '/release/:dist', [ format => [qw( json )] ], { format => 'json' } )
       ->name( 'release.dist' )
       ->to( 'reports#dist_versions' );
 
+    $r->get( '/dist/:dist' )->name( 'dist-view' )->to( 'dist#view', [ format => [qw(html)] ], { format => 'html', version => 'latest' } );
+    $r->get( '/dist/:dist/releases' )->name( 'dist-releases' )->to( 'dist#releases' );
+
+    $r->get( '/dist/:dist/releases/#version' )->name( 'dist-reports' )->to( 'dist#reports' );
+
+    $r->get( '/dist/:dist/#version' )->name( 'dist-view' )->to( 'dist#view', [ format => [qw(html)] ], { format => 'html', version => 'latest' } );
     $r->get( '/dist' )->name( 'dist-search' )->to( 'dist#search' );
     $r->post( '/dist' )->name( 'dist-recent' )->to( 'dist#recent' );
     $r->post( '/dist/valid' )->name( 'dist-valid' )->to( 'dist#valid' );

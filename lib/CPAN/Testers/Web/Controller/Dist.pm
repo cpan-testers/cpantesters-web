@@ -26,6 +26,21 @@ sub search ( $c ) {
 	);
 }
 
+=method view
+
+Render Dist view
+
+=cut
+
+sub view ( $c ) {
+    my $version = $c->param('version') || 'latest';
+    $version =~ s/\.(html|rss)$//;
+    $c->render('dist/view',
+        dist => $c->param('dist'),
+        version => $version
+    );
+}
+
 =method recent
 
 Expects a list of dists and will return the most recent for each.
@@ -84,6 +99,55 @@ sub valid ( $c ) {
     $c->render( json => {
         dists => [
             map { $_->dist }
+            $rs->all
+        ]
+    } );
+}
+
+=method releases
+
+Returns all releases for the dist
+
+=cut
+
+sub releases ( $c ) {
+    my $rs = $c->schema->perl5->resultset('Release')->search({
+        'me.dist' => $c->param('dist')
+    }, {
+        join => 'upload',
+        order_by => 'upload.released'
+    });
+
+    $c->render( json => {
+        dists => [
+            map +{
+                $_->get_inflated_columns,
+                released => $_->upload->released->datetime( ' ' ),
+            },
+            $rs->all
+        ]
+    } );
+}
+
+=method reports
+
+Returns all reports for the specific dist version
+
+=cut
+
+sub reports ( $c ) {
+    my $rs = $c->schema->perl5->resultset('Stats')->search({
+        'me.dist' => $c->param('dist'),
+        'me.version' => $c->param('version'),
+    }, {
+        order_by => { -desc => 'fulldate' }
+    });
+
+    $c->render( json => {
+        reports => [
+            map +{
+                $_->get_inflated_columns,
+            },
             $rs->all
         ]
     } );
