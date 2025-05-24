@@ -23,17 +23,32 @@
     </form>
 
     <div id="release-graph" class="loading-content"></div>
-    <form id="release-search" class="form form-inline flex flex-justify">
+    <form id="release-search" class="form form-inline flex">
         <div>
-            <h4>Select a release: </h4>
+            <h4>Select a version: </h4>
             <select class="form-control col-md-3" name="releases">
 
             </select>
         </div>
+    </form>
+    <div id="version-summary" class="loading-content loading-content-short-height">
+        <div class="hide">
+            <h2 class="text-center"><%= $dist %> Version <span data-id="version">2.2207</span></h2>
+        </div>
+        <div class="flex flex-justify hide">
+            <h4>Total: <span data-id="total"></span></h4>
+            <h4>Pass: <span data-id="pass"></span></h4>
+            <h4>Fail: <span data-id="fail"></span></h4>
+            <h4>NA: <span data-id="na"></span></h4>
+            <h4>Unknown: <span data-id="unknown"></span></h4>
+        </div>
+    </div>
+    <div style="margin-top:1em;" class="flex flex-justify">
+        <div></div>
         <div>
             <p style="vertical-align: middle"><i class="fa fa-2x fa-info-circle text-info" aria-hidden="true"></i> Click a pie piece to show reports for that OS/grade</p>
         </div>
-    </form>
+    </div>
     <div id="version-graphs" class="flex">
         <div id="linux-graph" class="loading-content small-graph"></div>
         <div id="darwin-graph" class="loading-content small-graph"></div>
@@ -86,6 +101,7 @@
             this.release_search = document.querySelector('#release-search select');
             this.reports = document.querySelector('#reports');
             this.reports_row_template = document.querySelector('#reports-row-template');
+            this.version_summary = document.querySelector('#version-summary');
             this.release_data = [];
             this.report_data = { };
             this.report_graphs = { };
@@ -107,6 +123,7 @@
                 });
                 self.release_search.addEventListener('change', function (evt) {
                     self.version = evt.target.value;
+                    self.setReportSummary(self.version);
                     self.fetchReports(self.version);
                 });
             },
@@ -115,6 +132,20 @@
                 self.version = version;
                 self.release_search.value = version;
                 self.release_search.dispatchEvent(new Event('change'))
+            },
+            setReportSummary: function (version) {
+                let self = this;
+                let release = self.release_data.find( d => d.version == version );
+
+                self.version_summary.querySelector('[data-id="version"]').innerText = version;
+
+                release.total = release.pass + release.fail + release.na + release.unknown;
+                ['total', 'pass', 'fail', 'na', 'unknown'].forEach(function (s) {
+                    self.version_summary.querySelector('[data-id="' + s + '"]').innerText = release[s];
+                });
+
+                self.version_summary.querySelectorAll('.hide').forEach( c => c.classList.remove('hide') );
+                self.version_summary.classList.remove('loading-content');
             },
             fetchReleases: function () {
                 let self = this;
@@ -126,6 +157,7 @@
                     if (self.version == 'latest') {
                         self.version =  self.release_data[0].version;
                     }
+                    self.setReportSummary(self.version);
                     self.fetchReports(self.version);
                 });
             },

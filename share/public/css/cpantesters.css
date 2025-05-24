@@ -49,6 +49,9 @@ body {
     height: 300px;
     width: 25%;
 }
+.loading-content.loading-content-short-height {
+    height: 110px;
+}
 .flex {
     display: flex;
     width: 100%;
