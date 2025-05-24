@@ -73,11 +73,19 @@ validate that a dist exists
 
 sub valid ( $c ) {
     my $rs = $c->schema->perl5->resultset('Release')->search({
-        dist => $c->req->json->{dist}
+        dist =>  { like => $c->req->json->{dist} . '%' }
+    }, {
+        distinct => 1,
+        select => ['dist'],
+        as => ['dist'],
+        rows => 50
     });
 
     $c->render( json => {
-        ok => $rs->count()
+        dists => [
+            map { $_->dist }
+            $rs->all
+        ]
     } );
 }
 

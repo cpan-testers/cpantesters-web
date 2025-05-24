@@ -17,7 +17,7 @@
                 <button class="btn btn-primary">Search</button>
             </form>
 
-            <h2>Results</h2>
+            <h2 id="search-title">Popular Distributions</h2>
 
             <table id="popular" class="table table-striped">
                 <thead>
@@ -67,6 +67,7 @@
                 (function () {
 
                     let Dist = function (dists) {
+                        this.title = document.querySelector('#search-title');
                         this.search_form = document.querySelector('#search-form');
                         this.tbody = document.querySelector('#popular tbody');
                         this.template = this.tbody.querySelector('template');
@@ -74,33 +75,81 @@
                     };
 
                     Dist.prototype = {
+                        active_type: 'popular',
                         init: function (dists) {
                             this.setupEvents();
-                            this.poll(dists, 0);
+                            this.poll(dists, 'popular', 0);
                         },
                         setupEvents: function () {
                             let self = this;
                             let input = self.search_form.querySelector('input#search');
+                            let last_search = "";
                             self.search_form.addEventListener('submit', function (evt) {
                                 evt.preventDefault();
+
+                                if (!input.value) {
+                                    return self.switchPopularMode();
+                                }
+
+                                if (last_search == input.value) return;
+
+                                last_search = input.value;
+
                                 self.request('/dist/valid', { dist: input.value }, function (res) {
-                                    if (res.ok) {
-                                        window.location.pathname = '/dist/' + input.value;
-                                    } else {
+                                    if (!res.dists || !res.dists.length) {
                                         alert('Distribution with the name ' + input.value + ' not found');
+                                        return;
                                     }
+
+                                    self.switchSearchMode(input.value);
+
+                                    self.tbody.querySelectorAll('.search-dist').forEach(function (n) {
+                                        n.remove();
+                                    });
+
+                                    self.poll(res.dists, input.value, 0);
                                 });
                             });
                         },
-                        poll: function (dists, inc) {
+                        switchSearchMode: function (type) {
+                            let self = this;
+
+                            self.active_type = type;
+
+                            self.title.innerText = 'Search results';
+
+                            self.tbody.querySelectorAll('.popular-dist').forEach(function (n) {
+                                n.classList.add('hide');;
+                            });
+
+                        },
+                        switchPopularMode: function () {
+                            let self = this;
+
+                            self.active_type = 'popular';
+
+                            self.title.innerText = 'Popular Distributions';
+
+                            self.tbody.querySelectorAll('.popular-dist').forEach(function (n) {
+                                n.classList.remove('hide');;
+                            });
+
+                            self.tbody.querySelectorAll('.search-dist').forEach(function (n) {
+                                n.remove();
+                            });
+                        },
+                        poll: function (dists, type, inc) {
                             let self = this;
                             if (inc < 10) inc++;
                             let pdists = dists.splice(0, inc);
                             self.request('/dist', { dists: pdists }, function (res) {
                                 res.dists.forEach(function (dist) {
-                                    self.render_dist(dist);
+                                    self.render_dist(dist, type);
                                 });
-                                if (dists.length > 0) self.poll(dists, inc);
+                                if (
+                                    (type == 'popular' || type == self.active_type)
+                                        && dists.length > 0
+                                ) self.poll(dists, type, inc);
                             });
                         },
                         request: function (url, params, cb) {
@@ -115,7 +164,7 @@
                                  console.log(res);
                             });
                         },
-                        render_dist: function (dist) {
+                        render_dist: function (dist, type) {
                             let tr = this.template.content.cloneNode(true);
                             let name = tr.querySelector('[data-id="dist"]');
                             name.innerText = dist.dist;
@@ -132,6 +181,10 @@
                                 x.innerText = dist[n];
                                 x.classList.add(dist[n] ? 'bg-warning' : 'bg-success');
                             });
+                            tr.firstElementChild.classList.add(type == "popular" ? "popular-dist" : "search-dist");
+                            if (type != this.active_type) {
+                                tr.firstElementChild.classList.add("hide");
+                            }
                             this.tbody.appendChild(tr);
                         }
                     };
