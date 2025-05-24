@@ -110,6 +110,10 @@
                                     self.poll(res.dists, input.value, 0);
                                 });
                             });
+
+                            input.addEventListener('keyup', function () {
+                                input.value = input.value.replace(new RegExp("([^a-zA-Z0-9\-]+)", "g"), "");
+                            });
                         },
                         switchSearchMode: function (type) {
                             let self = this;
