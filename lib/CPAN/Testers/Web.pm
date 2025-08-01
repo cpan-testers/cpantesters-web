@@ -47,11 +47,44 @@ sub startup ( $app ) {
         catdir( dist_dir( 'CPAN-Testers-Web' ), 'public' );
     unshift @{ $app->commands->namespaces }, 'CPAN::Testers::Web::Command';
 
+
     $app->moniker( 'web' );
     # This application has no configuration yet
     $app->plugin( Config => {
         default => {
             api_host => 'api.cpantesters.org',
+            dist_modules => [qw/
+                Mojolicious
+                Moose
+                Moo
+                DBIx-Class
+                App-cpanminus
+                DBI
+                Plack
+                DateTime
+                Devel-NYTProf
+                Test-Simple
+                Path-Tiny
+                Dist-Zilla
+                Scalar-List-Utils
+                App-perlbrew
+                Try-Tiny
+                libwww-perl
+                AnyEvent
+                Catalyst-Runtime
+                Data-Printer
+                Dancer
+                Template-Toolkit
+                Type-Tiny
+                Perl-Tidy
+                Dancer2
+                Perl-Critic
+                ack
+                Carton
+                Getopt-Long
+                List-MoreUtils
+                Task-Kensho
+            /]
         },
     } );
 
@@ -222,12 +255,9 @@ sub startup ( $app ) {
       ->name( 'release.dist' )
       ->to( 'reports#dist_versions' );
 
-    $r->get( '/dist' )
-      ->name( 'dist-search' )
-      ->to( cb => sub {
-        my ( $c ) = @_;
-        $c->render( 'dist-search' );
-    } );
+    $r->get( '/dist' )->name( 'dist-search' )->to( 'dist#search' );
+    $r->post( '/dist' )->name( 'dist-recent' )->to( 'dist#recent' );
+    $r->post( '/dist/valid' )->name( 'dist-valid' )->to( 'dist#valid' );
 
     $r->get( '/author/:author', [ format => [qw( html rss json)] ] )
       ->name( 'reports.author' )
