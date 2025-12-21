@@ -291,7 +291,7 @@ sub startup ( $app ) {
         $c->render( 'tester-search' );
     } );
 
-    $r->get( '/report/:guid' )
+    $r->get( '/report/:id' )
       # Using the legacy one because it has fallbacks instead of a redirect, which puts more strain on the server. Need to consolidate into one
       # that satisfies all necessary user/API clients.
       ->to( 'legacy#view_report' )
