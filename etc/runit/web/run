@@ -1,8 +1,0 @@
-#!/bin/bash
-. /opt/local/perlbrew/etc/bashrc
-eval $( perl -Mlocal::lib )
-
-export MOJO_HOME=$(pwd)
-export MOJO_LOG_SHORT=1 # Remove timestamps from Mojo, added by log svc
-
-exec cpantesters-web prefork -m production -l http://*:8100 -w 20 2>&1

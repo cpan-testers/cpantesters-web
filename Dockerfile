@@ -33,7 +33,6 @@ RUN --mount=type=cache,target=/root/.cpanm \
   cd share && npm install && cd .. && \
   dzil install --install-command "cpanm -v --notest ."
 
-COPY ./etc/docker/web/web.development.conf /app
 ENV MOJO_HOME=/app
 CMD [ "cpantesters-web", "daemon" ]
 EXPOSE 3000
