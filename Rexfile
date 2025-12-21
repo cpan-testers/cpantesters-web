@@ -31,7 +31,9 @@ use Rex::Commands::Sync;
 
 #######################################################################
 # Groups
-group web => 'cpantesters4.dh.bytemark.co.uk';
+group web => qw(
+  nact-chi-001.cpantesters.org
+);
 
 #######################################################################
 # Settings

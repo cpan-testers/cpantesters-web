@@ -23,10 +23,20 @@ L<http://www.cpantesters.org>
 =cut
 
 use Mojo::Base 'Mojolicious';
+BEGIN { $ENV{IO_ASYNC_LOOP} = "Mojo"; };
+use OpenTelemetry::SDK;
 use CPAN::Testers::Web::Base;
 use File::Share qw( dist_dir dist_file );
 use Log::Any::Adapter;
 use File::Spec::Functions qw( catdir catfile );
+use Log::Any::Adapter 'Multiplex' =>
+  # Set up Log::Any to log to OpenTelemetry and Stderr so we can still
+  # see the local logs.
+  adapters => {
+    'OpenTelemetry' => [],
+    'Stderr' => [],
+  };
+use Log::Any qw($LOG);
 
 has tester_schema =>;
 
@@ -40,7 +50,17 @@ and registers helpers.
 =cut
 
 sub startup ( $app ) {
-    $app->log( Mojo::Log->new ); # Log only to STDERR
+    # Remove Mojo::Log from STDERR so that we don't double-log
+    $app->log(Mojo::Log->new(handle => undef));
+    # Forward Mojo::Log logs to the Log::Any logger, so that from there
+    # they will be forwarded to OpenTelemetry.
+    # Modules should prefer to log with Log::Any because it supports
+    # structured logging.
+    $app->log->on( message => sub ( $, $level, @lines ) {
+      $LOG->$level(@lines);
+    });
+    #$app->plugin('OpenTelemetry');
+
     unshift @{ $app->renderer->paths },
         catdir( dist_dir( 'CPAN-Testers-Web' ), 'templates' );
     unshift @{ $app->static->paths },
@@ -48,7 +68,6 @@ sub startup ( $app ) {
     unshift @{ $app->commands->namespaces }, 'CPAN::Testers::Web::Command';
 
     $app->moniker( 'web' );
-    # This application has no configuration yet
     $app->plugin( Config => {
         default => {
             api_host => 'api.cpantesters.org',
@@ -62,16 +81,30 @@ sub startup ( $app ) {
     # different databases
     $app->helper( 'schema.perl5' => sub {
         require CPAN::Testers::Schema;
-        state $schema = $app->tester_schema || CPAN::Testers::Schema->connect_from_config;
+        state $schema = $app->tester_schema;
+        if (!$schema) {
+          if (my $connect_args = $app->config->{db}) {
+            $schema = CPAN::Testers::Schema->connect( $connect_args->@{qw( dsn username password args )} );
+          }
+          else {
+            $schema = CPAN::Testers::Schema->connect_from_config;
+          }
+        }
         return $schema;
     } );
     $app->helper( 'schema.web' => sub {
         require CPAN::Testers::Web::Schema;
-        state $schema = CPAN::Testers::Web::Schema->connect_from_config;
+        state $schema;
+        if (!$schema) {
+          if (my $connect_args = $app->config->{web_db}) {
+            $schema = CPAN::Testers::Web::Schema->connect( $connect_args->@{qw( dsn username password args )} );
+          }
+          else {
+            $schema = CPAN::Testers::Web::Schema->connect_from_config;
+          }
+        }
         return $schema;
     } );
-
-    Log::Any::Adapter->set( 'MojoLog', logger => $app->log );
 
     if ( $app->config->{Minion} ) {
         $app->plugin( 'Minion', $app->config->{Minion} );
@@ -259,19 +292,21 @@ sub startup ( $app ) {
     } );
 
     $r->get( '/report/:guid' )
-      ->to( 'reports#report' )
+      # Using the legacy one because it has fallbacks instead of a redirect, which puts more strain on the server. Need to consolidate into one
+      # that satisfies all necessary user/API clients.
+      ->to( 'legacy#view_report' )
       ->name( 'reports.report' )
       ;
 
-    $r->get( '/legacy/cpan/report/:id' )
+    $r->get( '/cpan/report/:id' )
       ->name( 'legacy-view-report' )
       ->to( 'legacy#view_report' );
 
-    $r->get( '/legacy/distro/:letter/:dist', [format => ['json']] )
+    $r->get( '/distro/:letter/:dist', [format => ['json']] )
       ->name( 'legacy-distro-feed' )
       ->to( 'legacy#distro' );
 
-    $r->get( '/legacy/author/:letter/:author', [format => ['json']] )
+    $r->get( '/author/:letter/:author', [format => ['json']] )
       ->name( 'legacy-author-feed' )
       ->to( 'legacy#author' );
 
