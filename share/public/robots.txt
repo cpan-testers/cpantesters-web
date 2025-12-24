@@ -1,23 +1,53 @@
 User-agent: Googlebot
 Crawl-delay: 600
-Disallow: /private/
-Disallow: /*.yaml$
-Disallow: /*.rss$
-Disallow: /*.json$
 Disallow: /cpan/report/
 Disallow: /report/
 
 User-agent: msnbot
-Disallow: /private/
-Disallow: /*.yaml$
-Disallow: /*.rss$
-Disallow: /*.json$
 Disallow: /cpan/report/
 Disallow: /report/
 
 User-agent: DotBot
-Crawl-delay: 600
-Disallow: /private/
+Disallow: /cpan/report/
+Disallow: /report/
+
+User-agent: Claudebot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: SiteAuditBot
+Disallow: /
+
+User-agent: SemrushBot-BA
+Disallow: /
+
+User-agent: SemrushBot-SI
+Disallow: /
+
+User-agent: SemrushBot-SWA
+Disallow: /
+
+User-agent: SplitSignalBot
+Disallow: /
+
+User-agent: SemrushBot-OCOB
+Disallow: /
+
+User-agent: SemrushBot-FT
+Disallow: /
+
+User-agent: RyteBot
+Disallow: /
+
+User-agent: SemrushBot-ESI
+Disallow: /
+
+User-agent: Baiduspider
 Disallow: /*.yaml$
 Disallow: /*.rss$
 Disallow: /*.json$
@@ -25,10 +55,5 @@ Disallow: /cpan/report/
 Disallow: /report/
 
 User-agent: *
-Crawl-delay: 600
-Disallow: /private/
-Disallow: /*.yaml$
-Disallow: /*.rss$
-Disallow: /*.json$
 Disallow: /cpan/report/
 Disallow: /report/
