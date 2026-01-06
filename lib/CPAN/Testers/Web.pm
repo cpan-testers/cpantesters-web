@@ -313,6 +313,13 @@ sub startup ( $app ) {
     # TODO:
     # /author/<name>-nopass.rss
 
+    $r->get( '/static/report/:id' )
+      ->to( cb => sub ($c) {
+        $c->res->headers->cache_control('public, max-age=3600');
+        $c->render('report');
+      } )
+      ->name( 'static.report' )
+      ;
     ### These routes are for the CPAN Testers Matrix
     $r->get('/show/:dist', [format => [qw( html json yaml rss )]])
       ->name('show-dist')
