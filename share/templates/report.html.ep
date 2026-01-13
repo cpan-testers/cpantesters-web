@@ -25,14 +25,46 @@
 </div>
 
 <script>
+const sources = [
+  // We host our own Fastly frontend for the Linode object storage because
+  // the Linode object storage doesn't support CORS.
+  'https://storage-lin-sea.cpantesters.org',
+
+  // Fall back to the regular API
+  'https://api.cpantesters.org/v3/report',
+]
 async function getReport() {
   const reportId = window.location.toString().split('/').slice(-1)
-  const res = await fetch('https://api.cpantesters.org/v3/report/' + reportId)
-  if (!res.ok) {
-    document.querySelector('main').innerHTML = 'There was a problem loading the report: ' + await res.text()
+
+  let report
+  for (const src of sources) {
+    try {
+      const res = await fetch(src + '/' + reportId)
+      if (res.ok) {
+        const text = await res.text()
+        if (text.length <= 0) {
+            console.error('Problem parsing report from ' + src + ': Empty')
+            continue
+        }
+        report = JSON.parse(text)
+        if (typeof report !== "object") {
+            report = null
+            console.error('Problem parsing report from ' + src + ': Not a JSON object')
+            continue
+        }
+        break
+      }
+      console.error('Problem loading report from ' + src + ': ' + await res.text())
+    }
+    catch (err) {
+        console.error('Problem loading report from ' + src + ': ' + err)
+        continue
+    }
+  }
+  if (!report) {
+    document.querySelector('main').innerHTML = 'There was a problem loading the report'
     return
   }
-  const report = await res.json()
   for (var el of document.querySelectorAll('[data-field]')) {
     const path = el.dataset.field
     const value = path.split('.').reduce((a, f) => a[f], report)
