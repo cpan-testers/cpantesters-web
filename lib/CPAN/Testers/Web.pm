@@ -315,7 +315,7 @@ sub startup ( $app ) {
 
     $r->get( '/static/report/:id' )
       ->to( cb => sub ($c) {
-        $c->res->headers->cache_control('public, max-age=3600');
+        $c->res->headers->cache_control('public, max-age=604800');
         $c->render('report');
       } )
       ->name( 'static.report' )
