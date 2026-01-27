@@ -69,6 +69,14 @@
             %= content
         </main>
 
+        <footer class="container text-center" style="margin-top: 3em">
+          <p>Hosting provided by
+            <a href="https://netactuate.com">
+              <img src="https://perlfoundation.org/images/netactuate.svg" alt="Netactuate logo" title="NetActuate" style="max-width: 25%"/>
+            </a> 
+          </p>
+        </footer>
+
         %= asset 'prereq.js'
     </body>
 </html>
