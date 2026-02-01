@@ -6,10 +6,6 @@ CPAN::Testers::Web - Write a sentence about what it does
 
 version 0.001
 
-# STATUS
-
-<a href="https://travis-ci.org/cpan-testers/cpantesters-web"><img src="https://travis-ci.org/cpan-testers/cpantesters-web.svg?branch=master"></a><a href="https://coveralls.io/r/cpan-testers/cpantesters-web"><img src="https://coveralls.io/repos/cpan-testers/cpantesters-web/badge.png" alt="Coverage Status" /></a>
-
 # SYNOPSIS
 
     $ cpantesters-web daemon
