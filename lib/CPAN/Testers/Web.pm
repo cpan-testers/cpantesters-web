@@ -22,7 +22,7 @@ L<http://www.cpantesters.org>
 
 =cut
 
-use Mojo::Base 'Mojolicious';
+use Mojo::Base 'Mojolicious', -signatures;
 BEGIN { $ENV{IO_ASYNC_LOOP} = "Mojo"; };
 use OpenTelemetry::SDK;
 use CPAN::Testers::Web::Base;
@@ -265,6 +265,13 @@ sub startup ( $app ) {
     $r->get( '/author/:author', [ format => [qw( html rss json)] ] )
       ->name( 'reports.author' )
       ->to( 'reports#author', format => 'html' );
+
+    $r->get( '/author/:letter/:author', [ format => [qw( html rss json)] ] )
+      ->name( 'reports.author.legacy' )
+      ->to( cb => sub($c) {
+          $c->res->code(301);
+          $c->redirect_to('reports.author');
+      });
 
     $r->get( '/author' )
       ->name( 'author-search' )
