@@ -1,0 +1,207 @@
+
+% title 'Search Distributions';
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+
+            <h1>Search Distributions</h1>
+
+            <form id="search-form" class="form-inline">
+                <div class="form-group">
+                    <label for="search">Search:</label>
+                    <input id="search" class="form-control"
+                        placeholder="Search Distributions"
+                    >
+                </div>
+                <button class="btn btn-primary">Search</button>
+            </form>
+
+            <h2 id="search-title">Popular Distributions</h2>
+
+            <table id="popular" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Distribution</th>
+                        <th>Last Version</th>
+                        <th>Released</th>
+                        <th class="text-center">Reports</th>
+                        <th class="text-center">Pass</th>
+                        <th class="text-center">Fail</th>
+                        <th class="text-center">Unkn</th>
+                        <th class="text-center">NA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template>
+                        <tr>
+                            <td>
+                                <a data-id="dist" href="/dist/Statocles">Statocles</a>
+                            </td>
+                            <td data-id="version">0.066</td>
+                            <td>
+                                <time data-id="released">2015-01-11 00:12:34</time>
+                            </td>
+                            <td data-id="total" class="text-center">
+                                12
+                            </td>
+                            <td data-id="pass" class="bg-success text-center">
+                                11
+                            </td>
+                            <td data-id="fail" class="text-center">
+                                1
+                            </td>
+                            <td data-id="unknown" class="text-center">
+                                1
+                            </td>
+                            <td data-id="na" class="text-center">
+                                1
+                            </td>
+                        </tr>
+                    </template>
+
+
+                </tbody>
+            </table>
+            <script>
+                (function () {
+
+                    let Dist = function (dists) {
+                        this.title = document.querySelector('#search-title');
+                        this.search_form = document.querySelector('#search-form');
+                        this.tbody = document.querySelector('#popular tbody');
+                        this.template = this.tbody.querySelector('template');
+                        this.init(dists);
+                    };
+
+                    Dist.prototype = {
+                        active_type: 'popular',
+                        init: function (dists) {
+                            this.setupEvents();
+                            this.poll(dists, 'popular', 0);
+                        },
+                        setupEvents: function () {
+                            let self = this;
+                            let input = self.search_form.querySelector('input#search');
+                            let last_search = "";
+                            self.search_form.addEventListener('submit', function (evt) {
+                                evt.preventDefault();
+
+                                if (!input.value) {
+                                    return self.switchPopularMode();
+                                }
+
+                                if (last_search == input.value) return;
+
+                                last_search = input.value;
+
+                                self.request('/dist/valid', { dist: input.value }, function (res) {
+                                    if (!res.dists || !res.dists.length) {
+                                        alert('Distribution with the name ' + input.value + ' not found');
+                                        return;
+                                    }
+
+                                    self.switchSearchMode(input.value);
+
+                                    self.tbody.querySelectorAll('.search-dist').forEach(function (n) {
+                                        n.remove();
+                                    });
+
+                                    self.poll(res.dists, input.value, 0);
+                                });
+                            });
+
+                            input.addEventListener('keyup', function () {
+                                input.value = input.value.replace(new RegExp("([^a-zA-Z0-9\-]+)", "g"), "");
+                            });
+                        },
+                        switchSearchMode: function (type) {
+                            let self = this;
+
+                            self.active_type = type;
+
+                            self.title.innerText = 'Search results';
+
+                            self.tbody.querySelectorAll('.popular-dist').forEach(function (n) {
+                                n.classList.add('hide');;
+                            });
+
+                        },
+                        switchPopularMode: function () {
+                            let self = this;
+
+                            self.active_type = 'popular';
+
+                            self.title.innerText = 'Popular Distributions';
+
+                            self.tbody.querySelectorAll('.popular-dist').forEach(function (n) {
+                                n.classList.remove('hide');;
+                            });
+
+                            self.tbody.querySelectorAll('.search-dist').forEach(function (n) {
+                                n.remove();
+                            });
+                        },
+                        poll: function (dists, type, inc) {
+                            let self = this;
+                            if (inc < 10) inc++;
+                            let pdists = dists.splice(0, inc);
+                            self.request('/dist', { dists: pdists }, function (res) {
+                                res.dists.forEach(function (dist) {
+                                    self.render_dist(dist, type);
+                                });
+                                if (
+                                    (type == 'popular' || type == self.active_type)
+                                        && dists.length > 0
+                                ) self.poll(dists, type, inc);
+                            });
+                        },
+                        request: function (url, params, cb) {
+                            fetch(url, {
+                                method: "POST",
+                                body: JSON.stringify(params),
+                            }).then(function (res) {
+                                return res.json();
+                            }).then(function (res) {
+                                cb(res);
+                            }).catch(function (res) {
+                                 console.log(res);
+                            });
+                        },
+                        render_dist: function (dist, type) {
+                            let tr = this.template.content.cloneNode(true);
+                            let name = tr.querySelector('[data-id="dist"]');
+                            name.innerText = dist.dist;
+                            name.href = '/dist/' + dist.dist;
+                            dist.total = dist.pass + dist.fail + dist.unknown + dist.na;
+                            ['version', 'released', 'total', 'pass'].forEach(function (n) {
+                                tr.querySelector('[data-id="' + n + '"]').innerText = dist[n];
+                            });
+                            let fail = tr.querySelector('[data-id="fail"]');
+                            fail.innerText = dist.fail;
+                            fail.classList.add(dist.fail ? 'bg-danger' : 'bg-success');
+                            ['unknown', 'na'].forEach(function (n) {
+                                let x = tr.querySelector('[data-id="' + n + '"]');
+                                x.innerText = dist[n];
+                                x.classList.add(dist[n] ? 'bg-warning' : 'bg-success');
+                            });
+                            tr.firstElementChild.classList.add(type == "popular" ? "popular-dist" : "search-dist");
+                            if (type != this.active_type) {
+                                tr.firstElementChild.classList.add("hide");
+                            }
+                            this.tbody.appendChild(tr);
+                        }
+                    };
+
+                    let dists = [
+                        % for my $dist (@$dists) {
+                            "<%= $dist %>",
+                        % }
+                    ];
+
+                    new Dist(dists);
+                })();
+            </script>
+        </div>
+    </div>
+</div>
