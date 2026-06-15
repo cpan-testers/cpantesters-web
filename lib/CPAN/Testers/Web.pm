@@ -74,6 +74,11 @@ sub startup ( $app ) {
         },
     } );
 
+    $app->hook( before_dispatch => sub ( $c ) {
+      $c->req->url->base->scheme( $c->req->headers->header('X-Forwarded-Proto') )
+        if $c->req->headers->header('X-Forwarded-Proto');
+    });
+
     $app->plugin( 'Moai', [ 'Bootstrap4' ] );
 
     # XXX We need a better way to handle schema objects for other

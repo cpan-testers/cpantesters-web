@@ -19,7 +19,7 @@
       <item>
         <title><%= uc $r->{grade} %> <%= $r->{dist} %>-<%= $r->{version} %> <%= $r->{lang_version} %> on <%= $r->{osname} %> <%= $r->{osvers} %> (<%= $r->{platform} %>)</title>
         <description><%= uc $r->{grade} %> <%= $r->{dist} %>-<%= $r->{version} %> <%= $r->{lang_version} %> on <%= $r->{osname} %> <%= $r->{osvers} %> (<%= $r->{platform} %>)</description>
-        <link><%= url_for('reports.report', { guid => $r->{guid} }) %></link>
+        <link><%= url_for('reports.report', { id => $r->{id} }) %></link>
         <guid isPermaLink="false"><%= url_for('reports.report', { guid => $r->{guid} }) %></guid>
         <pubDate><%= DateTime::Format::Mail->format_datetime($r->{datetime}) %></pubDate>
       </item>

@@ -34,7 +34,7 @@
             <%= include 'moai/table',
                 items => $reports,
                 columns => [
-                    { title => '', key => 'guid', link_to => 'reports.report' },
+                    { title => '', key => 'id', link_to => 'reports.report' },
                     { title => 'Grade', key => 'grade' },
                     { title => 'Language', key => 'lang_version' },
                     { title => 'Platform', key => 'platform' },

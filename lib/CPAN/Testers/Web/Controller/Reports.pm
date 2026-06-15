@@ -121,6 +121,7 @@ sub dist_reports( $c ) {
         releases => \@releases,
         reports => [
             map +{
+                id => $_->guid,
                 guid => $_->guid,
                 grade => $_->grade,
                 lang_version => $_->lang_version,
@@ -145,7 +146,7 @@ View a single report
 =cut
 
 sub report( $c ) {
-    my $id = $c->stash( 'guid' );
+    my $id = $c->stash( 'id' );
     if ( my $report = $c->schema->perl5->resultset( 'TestReport' )->find( $id ) ) {
       $c->render(
           'reports/report',
